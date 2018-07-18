@@ -1,8 +1,87 @@
 \chapter{Methods}
 Methods here.
 
+% TODO: Extract to settings.tex
+\newcommand{\Qrho}{\ensuremath{\rho}}
+\newcommand{\Qj}{\ensuremath{\rho \bm{v}}}
+%\newcommand{\Qv}{\ensuremath{\Qrho^{-1} \Qj}}
+\newcommand{\Qv}{\ensuremath{\bm{v}}}
+\newcommand{\QE}{\ensuremath{\rho E}}
+\newcommand{\stressT}{\ensuremath{\bm{\sigma}}}
+\newcommand{\pressure}{\ensuremath{p}}
+
+
 \todo{Organize into chapters!}
 
+\section{Conservative Form}
+Standard (hyperbolic) form of conservation law
+\begin{equation}
+  \label{eq:conservation-law}
+ \frac{\partial}{\partial_t}  Q + \nabla \cdot F(Q) = S(\bm{x}, t, Q)
+\end{equation}
+extend to:
+\begin{equation}
+  \label{eq:conservation-law}
+ \frac{\partial}{\partial_t}  Q + \nabla \cdot F(Q, \nabla Q) = S(\bm{x}, t, Q)
+\end{equation}
+
+\section{Compressible Euler}
+Vector of conserved quantities
+
+
+\begin{equation}
+  \label{eq:conserved-variables}
+ Q = \left( \Qrho, \Qj, \QE \right) 
+\end{equation}
+
+\newcommand{\eulerFlux}{%
+  \begin{pmatrix}
+    \Qj \\
+    \Qv  \otimes \Qj + \pressure \bm{I}  \\
+    \Qv (\QE + \pressure)
+  }
+Flux:
+\begin{equation}
+  F(Q) = \eulerFlux
+  \end{pmatrix}
+\end{equation}
+\begin{equation}
+  \pressure = (\gamma - 1) \left(\QE - 0.5 \left(\Qv \cdot \Qj \right) \right)
+\end{equation}
+
+\section{Compressible Navier Stokes}
+Following~\cite{dumbser2010arbitrary} by \citeauthor{dumbser2010arbitrary}.
+
+Flux:
+\begin{equation}
+  F(Q, \nabla Q) = 
+  \begin{pmatrix}
+    \Qj \\
+    \Qv  \otimes \Qj + \stressT (Q, \nabla Q)  \\
+    {\left( \Qv  \right)}^\intercal (\bm{I} \QE + \stressT (Q, \nabla Q)) - \kappa \nabla T
+  \end{pmatrix}
+\end{equation}
+
+with
+\begin{equation}
+  \label{eq:stress-tensor}
+  \stressT(Q, \nabla Q) = \left(\pressure + \nicefrac{2}{3} \mu \nabla \cdot \Qv \right) -
+  \mu \left( \nabla (\Qv) + \nabla ( \Qv )^\intercal \right)
+\end{equation}
+
+\begin{equation}
+ \frac{\pressure}{\Qrho} = RT
+\end{equation}
+
+\begin{equation}
+  \pressure = (\gamma - 1) \left(\QE - 0.5 \left(\Qv \cdot \Qj \right) \right)
+\end{equation}
+
+\begin{equation}
+  \label{eq:sutherland}
+ \mu(T)  = \mu_0 {\left(\frac{T}{T_0}  \right)}^{\beta} \frac{T_0 + C}{T + C}
+\end{equation}
+with \(\beta = 1.5\), \(C = \text{const.}\)
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"
