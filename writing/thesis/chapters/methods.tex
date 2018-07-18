@@ -1,5 +1,5 @@
 \chapter{Methods}
-Methods here.
+Methods here.\todo{Organize into chapters!}
 
 % TODO: Extract to settings.tex
 \newcommand{\Qrho}{\ensuremath{\rho}}
@@ -9,9 +9,8 @@ Methods here.
 \newcommand{\QE}{\ensuremath{\rho E}}
 \newcommand{\stressT}{\ensuremath{\bm{\sigma}}}
 \newcommand{\pressure}{\ensuremath{p}}
-
-
-\todo{Organize into chapters!}
+\newcommand{\maxConvEigen}{\ensuremath{\vert \lambda_c^{\text{max}} \vert}}
+\newcommand{\maxViscEigen}{\ensuremath{\vert \lambda_v^{\text{max}} \vert}}
 
 \section{Conservative Form}
 Standard (hyperbolic) form of conservation law
@@ -26,9 +25,7 @@ extend to:
 \end{equation}
 
 \section{Compressible Euler}
-Vector of conserved quantities
-
-
+Vector of conserved quantities:
 \begin{equation}
   \label{eq:conserved-variables}
  Q = \left( \Qrho, \Qj, \QE \right) 
@@ -38,7 +35,7 @@ Vector of conserved quantities
   \begin{pmatrix}
     \Qj \\
     \Qv  \otimes \Qj + \pressure \bm{I}  \\
-    \Qv (\QE + \pressure)
+    \Qv \cdot (\bm{I} \QE + \bm{I} \pressure)
   }
 Flux:
 \begin{equation}
@@ -57,31 +54,90 @@ Flux:
   F(Q, \nabla Q) = 
   \begin{pmatrix}
     \Qj \\
-    \Qv  \otimes \Qj + \stressT (Q, \nabla Q)  \\
-    {\left( \Qv  \right)}^\intercal (\bm{I} \QE + \stressT (Q, \nabla Q)) - \kappa \nabla T
+    \Qv  \otimes \Qj + \bm{I} \pressure + \stressT (Q, \nabla Q)  \\
+    \Qv \cdot (\bm{I} \QE + \bm{I} \pressure + \stressT (Q, \nabla Q)) - \kappa \nabla T
   \end{pmatrix}
 \end{equation}
 
-with
-\begin{equation}
-  \label{eq:stress-tensor}
-  \stressT(Q, \nabla Q) = \left(\pressure + \nicefrac{2}{3} \mu \nabla \cdot \Qv \right) -
-  \mu \left( \nabla (\Qv) + \nabla ( \Qv )^\intercal \right)
-\end{equation}
-
-\begin{equation}
- \frac{\pressure}{\Qrho} = RT
-\end{equation}
-
+With:
+Pressure \pressure
 \begin{equation}
   \pressure = (\gamma - 1) \left(\QE - 0.5 \left(\Qv \cdot \Qj \right) \right)
 \end{equation}
 
+Temperature $T$
+\begin{equation}
+ \frac{\pressure}{\Qrho} = RT
+\end{equation}
+
+Heat conduction coefficient $\kappa$
+\begin{equation}
+  \label{eq:heat-conduction-coeff}
+  \kappa = \frac{\mu \gamma}{\Pr} \frac{1}{\gamma - 1} R
+\end{equation}
+with $R$ gas constant and $Pr$ Prandtl number
+
+Sutherland's viscosity law:
 \begin{equation}
   \label{eq:sutherland}
  \mu(T)  = \mu_0 {\left(\frac{T}{T_0}  \right)}^{\beta} \frac{T_0 + C}{T + C}
 \end{equation}
-with \(\beta = 1.5\), \(C = \text{const.}\)
+with \(\beta = 1.5\), \(C = \text{const.}\), reference temperature $T_0$ and reference viscosity $\mu_=$.
+Equal to
+\begin{align}
+  \lambda &= \frac{\mu_0 (T_0 + C)}{T_0^\beta} \\
+  \mu(T) &= \lambda \frac{T^\beta}{T + C},
+\end{align}
+where $\lambda$ is constant for a given fluid.
+
+stress tensor
+\begin{equation}
+  \label{eq:stress-tensor}
+  \stressT(Q, \nabla Q) = \left(\nicefrac{2}{3} \mu \nabla \cdot \Qv \right) -
+  \mu \left( \nabla (\Qv) + \nabla ( \Qv )^\intercal \right)
+\end{equation}
+
+Max eigenvalue of convective part \maxConvEigen\,i.e.\ of $\left( \partial \bm{F}/\partial \bm{Q}\right) \cdot \bm{n}$,
+and viscous part \maxViscEigen\, i.e.\ of $\left( \partial \bm{F}/\partial \left( \nabla \bm{Q} \cdot \bm{n} \right)\right) \cdot \bm{n}$
+is
+\begin{align}
+  \maxConvEigen \vert  &= \Vert \Qv \Vert + c\\
+  \maxViscEigen \vert &= \max \left( \frac{4}{3} \frac{\mu}{\Qrho}
+                                       , \frac{\gamma \mu}{\Pr \Qrho} \right)
+\end{align}
+with speed of sound $c = \sqrt{\gamma R T }$
+
+Maximum timestep (\textsc{cfl})
+\begin{equation}
+ \Delta t = \frac{\text{CFL}}{2N + 1} \, \frac{h}{\maxConvEigen + 2 \maxViscEigen \frac{2N+1}{h}}
+\end{equation}
+with $N$ polynomial order and $h$ characteristic length scale of elements
+
+Numerical flux:
+\begin{equation}
+  \label{eq:rusanov-flux}
+  G(q_h^-, \nabla q_h^-; g_h^+, \nabla q_h^+) \cdot \bm{n} =
+  \frac{1}{2} \left(
+    F(q_h^+, \nabla q_h^+) +
+    F(q_h^-, \nabla q_h^-)
+  \right) -
+  \frac{1}{2} s_\text{max} (q_h^+ - q_h^-)
+\end{equation}
+with
+\begin{equation}
+  \label{eq:parabolic-penalty}
+  s_\text{max}  = \max \left(
+\vert \lambda_c(q_h^-) \vert, \, \vert \lambda_c(q_h^+)
+\right) +
+2 \eta \max \left(
+\vert \lambda_v(q_h^-) \vert, \, \vert \lambda_v(q_h^+)
+\right)
+\end{equation}
+and
+\begin{equation}
+  \eta = \frac{N+1}{h}
+\end{equation}
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"
