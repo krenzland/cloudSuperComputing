@@ -2,9 +2,14 @@ sudo: required
 dist: trusty
 branches:
   only:
-    - master
+  - master
 before_install:
 - sudo apt-get -qq update && sudo apt-get install -y --no-install-recommends texlive-full
 script:
 - cd writing/thesis && make
 - ls
+after_success:
+  - bash deploy.sh
+env:
+  global:
+    secure: nTmMMC4BzJcRzZr7lOLyiOjirjgC/5X0E6S+weXgnnzsqdjdKvm8qQx5wkYVUwmGZITmFIloAXE3L67z3s1Mv30TZG93wIouujBetTO7Ym8wPMXbayhRx6/r6Ce4M46GRBE07J2zl6MSE5FN6jAQYEGXF62sQ/qfqN2f9S02y5kR80aP6D7pfv9yNX8fOJdv9Oj1xQNBENDhp33uxIKu9utstKp1WK7uzBRudBGYw90P/i7NkzG320p0j/EGaedhJaKvLfQc3Ae4fexbs8Zim3w4pJ+Nao/5HvwrW87rzqme0CkfzPs7jajQh7NnzhvFsyhNKV1vzQGdD6QLbXf9gVQNtwmi13YdqZaOZ/b8xqex7Yp9z3xT5lSSK9YspERkG4cby27CUeO745/zFdBCMelivBrrVJQAIdU+BHN1MF5XovPbz8k1+HWhXUwfR8z5codwZL92c1IYavempRqCBQaW9Qb8t3RP55IzJd7AcqSARlJLmbkaDy8B1M0zrM41bRB8FCFbeQVqmkjsHQ/J67wd31rlsGNgIBypJ6JWeYZ00lFtjNo5pcd34Mlj1t3fXsdtYoZzg4olisYM+OE+MiIx28sf2d+4R0cfg43Lu6Y6jBrrpvMqEANK5+D9RTmldueyurWXeuMElKMezo1bPfxmRTtu1kJaDQAip4QOrM8=
