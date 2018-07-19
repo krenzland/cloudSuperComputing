@@ -6,8 +6,9 @@ branches:
 before_install:
 - sudo apt-get -qq update && sudo apt-get install -y --no-install-recommends texlive-full
 script:
-- cd writing/thesis && make
-- ls
+- cd writing/thesis
+- make || true
+- ls build
 after_success:
   - bash deploy.sh
 env:
