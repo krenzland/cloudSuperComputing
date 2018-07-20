@@ -16,7 +16,7 @@ git init
 git config user.name "Lukas Krenz"
 git config user.email "lukas@krenz.land"
 
-git remote add upstream "https://$GH_TOKEN@github.com/cloudSuperComputing.git"
+git remote add upstream "https://$GH_TOKEN@github.com/krenzland/cloudSuperComputing.git"
 git fetch upstream
 git reset upstream/pdf
 
