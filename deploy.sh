@@ -22,6 +22,6 @@ git reset upstream/pdf
 
 touch main.pdf
 
-git add -A .
+git add main.pdf
 git commit -m "rebuild pages at ${rev}"
 git push -q upstream HEAD:pdf
