@@ -87,7 +87,7 @@
       \item 
   Air is in hydrostatic equilibrium:
 
-  Gravitational force and pressure-gradient force are exactly balanced.
+  Gravitational force and pressure-gradient force are \textbf{exactly balanced}.
 
   \item Constant potential temperature (temperature normalized by pressure) with slightly warmer bubble.
         
@@ -112,19 +112,19 @@
 \end{frame}
 
 \begin{frame}{The ADER-DG Approach\footfullcite{dumbser2008unified}}
-  Solve hyperbolic conservation laws of the form
+  Solve \textbf{hyperbolic conservation laws} of the form
 \begin{equation}
   \label{eq:conservation-law}
  \frac{\partial}{\partial_t}  Q + \nabla \cdot F(Q) = S(\bm{x}, t, Q)
 \end{equation}
 with $Q$ vector of conserved variables, $\bm{x}$ position, $t$ time,  $\nabla \cdot F(Q)$ divergence of flux and $S(\bm{x}, t, Q)$ source term.
 
-Discontinous Galerkin (DG) divides domain into disjoint elements, approximates solutions by discontinous polynomials.
+\textbf{Discontinuous Galerkin} (\textsc{DG}) divides domain into disjoint elements, approximates solutions by piecewise-polynomials.
 Elements are connected by solving the Riemann problem.
 
-ADER-Approach uses space-time polynomials for time integration instead of Runge-Kutta procedures.
+\textbf{ADER}-Approach uses space-time polynomials for time integration instead of Runge-Kutta procedures.
 
-Implemented in the PDE-Framework ExaHyPe.
+Implemented in the PDE-Framework \textbf{ExaHyPE}.
 \end{frame}
 
 \begin{frame}{The Navier-Stokes Equations}
@@ -137,7 +137,7 @@ With $\Qrho$ density of fluid, $\Qj$ velocity density and $\QE$ energy density.
 
 Flux:
 \begin{equation}
-  F(Q, \nabla Q) = 
+  F(Q, \textcolor{orange}{\nabla Q}) = 
   \begin{pmatrix}
     \Qj \\
     \Qv  \otimes \Qj + \bm{I} \pressure + \textcolor{orange}{\stressT (Q, \nabla Q)}  \\
@@ -163,8 +163,8 @@ We have:
  \frac{\partial}{\partial_t}  Q + \nabla \cdot F(Q, \textcolor{orange}{\nabla Q}) = S(\bm{x}, t, Q)
 \end{equation}
 
-Solution:
-Change numerical flux (Riemann solver), time step size (CFL-Condition) and boundary conditions to allow diffusive terms\footfullcite{dumbser2010arbitrary}.
+\textbf{Solution}:
+Modify numerical flux (Riemann solver), time step size (CFL-Condition) and boundary conditions to \textbf{allow diffusive terms}\footfullcite{dumbser2010arbitrary}.
 
 \alert{No explicit discretization} of gradient $\nabla Q$.
 \end{frame}
@@ -180,35 +180,35 @@ Change numerical flux (Riemann solver), time step size (CFL-Condition) and bound
   \begin{block}{Goals}
   \begin{itemize}
   \item Fix convergence
-  \item Finite Volume Limiting\footfullcite{dumbser2016simple}
   \item Adaptive Grids
+  \item Finite Volume Limiting\footfullcite{dumbser2016simple}
   \item Coupling of Navier-Stokes with other PDE (e.g.\ simple advection equation) by solving Riemann problem at boundary
   \end{itemize}
   \end{block}
 \end{frame}
 
-\begin{frame}{Current status of Convergence-Tests}
-  \begin{figure}[h]
-    \centering
-   \includegraphics[width=0.8\textwidth]{{l2_error}}
-    \caption{Mesh-Size vs $L_2$ error }
-    \label{fig:l2-error}
-  \end{figure}
-\end{frame}
+% \begin{frame}{Current status of Convergence-Tests}
+%   \begin{figure}[h]
+%     \centering
+%    \includegraphics[width=0.8\textwidth]{{l2_error}}
+%     \caption{Mesh-Size vs $L_2$ error }
+%     \label{fig:l2-error}
+%   \end{figure}
+% \end{frame}
 
 \begin{frame}{Summary}
   \begin{block}{Main Objectives}
   \begin{itemize}
-  \item Dynamics of clouds can be simulated by Navier-Stokes equations.
-  \item ADER-DG can be used to simulate Navier-Stokes equations.
-  \item The ExaHyPE-Engine provides an efficient, scalable implementation of ADER-DG scheme. 
+  \item \textbf{Navier-Stokes equations} can describe dynamics of clouds.
+  \item \textbf{ADER-DG} can be used to discretize Navier-Stokes equations.
+  \item The \textbf{ExaHyPE-Engine} provides an efficient, scalable implementation of ADER-DG scheme. 
   \end{itemize}
   \end{block}
 
   \begin{block}{Bonus Objectives}
     \begin{itemize}
-    \item All extensions to engine (diffusive fluxes, coupling) useful for other user of ExaHyPE
-    \item First use of ExaHyPE-Engine for metrological simulations
+    \item All extensions to engine (diffusive fluxes, coupling) useful for other user of ExaHyPE.
+    \item First use of ExaHyPE-Engine for simulation of clouds.
     \end{itemize}
 
   \end{block}
