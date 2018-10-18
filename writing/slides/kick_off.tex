@@ -124,7 +124,7 @@ Elements are connected by solving the Riemann problem.
 
 \textbf{ADER}-Approach uses space-time polynomials for time integration instead of Runge-Kutta procedures.
 
-Implemented in the PDE-Framework \textbf{ExaHyPE}.
+Implemented in the \textsc{PDE}-Framework \textbf{ExaHyPE}.
 \end{frame}
 
 \begin{frame}{The Navier-Stokes Equations}
@@ -141,7 +141,7 @@ Flux:
   \begin{pmatrix}
     \Qj \\
     \Qv  \otimes \Qj + \bm{I} \pressure + \textcolor{orange}{\stressT (Q, \nabla Q)}  \\
-    \Qv \cdot (\bm{I} \QE + \bm{I} \pressure + \textcolor{orange}{\stressT (Q, \nabla Q))} -
+    \Qv \cdot \left(\bm{I} \QE + \bm{I} \pressure + \textcolor{orange}{\stressT (Q, \nabla Q)} \right) -
     \textcolor{orange}{\kappa \nabla T}
   \end{pmatrix}
 \end{equation}
@@ -151,7 +151,7 @@ $\textcolor{orange}{\stressT}$ stress tensor, $\textcolor{orange}{\kappa \nabla 
 \end{frame}
 
 \begin{frame}{Problem: Not hyperbolic}
-  DG solves equations of the form (e.g.\ Euler):
+  \textsc{DG} solves equations of the form (e.g.\ Euler):
   \begin{equation}
   \label{eq:conservation-law}
  \frac{\partial}{\partial_t}  Q + \nabla \cdot F(Q) = S(\bm{x}, t, Q)
@@ -164,7 +164,7 @@ We have:
 \end{equation}
 
 \textbf{Solution}:
-Modify numerical flux (Riemann solver), time step size (CFL-Condition) and boundary conditions to \textbf{allow diffusive terms}\footfullcite{dumbser2010arbitrary}.
+Modify numerical flux (Riemann solver), time step size (\textsc{cfl}-Condition) and boundary conditions to \textbf{allow diffusive terms}\footfullcite{dumbser2010arbitrary}.
 
 \alert{No explicit discretization} of gradient $\nabla Q$.
 \end{frame}
@@ -180,7 +180,7 @@ Modify numerical flux (Riemann solver), time step size (CFL-Condition) and bound
   \begin{block}{Goals}
   \begin{itemize}
   \item Fix convergence
-  \item Adaptive Grids
+  \item Adaptive Mesh Refinement
   \item Finite Volume Limiting\footfullcite{dumbser2016simple}
   \item Coupling of Navier-Stokes with other PDE (e.g.\ simple advection equation) by solving Riemann problem at boundary
   \end{itemize}
@@ -207,8 +207,8 @@ Modify numerical flux (Riemann solver), time step size (CFL-Condition) and bound
 
   \begin{block}{Bonus Objectives}
     \begin{itemize}
-    \item All extensions to engine (diffusive fluxes, coupling) useful for other user of ExaHyPE.
-    \item First use of ExaHyPE-Engine for simulation of clouds.
+    \item All \textbf{extensions} to engine (diffusive fluxes, coupling) useful for \textbf{other users} of ExaHyPE.
+    \item First use of ExaHyPE-Engine for \textbf{simulation of clouds}.
     \end{itemize}
 
   \end{block}
