@@ -1,6 +1,3 @@
-\chapter{Methods}
-Methods here.\todo{Organize into chapters!}
-
 % TODO: Extract to settings.tex
 \newcommand{\Qrho}{\rho}
 \newcommand{\Qj}{\rho \bm{v}}
@@ -22,21 +19,23 @@ Methods here.\todo{Organize into chapters!}
 \newcommand{\sbasis}[1]{\Phi_{#1}}
 \newcommand{\testfunction}[1]{\Phi_{#1}}
 
+\chapter{An ADER-DG scheme for the Navier-Stokes Equations}
 \section{Conservative Form}
 Standard (hyperbolic) form of conservation law
 \begin{equation}
   \label{eq:conservation-law}
- \frac{\partial}{\partial_t}  Q + \div \cdot F(Q) = S(\bm{x}, t, Q)
+ \frac{\partial}{\partial_t}  Q + \div F(Q) = S(\bm{x}, t, Q)
 \end{equation}
 extend to:
 \begin{equation}
   \label{eq:conservation-law-gradient}
- \frac{\partial}{\partial_t}  Q + \div \cdot F(Q, \grad Q) = S(\bm{x}, t, Q)
+ \frac{\partial}{\partial_t}  Q + \div F(Q, \grad Q) = S(\bm{x}, t, Q)
 \end{equation}
 
 \section{The ADER-DG Method}
 \label{sec:ader-dg}
 We describe the arbitrary derivative discontinous Galerkin (ADER-DG) method in this chapter.
+See: \cite{dumbser2018efficient}
 
 We discuss the solution of a hyperbolic conservation law \cref{eq:conservation-law} with domain $\domain$ and boundary $boundary$.
 In the discontinous Galerkin (DG) framework, we approximate this solution in the space
@@ -54,7 +53,7 @@ Inside each cell $\cell$ we represent the solution in terms of the basis functio
   u(\bm{x}, t^n)_{|\cell[i]} = \hat{u}^n_{i,l} \sbasis{l}{\bm{x}},
 \end{equation}
 where $l$ is a multi-index, containing one index per spatial dimension.
-\todo{dofs $\hat{u}$. local solution, etc.}
+\todo{dofs $\hat{u}$, local solution, etc.}
 For example, $(l = (l_1, l_2))$ for the two dimensional case.
 This polynomial is interpolating, i.e.\ \ldots\todo{interpolating?}.
 This choice of basis (called \textit{nodal} basis) allows us to easily compute integrals over cells using Gaussian quadrature.
@@ -152,31 +151,14 @@ Maybe write algorithm?
 
 \todo{Actually write this section\ldots}
 
+\section{Compressible Navier Stokes}
+Following~\cite{dumbser2010arbitrary} by \citeauthor{dumbser2010arbitrary}.
 
-\section{Compressible Euler}
 Vector of conserved quantities:
 \begin{equation}
   \label{eq:conserved-variables}
  Q = \left( \Qrho, \Qj, \QE \right) 
 \end{equation}
-
-\newcommand{\eulerFlux}{%
-  \begin{pmatrix}
-    \Qj \\
-    \Qv  \otimes \Qj + \pressure \bm{I}  \\
-    \Qv \cdot (\bm{I} \QE + \bm{I} \pressure)
-  }
-Flux:
-\begin{equation}
-  F(Q) = \eulerFlux
-  \end{pmatrix}
-\end{equation}
-\begin{equation}
-  \pressure = (\gamma - 1) \left(\QE - 0.5 \left(\Qv \cdot \Qj \right) \right)
-\end{equation}
-
-\section{Compressible Navier Stokes}
-Following~\cite{dumbser2010arbitrary} by \citeauthor{dumbser2010arbitrary}.
 
 The full compressible Navier Stokes equations with heat transfer can be described by
 \begin{equation}
@@ -205,10 +187,12 @@ where $R$ is the specific gas constant.
 
 \todo{Write more text about constants, cite idolikecfd or sth}
 \begin{align}
+  \begin{split}
   c_v &= \frac{1}{\gamma - 1} R \\
   c_p &= \frac{\gamma}{\gamma - 1} R\\
   R &= c_p - c_v\\
   \gamma &= \frac{c_p}{c_v}
+  \end{split}
 \end{align}
 
 Heat conduction coefficient $\kappa$
@@ -238,7 +222,7 @@ The viscous effects are modeled by the stress tensor
   \mu \left( \nabla (\Qv) + \nabla ( \Qv )^\intercal \right).
 \end{equation}
 
-\subsection{Boundary conditions}
+\section{Boundary conditions}
 To close the system we need to impose boundary conditions.
 
 For some scenarios we use Cauchy boundary conditions.
@@ -251,15 +235,18 @@ As a physical boundary condition we limit ourselves to the no-slip boundary cond
 \todo{Check if this is the correct physical description!}
 We enfore this by setting
 \begin{align}
+  \label{eq:no-slip}
+  \begin{split}
   \Qrho^o &= \Qrho^i, \\
   \Qj^o &= -\Qj^i, \\
   \QE^0 &= \QE^i,\\
   {(\nabla Q)}^o &= {(\nabla Q)}^i,
+  \end{split}
 \end{align}
 where a superscript of $o$ and $i$ denotes the values outside and inside of the boundary respectively.
 
 
-\subsection{Diffusive Flux stuff}
+\section{Diffusive Flux stuff}
 Max eigenvalue of convective part $\maxConvEigen$,i.e.\ of $\left( \partial \bm{F}/\partial \bm{Q}\right) \cdot \bm{n}$,
 and viscous part $maxViscEigen$, i.e.\ of $\left( \partial \bm{F}/\partial \left( \nabla \bm{Q} \cdot \bm{n} \right)\right) \cdot \bm{n}$
 is
@@ -301,59 +288,8 @@ and
   \eta = \frac{N+1}{h}
 \end{equation}
 
-
-\section{Scenarios}\label{sec:scenarios}
-
-\subsection{Clouds}
-The scenario is described in terms of potential temperature $\potT$
-\begin{equation}
-  \potT = T \frac{p_0}{p}^{R/c_p},
-\end{equation}
-where $p_o = \SI{10e5}{\Pa}$ is the reference pressure.
-Solving for $T$ leads to
-\begin{equation}
-  \label{eq:potTToT}
-  T = \potT (\frac{p}{p_0})^{R/c_p}.
-\end{equation}
-To allow for an easier description of the initial conditions we split the $\potT$ into a background state $\backgroundPotT$ and a pertubation $\pertubationPotT$
-\begin{equation}
-  \label{eq:potT-split}
-  \potT = \backgroundPotT + \pertubationPotT.
-\end{equation}
-
-
-The initial conditions for pressure and density can be computed directly from the \textsc{pde} once few assumptions have been given.
-We assume that $\backgroundPotT$ is constant over the entire domain.
-Inserting the definition of potential temperature, given by \cref{eq:potTToT}, into the equation of state (see \cref{eq:eos}) leads us to
-\begin{equation}
-  \label{eq:eos-potT}
-\Qrho(z) = \frac{p_{0}^{\frac{R}{c_{p}}} p^{\frac{1}{\gamma}}{\left (z \right )}}{R \backgroundPotT}.
-\end{equation}
-Flow in hydrostatic equilibrium can now be described by the ordinary differential equation(\textsc{ode})
-\begin{align}
-  \label{eq:hydrostatic-balance-potT}
-  \frac{d}{d z} p{\left (z \right )} &= -g \Qrho(z)
-                                     = 
-        - \frac{g p_{0}^{\frac{R}{c_{p}}} p^{\frac{1}{\gamma}}{\left (z \right )}}{R \backgroundPotT}\\
-  p{\left (0 \right )} &= p_0
-\end{align}
-where we use the reference pressure $p_0$ as the pressure on ground level.
-This \textsc{ode} can be now simply solved by separation of variables.
-After simplifying, we arrive at the initial condition for pressure
-\begin{equation}
-p(z) = \left(\left(1 - \frac{1}{\gamma}\right) \left(C - \frac{g p_{0}^{\frac{R}{c_{p}}} z}{R \backgroundPotT}\right)\right)^{\frac{c_{p}}{R}},
-\end{equation}
-with a constant of integration
-\begin{equation}
-  \label{eq:hydrostatic-balance-constant}
- C = \frac{c_{p} p_{0}^{\frac{R}{c_{p}}}}{R}.
-\end{equation}
-
-We now compute the pertubated potential temperature $\potT$ and use \cref{eq:potTToT} to convert it to temperature.
-We then evaluate the density $\Qrho(\bm{x})$ with \cref{eq:temperature}.
-The energy can be computed by inserting the previously computed pressure into the equation of state~(\ref{eq:eos}).
-
-\section{Convergence}
+\chapter{Scenarios}\label{sec:scenarios}
+\section{Numerical Convergence Test}
 We first define the $L_p$ norms for $p > 0$ by
 % notation: https://en.wikipedia.org/wiki/Lp_space#Lp_spaces
 \begin{equation}
@@ -392,7 +328,89 @@ Following~\cite{dumbser2010arbitrary}, the scenario can be described in primitiv
 We set the constants to \( \left(  \pressure_0 = 0.1, \pressure_b = \gamma^{-1}, \Qrho_0 = 0.5, \Qrho_b = 1, 
 \bm{v_0} = 0.25 {(1,1)}^\intercal, \bm{k} = \pi/5 {(1,1)}^\intercal \right) \).
 
-We derive a source term by inserting this solution into the \textsc{pde} using the symbolic math toolkit \textit{SymPy}.
+We derive a source term by inserting this solution into the \textsc{pde} by using the symbolic math toolkit \textit{SymPy}.
+This procedure is called method of manufactured solutions~\cite{salari2000code}.
+
+\section{Classical Scenarios}
+
+\subsection{The first Stokes Problem}
+\cite{dumbser2010arbitrary}
+\subsection{Taylor-Green Vortex}
+\cite{dumbser2016high}
+
+\section{Atmospheric Scenarios}
+The scenario is described in terms of potential temperature $\potT$
+\begin{equation}
+  \potT = T \frac{p_0}{p}^{R/c_p},
+\end{equation}
+where $p_o = \SI{10e5}{\Pa}$ is the reference pressure.
+Solving for $T$ leads to
+\begin{equation}
+  \label{eq:potTToT}
+  T = \potT (\frac{p}{p_0})^{R/c_p}.
+\end{equation}
+To allow for an easier description of the initial conditions we split the $\potT$ into a background state $\backgroundPotT$ and a pertubation $\pertubationPotT$
+\begin{equation}
+  \label{eq:potT-split}
+  \potT = \backgroundPotT + \pertubationPotT.
+\end{equation}
+
+The initial conditions for pressure and density can be computed directly from the \textsc{pde} once few assumptions have been given.
+We assume that $\backgroundPotT$ is constant over the entire domain.
+Inserting the definition of potential temperature, given by \cref{eq:potTToT}, into the equation of state (see \cref{eq:eos}) leads us to
+\begin{equation}
+  \pressure(z) = \Qrho(z) R {\left( \backgroundPotT \frac{p}{p_0}\right)}^{R/c_p},
+\end{equation}
+which we solve for $p(z)$.
+After some algebra and simplifying, we arrive at
+\begin{equation}
+ p(z) = p_0 \left( \frac{R \backgroundPotT \rho(z)}{p_0} \right)^{\gamma},
+\end{equation}
+or equivalently
+\begin{equation}
+  \label{eq:eos-potT}
+\Qrho(z) = \frac{p_{0}^{\frac{R}{c_{p}}} p^{\frac{1}{\gamma}}{\left (z \right )}}{R \backgroundPotT}.
+\end{equation}
+We want to consider flow in hydrostatic equilibrium, i.e.\ flow where the force originating from the pressure-gradient is exactly balanced by gravitation.
+Inserting this assumption in the momentum equation in $z$-direction and using \cref{eq:eos} once again, we arrive at the ordinary differential equation (\textsc{ode})
+\begin{align}
+  \label{eq:hydrostatic-balance-potT}
+  \begin{split}
+  \frac{d}{d z} p{\left (z \right )} &= -g \Qrho(z)
+                                     = 
+        - \frac{g p_{0}^{\frac{R}{c_{p}}} p^{\frac{1}{\gamma}}{\left (z \right )}}{R \backgroundPotT}\\
+  p{\left (0 \right )} &= p_0
+  \end{split}
+\end{align}
+where we use the reference pressure $p_0$ as the pressure on ground level.
+This \textsc{ode} can be now simply solved by separation of variables.
+After simplifying, we arrive at the initial condition for pressure
+\begin{align}
+  \label{eq:hydrostatic-background-pressure}
+p(z) &= \left(\left(1 - \frac{1}{\gamma}\right) \left(C - \frac{g p_{0}^{\frac{R}{c_{p}}} z}{R \backgroundPotT}\right)\right)^{\frac{c_{p}}{R}},\\
+\shortintertext{with constant of integration}
+ C &= \frac{c_{p} p_{0}^{\frac{R}{c_{p}}}}{R}.
+\end{align}
+
+We now compute the pertubated potential temperature $\potT$ and use \cref{eq:potTToT} to convert it to temperature.
+We then evaluate the density $\Qrho(\bm{x})$ with \cref{eq:temperature}.
+The energy can be computed by inserting the previously computed pressure into the equation of state~(\ref{eq:eos}).
+
+This leaves us with one problem:
+The adiabatic no-slip boundary conditions defined by~\vref{eq:no-slip} are no longer valid.
+Concretely, we need to impose a viscous heat flux to ensure that the atmosphere stays in hydrostatic balance~\cite{giraldo2008study}
+\todo{Flux correct? Fix notation}
+\begin{equation}
+  \label{eq:atmosphere-bc}
+  F^\text{visc} = \kappa \pdv{\overline{T}}{z} =
+\frac{R \overline{\theta} \left(\frac{\overline{p}{\left (z \right )}}{p_{0}}\right)^{\frac{R}{c_{p}}} \frac{d}{d z} \overline{p}{\left (z \right )}}{c_{p} \overline{p}{\left (z \right )}}.
+\end{equation}
+The background pressure can be reconstructed by \cref{eq:hydrostatic-background-pressure}, its derivative is given by \cref{eq:hydrostatic-balance-potT}.
+
+\subsection{Robert's smooth bubble}
+\cite{robert1993bubble}
+\subsection{Density current}
+\cite{straka1993numerical}
 
 %%% Local Variables:
 %%% mode: latex
