@@ -7,6 +7,9 @@ Methods here.\todo{Organize into chapters!}
 %\newcommand{\Qv}{\ensuremath{\Qrho^{-1} \Qj}}
 \newcommand{\Qv}{\bm{v}}
 \newcommand{\QE}{\rho E}
+\newcommand{\potT}{\theta}
+\newcommand{\backgroundPotT}{\overline{\theta}}
+\newcommand{\pertubationPotT}{\theta'}
 \newcommand{\stressT}{\bm{\sigma}}
 \newcommand{\pressure}{p}
 \newcommand{\maxConvEigen}{\vert \lambda_c^{\text{max}} \vert}
@@ -189,8 +192,10 @@ Temperature is denoted by $T$.
 
 We use the equation of state of an ideal gas
 \begin{equation}
+  \label{eq:eos}
   \pressure = (\gamma - 1) \left(\QE - 0.5 \left(\Qv \cdot \Qj \right) \right).
 \end{equation}
+
 The temperature $T$ relates to pressure and density by the ideal gas law
 \begin{equation}
   \label{eq:temperature}
@@ -297,64 +302,56 @@ and
 \end{equation}
 
 
-\section{Scenarios}
-\label{sec:scenarios}
+\section{Scenarios}\label{sec:scenarios}
 
 \subsection{Clouds}
-Air is initially at rest and in hydrostractic balance
+The scenario is described in terms of potential temperature $\potT$
 \begin{equation}
-  \label{eq:hydrostatic-balance}
- \pdv{p (z)}{z} = -\rho(z) g.
-\end{equation}
-Inserting \cref{eq:temperature} leads to the \textsc{ode}
-\begin{equation}
-  \pdv{p(z)}{z} = - \frac{p(z)}{RT} g,
-\end{equation}
-which can be solved by seperation of variables.
-This results in the equation
-\begin{equation}
-  \label{eq:bubble-pressure}
-  p(z) = c \exp \left( - \frac{gz}{RT} \right),
-\end{equation}
-where the constant of integration $c$ can be found by considering the case
-\begin{equation}
-  p(0) = c.
-\end{equation}
-
-The scenario is described in terms of potential temperature $\theta$
-\begin{equation}
-  \theta = T \frac{p_0}{p}^{R/c_p},
+  \potT = T \frac{p_0}{p}^{R/c_p},
 \end{equation}
 where $p_o = \SI{10e5}{\Pa}$ is the reference pressure.
 Solving for $T$ leads to
 \begin{equation}
-  T = \theta (\frac{p}{p_0})^{R/c_p}.
+  \label{eq:potTToT}
+  T = \potT (\frac{p}{p_0})^{R/c_p}.
+\end{equation}
+To allow for an easier description of the initial conditions we split the $\potT$ into a background state $\backgroundPotT$ and a pertubation $\pertubationPotT$
+\begin{equation}
+  \label{eq:potT-split}
+  \potT = \backgroundPotT + \pertubationPotT.
 \end{equation}
 
-Note: Above approach leads to wrong atmosphere, rather do (with constant potential temperature):
-Equation of state with potential temperature:
+
+The initial conditions for pressure and density can be computed directly from the \textsc{pde} once few assumptions have been given.
+We assume that $\backgroundPotT$ is constant over the entire domain.
+Inserting the definition of potential temperature, given by \cref{eq:potTToT}, into the equation of state (see \cref{eq:eos}) leads us to
 \begin{equation}
-  \label{eq:eos}
-\Qrho(z) = \frac{p_{0}^{\frac{c_{p} - c_{v}}{c_{p}}} p^{\frac{c_{v}}{c_{p}}}{\left (z \right )}}{R \theta}
+  \label{eq:eos-potT}
+\Qrho(z) = \frac{p_{0}^{\frac{R}{c_{p}}} p^{\frac{1}{\gamma}}{\left (z \right )}}{R \backgroundPotT}.
 \end{equation}
-Hydrostatic equilibrium with potential temperature:
-\begin{equation}
+Flow in hydrostatic equilibrium can now be described by the ordinary differential equation(\textsc{ode})
+\begin{align}
   \label{eq:hydrostatic-balance-potT}
-  \frac{d}{d z} p{\left (z \right )} = - \frac{g p_{0}^{\frac{R}{c_{p}}} p^{\frac{1}{\gamma}}{\left (z \right )}}{R \theta}
-\end{equation}
-Solution for pressure with initial condition of $p(0) = p_0$:
-% \begin{equation*}
-% p = \left(\frac{R \gamma \theta \left(\gamma^{\frac{\gamma}{\gamma - 1}} p_{0}\right)^{\frac{\gamma - 1}{\gamma}} - R \theta \left(\gamma^{\frac{\gamma}{\gamma - 1}} p_{0}\right)^{\frac{\gamma - 1}{\gamma}} - g \gamma p_{0}^{\frac{R}{c_{p}}} z \left(\gamma - 1\right) + g p_{0}^{\frac{R}{c_{p}}} z \left(\gamma - 1\right)}{R \gamma \theta \left(\gamma - 1\right)}\right)^{\frac{\gamma}{\gamma - 1}}
-% \end{equation*}
+  \frac{d}{d z} p{\left (z \right )} &= -g \Qrho(z)
+                                     = 
+        - \frac{g p_{0}^{\frac{R}{c_{p}}} p^{\frac{1}{\gamma}}{\left (z \right )}}{R \backgroundPotT}\\
+  p{\left (0 \right )} &= p_0
+\end{align}
+where we use the reference pressure $p_0$ as the pressure on ground level.
+This \textsc{ode} can be now simply solved by separation of variables.
+After simplifying, we arrive at the initial condition for pressure
 \begin{equation}
-p(z) =  \left(C - \frac{C}{\gamma} - \frac{g p_{0}^{\frac{R}{c_{p}}} z}{R \theta} + \frac{g p_{0}^{\frac{R}{c_{p}}} z}{R \gamma \theta}\right)^{\frac{\gamma}{\gamma - 1}},
+p(z) = \left(\left(1 - \frac{1}{\gamma}\right) \left(C - \frac{g p_{0}^{\frac{R}{c_{p}}} z}{R \backgroundPotT}\right)\right)^{\frac{c_{p}}{R}},
 \end{equation}
-with constant of integration
+with a constant of integration
 \begin{equation}
   \label{eq:hydrostatic-balance-constant}
- C = \frac{\left(\gamma^{\frac{\gamma}{\gamma - 1}} p_{0}\right)^{\frac{\gamma - 1}{\gamma}}}{\gamma - 1},
+ C = \frac{c_{p} p_{0}^{\frac{R}{c_{p}}}}{R}.
 \end{equation}
-which can be obtained by setting $p(0) = p_0$.
+
+We now compute the pertubated potential temperature $\potT$ and use \cref{eq:potTToT} to convert it to temperature.
+We then evaluate the density $\Qrho(\bm{x})$ with \cref{eq:temperature}.
+The energy can be computed by inserting the previously computed pressure into the equation of state~(\ref{eq:eos}).
 
 \section{Convergence}
 We first define the $L_p$ norms for $p > 0$ by
