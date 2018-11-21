@@ -11,6 +11,7 @@
 \newcommand{\pressure}{p}
 \newcommand{\maxConvEigen}{\vert \lambda_c^{\text{max}} \vert}
 \newcommand{\maxViscEigen}{\vert \lambda_v^{\text{max}} \vert}
+\newcommand{\Riemann}{\operatorname{Riemann}}
 
 \newcommand{\domain}{\Omega}
 \newcommand{\broken}{\domain}
@@ -18,6 +19,8 @@
 \newcommand{\boundary}{\partial \domain}
 \newcommand{\sbasis}[1]{\Phi_{#1}}
 \newcommand{\testfunction}[1]{\Phi_{#1}}
+\newcommand{\normal}{\bm{n}}
+\newcommand{\source}{\bm{S}}
 
 \chapter{An ADER-DG scheme for the Navier-Stokes Equations}
 \section{Conservative Form}
@@ -98,25 +101,22 @@ Integrate first by parts in time (note basis here not defined over time), flux d
   \testfunction{k} \sbasis{l}
 }
 \right)
-\left(\intdt{\intdcellb{
-\text{dofs boundary time}
-}}\right)
-&+\\
+(\bm{u^{n+1} - u^{n}})
++
 \left(\intdt{\intdcell{
-\text{Riemann}
+      \testfunction{k} \Riemann(\bm{q}^-, \bm{q}^+) \cdot \normal
 }}\right)
--
+&-\\
 \left(\intdt{\intdcell{
-\text{Flux}
+    \gradient{\testfunction{k}} \cdot  F(\bm{q})
 }}\right)
 &=
 \left(\intdt{\intdcell{
-  \text{Source}
+      \testfunction{k} \source(\bm{q})
 }}\right)
 \end{split}
 \end{align}
 The first term motivates an orthogonal basis as this leads to a diagonal mass matrix.
-
 
 \sidetitle{Predictor}
 To derive the predictor, we again take an approximation of our solution in a nodal basis, but now consider polynomials that are defined both in space and time.
@@ -151,16 +151,51 @@ Maybe write algorithm?
 
 \todo{Actually write this section\ldots}
 
-\section{Compressible Navier Stokes}
-Following~\cite{dumbser2010arbitrary} by \citeauthor{dumbser2010arbitrary}.
 
-Vector of conserved quantities:
+\sidetitle{Diffusive Flux stuff}
+Numerical flux:
 \begin{equation}
-  \label{eq:conserved-variables}
- Q = \left( \Qrho, \Qj, \QE \right) 
+  \label{eq:rusanov-flux}
+  \Riemann(q_h^-, \nabla q_h^-; g_h^+, \nabla q_h^+) \cdot \bm{n} =
+  \frac{1}{2} \left(
+    F(q_h^+, \nabla q_h^+) +
+    F(q_h^-, \nabla q_h^-)
+  \right) -
+  \frac{1}{2} s_\text{max} (q_h^+ - q_h^-)
+\end{equation}
+with
+\begin{equation}
+  \label{eq:parabolic-penalty}
+  s_\text{max}  = \max \left(
+\vert \lambda_c(q_h^-) \vert, \, \vert \lambda_c(q_h^+)
+\right) +
+2 \eta \max \left(
+\vert \lambda_v(q_h^-) \vert, \, \vert \lambda_v(q_h^+)
+\right)
+\end{equation}
+and
+\begin{equation}
+  \eta = \frac{2N+1}{h \sqrt{\frac{1}{2} \pi}}
 \end{equation}
 
-The full compressible Navier Stokes equations with heat transfer can be described by
+Maximum timestep (\textsc{cfl})
+\begin{equation}
+ \Delta t \leq  \text{CFL} \, \frac{\alpha(N) \, h}{\maxConvEigen + 2 \maxViscEigen \frac{2N+1}{h}}
+\end{equation}
+with $N$ polynomial order and $h$ characteristic length scale of elements~\cite{dumbser2010arbitrary,gassner2008discontinuous}.
+The constant $\alpha(N) \leq \frac{1}{2N+1}$ is obtained from von Neumann analysis on a simple model problem and depends on the approximation order~\cite{dumbser2008unified}.
+
+
+\section{Compressible Navier Stokes}
+Fluid motion can be described by the compressible Navier Stokes equations.
+We follow the description in~\cite{dumbser2010arbitrary}.
+
+The vector of conserved quantities is given by
+\begin{equation}
+  \label{eq:conserved-variables}
+ Q = \left( \Qrho, \Qj, \QE \right).
+\end{equation}
+The flux by
 \begin{equation}
   F(Q, \nabla Q) = 
   \begin{pmatrix}
@@ -172,12 +207,11 @@ The full compressible Navier Stokes equations with heat transfer can be describe
 where $\pressure$, $\stressT$ and $(\kappa \nabla T)$ denote the pressure, stress tensor and heat flux respectively.
 Temperature is denoted by $T$.
 
-We use the equation of state of an ideal gas
+We close the system with the equation of state of an ideal gas
 \begin{equation}
   \label{eq:eos}
   \pressure = (\gamma - 1) \left(\QE - 0.5 \left(\Qv \cdot \Qj \right) \right).
 \end{equation}
-
 The temperature $T$ relates to pressure and density by the ideal gas law
 \begin{equation}
   \label{eq:temperature}
@@ -185,22 +219,24 @@ The temperature $T$ relates to pressure and density by the ideal gas law
 \end{equation}
 where $R$ is the specific gas constant.
 
-\todo{Write more text about constants, cite idolikecfd or sth}
+We further introduce the ratio of specific heats $\gamma$ and the heat fraction for constant volume $c_v$ and constant volume $c_r$.
+These constants are all fluid dependent and relate to each other by
 \begin{align}
   \begin{split}
   c_v &= \frac{1}{\gamma - 1} R \\
   c_p &= \frac{\gamma}{\gamma - 1} R\\
   R &= c_p - c_v\\
-  \gamma &= \frac{c_p}{c_v}
+  \gamma &= \frac{c_p}{c_v}.
   \end{split}
 \end{align}
+\todo{Cite sth!}
 
-Heat conduction coefficient $\kappa$
+We can finally define the heat conduction coefficient $\kappa$
 \begin{equation}
   \label{eq:heat-conduction-coeff}
   \kappa = \frac{\mu \gamma}{\Pr} \frac{1}{\gamma - 1} R
 \end{equation}
-with $R$ gas constant and $\Pr$ Prandtl number
+where Prandtl number $\text{Pr}$ again depends on the fluid.
 
 % Sutherland's viscosity law:
 % \begin{equation}
@@ -221,6 +257,17 @@ The viscous effects are modeled by the stress tensor
   \stressT(Q, \nabla Q) = \left(\nicefrac{2}{3} \mu \nabla \cdot \Qv \right) -
   \mu \left( \nabla (\Qv) + \nabla ( \Qv )^\intercal \right).
 \end{equation}
+
+Max eigenvalue of convective part $\maxConvEigen$,i.e.\ of $\left( \partial \bm{F}/\partial \bm{Q}\right) \cdot \bm{n}$,
+and viscous part $maxViscEigen$, i.e.\ of $\left( \partial \bm{F}/\partial \left( \nabla \bm{Q} \cdot \bm{n} \right)\right) \cdot \bm{n}$
+is
+\begin{align}
+  \maxConvEigen \vert  &= \Vert \Qv \Vert + c\\
+  \maxViscEigen \vert &= \max \left( \frac{4}{3} \frac{\mu}{\Qrho}
+                                       , \frac{\gamma \mu}{\Pr \Qrho} \right)
+\end{align}
+with speed of sound $c = \sqrt{\gamma R T }$
+
 
 \section{Boundary conditions}
 To close the system we need to impose boundary conditions.
@@ -245,48 +292,23 @@ We enfore this by setting
 \end{align}
 where a superscript of $o$ and $i$ denotes the values outside and inside of the boundary respectively.
 
+\section{Adaptive Mesh Refinement}
+\label{sec:amr}
+We use adaptive mesh refinement (\textsc{amr}).
 
-\section{Diffusive Flux stuff}
-Max eigenvalue of convective part $\maxConvEigen$,i.e.\ of $\left( \partial \bm{F}/\partial \bm{Q}\right) \cdot \bm{n}$,
-and viscous part $maxViscEigen$, i.e.\ of $\left( \partial \bm{F}/\partial \left( \nabla \bm{Q} \cdot \bm{n} \right)\right) \cdot \bm{n}$
-is
-\begin{align}
-  \maxConvEigen \vert  &= \Vert \Qv \Vert + c\\
-  \maxViscEigen \vert &= \max \left( \frac{4}{3} \frac{\mu}{\Qrho}
-                                       , \frac{\gamma \mu}{\Pr \Qrho} \right)
-\end{align}
-with speed of sound $c = \sqrt{\gamma R T }$
+Use total variation (\textsc{tv}) given by
+\begin{equation}
+  \label{eq:tv}
+  \operatorname{TV}\left( f \right) =
+\intdcell{ \vert \gradient{f} \vert }
+\end{equation}
 
-Maximum timestep (\textsc{cfl})
-\begin{equation}
- \Delta t = \frac{\text{CFL}}{2N + 1} \, \frac{h}{\maxConvEigen + 2 \maxViscEigen \frac{2N+1}{h}}
-\end{equation}
-with $N$ polynomial order and $h$ characteristic length scale of elements
+We introduce parallel reduce.
 
-Numerical flux:
-\begin{equation}
-  \label{eq:rusanov-flux}
-  G(q_h^-, \nabla q_h^-; g_h^+, \nabla q_h^+) \cdot \bm{n} =
-  \frac{1}{2} \left(
-    F(q_h^+, \nabla q_h^+) +
-    F(q_h^-, \nabla q_h^-)
-  \right) -
-  \frac{1}{2} s_\text{max} (q_h^+ - q_h^-)
-\end{equation}
-with
-\begin{equation}
-  \label{eq:parabolic-penalty}
-  s_\text{max}  = \max \left(
-\vert \lambda_c(q_h^-) \vert, \, \vert \lambda_c(q_h^+)
-\right) +
-2 \eta \max \left(
-\vert \lambda_v(q_h^-) \vert, \, \vert \lambda_v(q_h^+)
-\right)
-\end{equation}
-and
-\begin{equation}
-  \eta = \frac{N+1}{h}
-\end{equation}
+Reduce mean/std by~\cite{chan1982updating}
+
+Criterion with threshold.
+Justify by Chebychev's inequality?
 
 \chapter{Scenarios}\label{sec:scenarios}
 \section{Numerical Convergence Test}
@@ -328,7 +350,7 @@ Following~\cite{dumbser2010arbitrary}, the scenario can be described in primitiv
 We set the constants to \( \left(  \pressure_0 = 0.1, \pressure_b = \gamma^{-1}, \Qrho_0 = 0.5, \Qrho_b = 1, 
 \bm{v_0} = 0.25 {(1,1)}^\intercal, \bm{k} = \pi/5 {(1,1)}^\intercal \right) \).
 
-We derive a source term by inserting this solution into the \textsc{pde} by using the symbolic math toolkit \textit{SymPy}.
+We derive a source term by inserting this solution into the \textsc{pde} by using the symbolic math toolkit \textit{Sage}.
 This procedure is called method of manufactured solutions~\cite{salari2000code}.
 
 \section{Classical Scenarios}
