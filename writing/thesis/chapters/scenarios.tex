@@ -1,0 +1,138 @@
+\chapter{Scenarios}\label{sec:scenarios}
+\section{Numerical Convergence Test}
+We first define the $L_p$ norms for $p > 0$ by
+% notation: https://en.wikipedia.org/wiki/Lp_space#Lp_spaces
+\begin{equation}
+  \label{eq:Lp-nrom}
+  \Vert f(x) \Vert = \left( \int_K \vert f(x) \vert^p d\mu  \right)^{1/p}.
+\end{equation}
+We start by a known analytical solution $f(x)$ and compare it to our approximation $\hat{f}(x)$.
+Let $Q$ and $\hat{Q}$ denote the analytical and approximate solution at node.
+We start by computing the point-wise error, and compute the cell-wise error from this.
+Observe that for our broken space $\Omega$
+\begin{equation}
+  \label{eq:lp-norm-broken}
+ \Vert f(x) \Vert = \sum_{K \in \Omega} \Vert f_K(x) \Vert_p.
+\end{equation}
+
+We are now ready to integrate the error for each cell.
+The output contains the position and conserved variables of each point.
+Each cell consists of $(N + 1)^d$ nodes, each associated with a quadrature weight $w_i$.
+The quadrature weights are associated with the reference cuboid.
+We thus need to map our element to the reference element, before we can compute the integral.
+
+Let $V$ denote the volume (or area) of each cell.
+For example, in three dimensions $V = \Delta x \, \Delta y \, \Delta z$.
+The final result is then
+\begin{equation}
+  \Vert f_K(x) \Vert = \left( V \sum_{\bm{i}} \vert f(\bm{x}_{\bm{i}}) \vert^p w_{{\bm{i}}}  \right)^{1/p},
+\end{equation}
+where we used the mapping to the reference triangle (integration by substitution).
+
+Following~\cite{dumbser2010arbitrary}, the scenario can be described in primitive variables by setting
+\begin{align}
+  \pressure &= \pressure_0 \cos( \bm{k} \bm{x} - \omega t ) + \pressure_b, \\
+  \Qrho &= \Qrho_0 \sin (\bm{k} \bm{x} - \omega t) + \Qrho_b, \\
+  \Qv &= \bm{v_0} \sin(\bm{k} \bm{x} - \omega t).
+\end{align}
+We set the constants to \( \left(  \pressure_0 = 0.1, \pressure_b = \gamma^{-1}, \Qrho_0 = 0.5, \Qrho_b = 1, 
+\bm{v_0} = 0.25 {(1,1)}^\intercal, \bm{k} = \pi/5 {(1,1)}^\intercal \right) \).
+
+We derive a source term by inserting this solution into the \textsc{pde} by using the symbolic math toolkit \textit{Sage}~\cite{sagemath}.
+This procedure is called method of manufactured solutions~\cite{salari2000code}.
+
+\section{Classical Scenarios}
+
+\subsection{The first Stokes Problem}
+\cite{dumbser2010arbitrary}
+\subsection{Taylor-Green Vortex}
+\begin{align}
+  \begin{split}
+  \Qv(\bm{x}, t) &= \exp(-2 \mu t)
+  \begin{pmatrix}
+    \phantom{-}\sin(x) cos(y) \\
+- \cos(x) sin(y) 
+    \end{pmatrix} \\
+  \pressure(\bm{x}, t) &= \exp(-4 \mu t) \, \frac{1}{4} \left( \cos(2x) + \cos(2y) \right) + C
+  \end{split}
+\end{align}
+\todo{Constants!}
+$C = 100/\gamma$ \cite{dumbser2016high}
+
+\section{Atmospheric Scenarios}
+The scenario is described in terms of potential temperature $\potT$
+\begin{equation}
+  \potT = T \frac{p_0}{p}^{R/c_p},
+\end{equation}
+where $p_o = \SI{10e5}{\Pa}$ is the reference pressure.
+Solving for $T$ leads to
+\begin{equation}
+  \label{eq:potTToT}
+  T = \potT (\frac{p}{p_0})^{R/c_p}.
+\end{equation}
+To allow for an easier description of the initial conditions we split the $\potT$ into a background state $\backgroundPotT$ and a pertubation $\pertubationPotT$
+\begin{equation}
+  \label{eq:potT-split}
+  \potT = \backgroundPotT + \pertubationPotT.
+\end{equation}
+
+The initial conditions for pressure and density can be computed directly from the \textsc{pde} once few assumptions have been given.
+We assume that $\backgroundPotT$ is constant over the entire domain.
+Inserting the definition of potential temperature, given by \cref{eq:potTToT}, into the equation of state (see \cref{eq:eos}) leads us to
+\begin{equation}
+  \pressure(z) = \Qrho(z) R {\left( \backgroundPotT \frac{p}{p_0}\right)}^{R/c_p},
+\end{equation}
+which we solve for $p(z)$.
+After some algebra and simplifying, we arrive at
+\begin{equation}
+ p(z) = p_0 \left( \frac{R \backgroundPotT \rho(z)}{p_0} \right)^{\gamma},
+\end{equation}
+or equivalently
+\begin{equation}
+  \label{eq:eos-potT}
+\Qrho(z) = \frac{p_{0}^{\frac{R}{c_{p}}} p^{\frac{1}{\gamma}}{\left (z \right )}}{R \backgroundPotT}.
+\end{equation}
+We want to consider flow in hydrostatic equilibrium, i.e.\ flow where the force originating from the pressure-gradient is exactly balanced by gravitation.
+Inserting this assumption in the momentum equation in $z$-direction and using \cref{eq:eos} once again, we arrive at the ordinary differential equation (\textsc{ode})
+\begin{align}
+  \label{eq:hydrostatic-balance-potT}
+  \begin{split}
+  \frac{d}{d z} p{\left (z \right )} &= -g \Qrho(z)
+                                     = 
+        - \frac{g p_{0}^{\frac{R}{c_{p}}} p^{\frac{1}{\gamma}}{\left (z \right )}}{R \backgroundPotT}\\
+  p{\left (0 \right )} &= p_0
+  \end{split}
+\end{align}
+where we use the reference pressure $p_0$ as the pressure on ground level.
+This \textsc{ode} can be now simply solved by separation of variables.
+After simplifying, we arrive at the initial condition for pressure
+\begin{align}
+  \label{eq:hydrostatic-background-pressure}
+p(z) &= \left(\left(1 - \frac{1}{\gamma}\right) \left(C - \frac{g p_{0}^{\frac{R}{c_{p}}} z}{R \backgroundPotT}\right)\right)^{\frac{c_{p}}{R}},\\
+\shortintertext{with constant of integration}
+ C &= \frac{c_{p} p_{0}^{\frac{R}{c_{p}}}}{R}.
+\end{align}
+
+We now compute the pertubated potential temperature $\potT$ and use \cref{eq:potTToT} to convert it to temperature.
+We then evaluate the density $\Qrho(\bm{x})$ with \cref{eq:temperature}.
+The energy can be computed by inserting the previously computed pressure into the equation of state~(\ref{eq:eos}).
+
+This leaves us with one problem:
+The adiabatic no-slip boundary conditions defined by~\vref{eq:no-slip} are no longer valid.
+Concretely, we need to impose a viscous heat flux to ensure that the atmosphere stays in hydrostatic balance~\cite{giraldo2008study}
+\todo{Flux correct? Fix notation}
+\begin{equation}
+  \label{eq:atmosphere-bc}
+  F^\text{visc} = \kappa \pdv{\overline{T}}{z} =
+\frac{R \overline{\theta} \left(\frac{\overline{p}{\left (z \right )}}{p_{0}}\right)^{\frac{R}{c_{p}}} \frac{d}{d z} \overline{p}{\left (z \right )}}{c_{p} \overline{p}{\left (z \right )}}.
+\end{equation}
+The background pressure can be reconstructed by \cref{eq:hydrostatic-background-pressure}, its derivative is given by \cref{eq:hydrostatic-balance-potT}.
+
+\subsection{Robert's smooth bubble}
+\cite{robert1993bubble}
+\subsection{Density current}
+\cite{straka1993numerical}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:

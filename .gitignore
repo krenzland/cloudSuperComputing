@@ -244,8 +244,11 @@ TSWLatexianTemp*
 
 # For now ignore pdfs.
 *.pdf
+*/main.pdf
 
 # Ignore emac backup files
 *~
 \#*\#
 .\#*
+
+
