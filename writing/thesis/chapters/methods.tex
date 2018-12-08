@@ -435,10 +435,11 @@ In our case we use the criterion
   \label{eq:limiting-physical}
   \operatorname{is-admissible}(\Q) =
   \begin{cases}
-    \text{true} & \Qrho > 0 \land \QE > 0 \\
+    \text{true} & \Qrho > 0 \land \pressure > 0 \land \QZ > 0\\
     \text{false} & \text{otherwise}.
   \end{cases}
 \end{equation}
+The positivity of the pressure implies positivity of energy.
 \todo{Mention dmp if I end up using it.}
 
 %%% Local Variables:
