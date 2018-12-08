@@ -24,6 +24,7 @@
 \newcommand{\cell}[1][i]{C_{#1}}
 \newcommand{\boundary}{\partial \domain}
 \newcommand{\sbasis}[1]{\Phi_{#1}}
+\newcommand{\stbasis}[1]{\Phi_{#1}}
 \newcommand{\testfunction}[1]{\Phi_{#1}}
 \newcommand{\normal}{\bm{n}}
 
@@ -39,7 +40,7 @@
 \newcommand{\intdcellb}[1]{\int_{\partial{} \cell} #1 \dd{S}} % TODO: define boundary of cell
 
 
-\chapter{An ADER-DG scheme for the Navier-Stokes Equations}
+\chapter{An ADER-DG scheme for the Navier-Stokes Equations}\label{chap:methods}
 \section{Conservative Form}
 Standard (hyperbolic) form of conservation law
 \begin{equation}
@@ -70,7 +71,7 @@ In the following we make use of the Einstein summation convention where summatio
 Inside each cell $\cell$ we represent the solution in terms of the basis function 
 \begin{equation}
   \label{eq:cell-approx}
-  u(\bm{x}, t^n)_{|\cell[i]} = \hat{u}^n_{i,l} \sbasis{l}{\bm{x}},
+  u(\bm{x}, t^n)_{|\cell[i]} = \hat{u}^n_{i,l} \sbasis{l}(\bm{x}),
 \end{equation}
 where $l$ is a multi-index, containing one index per spatial dimension.
 \todo{dofs $\hat{u}$, local solution, etc.}
@@ -85,27 +86,28 @@ We first compute a local solution of the cell in the predictor step and then con
 In the following we first describe the corrector step as it follows directly from the \textsc{pde}.
 The predictor is derived shortly after.
 
+\newcommand{\dsol}{\bm{u}}
+\newcommand{\stpredictor}[1][h]{\bm{q}_{#1}}
 \sidetitle{Corrector}
 First, we multiply the system \cref{eq:conservation-law} by a test function $\testfunction{i}$ and integrate over the space-time volume $(\cell \times [t^n, t^{n+1}])$.
 We arrive at the so called weak formulation of the \textsc{pde} 
 \begin{equation}
   \label{eq:weak-pde}
 \intdt{\intdcell{
-\testfunction{k} \pdv{\bm{Q}}{t}
+\testfunction{k} \pdv{\Q}{t}
 }}
 +
 \intdt{\intdcell{
-    \testfunction{k} \left( \div{F(Q, \gradient{Q})} \right)
+    \testfunction{k} \left( \div{F(\Q, \gradQ} \right)
 }}
 =
 \intdt{\intdcell{
-    \testfunction{k} S(Q, \bm{x}, t)
+    \testfunction{k} S(\Q, \bm{x}, t)
 }}
 \end{equation}
 \todo{Include gradient everywhere!}
 \todo{Double check the following description}
-\newcommand{\stpredictor}[1]{\bm{q}_{#1}}
-We now replace the solution $\bm{Q}$ with so called spacetime-predictor $\stpredictor{h}(\bm{x},t)$ into the weak form and write it as a polynomial using the representation of \cref{eq:cell-approx}.
+We now replace the solution $\bm{Q}$ with so called spacetime-predictor $\stpredictor (\bm{x},t)$ into the weak form and write it as a polynomial using the representation of \cref{eq:cell-approx}.
 Integrate first by parts in time (note basis here not defined over time), flux divergence by parts in space.
 \begin{align}
 \begin{split}
@@ -116,39 +118,55 @@ Integrate first by parts in time (note basis here not defined over time), flux d
 }
 \right)
 (\bm{u^{n+1} - u^{n}})
-+
+&+
 \left(\intdt{\intdcell{
-      \testfunction{k} \Riemann(\bm{q}^-, \bm{q}^+) \cdot \normal
+      \testfunction{k} \Riemann(\stpredictor^-, \stpredictor^+) \cdot \normal
 }}\right)
-&-\\
+-\\
 \left(\intdt{\intdcell{
-    \gradient{\testfunction{k}} \cdot  F(\bm{q})
+    \gradient{\testfunction{k}} \cdot  \flux(\stpredictor)
 }}\right)
 &=
 \left(\intdt{\intdcell{
-      \testfunction{k} \source(\bm{q})
+      \testfunction{k} \source(\stpredictor)
 }}\right)
 \end{split}
 \end{align}
 The first term motivates an orthogonal basis as this leads to a diagonal mass matrix.
 
 \sidetitle{Predictor}
-To derive the predictor, we again take an approximation of our solution in a nodal basis, but now consider polynomials that are defined both in space and time.
+To derive the predictor, we again take an approximation of our solution in a nodal basis, but now consider polynomials that are defined both in space and time
 \begin{equation}
-  \ldots
+  \label{eq:cell-approx-time}
+  q(\bm{x}, t^n)_{|\cell[i]} = \hat{u}^n_{i,l} \stbasis{l}(\bm{x}, t).
 \end{equation}
-We know multiply the conservation law again by a test function (of the same function space as the basis) and arrive at the weak formulation
-\begin{equation}
-  \label{eq:weak-pde-space-time}
- \ldots
+We now multiply the conservation law again by a test function (of the same function space as the basis) and arrive at the weak formulation
+\begin{equation}\label{eq:weak-pde-space-time}
+\intdt{\intdcell{
+    \testfunction{k}(\bm{x}, t)
+    \pdv{\stpredictor}{t}
+}}
++
+\intdt{\intdcell{
+    \testfunction{k}{\bm{x}, t}
+    \left(
+      \divergence{\flux(\stpredictor)}
+    \right)
+}}
+=
+\intdt{\intdcell{
+  \testfunction{k} \source(\stpredictor)
+}}.
 \end{equation}
 Similar to the derivation of the corrector, we again integrate the first term by parts in time and the flux divergence in space.
 This time we do not use the Riemann solver for the flux boundary term but rather use the discrete solution at time $t$.
 Note that this neglects the interaction with neighbouring cells; this is corrected in the corrector step.
+\todo{Replace $\bm{x}$ with a macro some other letter. Is also coordinate!}
 
 \begin{equation}
   \label{eq:space-time-predictor}
-  \ldots
+0
+  + \ldots
 \end{equation}
 Inserting \cref{eq:cell-approx-space-time} results in a local systems of equations that can be solved in a fixed point iteration scheme.
 For details and proof of convergence for the linear case, see (todo).
@@ -200,15 +218,15 @@ with $N$ polynomial order and $h$ characteristic length scale of elements~\cite{
 The constant $\alpha(N) \leq \frac{1}{2N+1}$ is obtained from von Neumann analysis on a simple model problem and depends on the approximation order~\cite{dumbser2008unified}.
 
 
-\section{Compressible Navier Stokes}
+\section{Reactive Compressible Navier Stokes Equations}
 Fluid motion can be described by the compressible Navier Stokes equations.
 We follow the description in~\cite{dumbser2010arbitrary} for the Navier Stokes part.
-The coupling with the advection-diffusion-reaction equations follows~\cite{hidalgo2011ader}.
+The coupling with the advection-diffusion-reaction equation follows~\cite{hidalgo2011ader}.
 
 The vector of conserved quantities is given by
 \begin{equation}
   \label{eq:conserved-variables}
- \Q = \left( \Qrho, \Qj, \QE \QZ \right).
+ \Q = \left( \Qrho, \Qj, \QE, \QZ \right).
 \end{equation}
 where $\Qrho$ is the density, $\Qj$ is the momentum, $\QE$ the energy density and $\QZ$ is the mass fraction of the chemical reactant.
 
@@ -218,39 +236,73 @@ We split the flux into a hyperbolic part $\hyperFlux(\Q)$ and an viscous flux $\
   \flux(\Q, \gradQ) = \hyperFlux(\Q) + \viscFlux(\Q, \gradQ)
 \end{equation}
 
-The hyperbolic flux is given by
-\begin{equation}
-  \label{eq:hyper-flux}
-  \hyperFlux(\Q) = 
+\newcommand{\diffCoeff}{\varepsilon}
+\newcommand{\hyperFluxDef}{
   \begin{pmatrix}
     \Qj \\
     \Qv  \otimes \Qj + \bm{I} \pressure  \\
     \Qv \cdot (\bm{I} \QE + \bm{I} \pressure) \\
     \Qj \QZZ
-  \end{pmatrix},
+  \end{pmatrix}
+}
+
+\newcommand{\viscFluxDef}{
+  \begin{pmatrix}
+     -\diffCoeff \gradient{\Qrho}\\
+     \stressT (\Q, \gradQ)  \\
+     \Qv \cdot \stressT (\Q, \gradQ) - \kappa \gradient{T}\\
+     -\diffCoeff \gradient{\QZ}
+   \end{pmatrix}
+}
+
+
+The hyperbolic flux is given by
+\begin{equation}
+  \label{eq:hyper-flux}
+  \hyperFlux(\Q) = \hyperFluxDef,
 \end{equation}
 which are the Euler equations coupled with an advection equation.
-\newcommand{\diffCoeff}{\varepsilon}
 The viscous flux is
 \begin{equation}
   \label{eq:visc-flux}
-  \viscFlux(\Q, \gradQ) = 
-  \begin{pmatrix}
-    -\diffCoeff \gradient{\Qrho}\\
-    \stressT (\Q, \gradQ)  \\
-    \Qv \cdot \stressT (\Q, \gradQ) - \kappa \gradient{T}\\
-    -\diffCoeff \gradient{\QZ}
-  \end{pmatrix},
+  \viscFlux(\Q, \gradQ) = \viscFluxDef.
 \end{equation}
 
-% \begin{equation}
-%   F(Q, \nabla Q) = 
-%   \begin{pmatrix}
-%     \Qj \\
-%     \Qv  \otimes \Qj + \bm{I} \pressure + \stressT (Q, \nabla Q)  \\
-%     \Qv \cdot (\bm{I} \QE + \bm{I} \pressure + \stressT (Q, \nabla Q)) - \kappa \nabla T
-%   \end{pmatrix},
-% \end{equation}
+
+Complete \textsc{pde}:
+\begin{equation}
+  \pdv{}{t}
+  \underbrace{
+  \begin{pmatrix}
+    \Qrho\\
+    \Qj\\
+    \QE\\
+    \QZ
+    \end{pmatrix}}_{\Q}
+  + 
+  \divergence{
+  \left(
+   \underbrace{\hyperFluxDef}_{\hyperFlux(\Q)}
++
+\underbrace{\viscFluxDef}_{\viscFlux(\Q, \gradQ)}
+  \right)}
+ =
+  \underbrace{
+  \begin{pmatrix}
+    S_{\Qrho\phantom{\Qrho}}\\
+    S_{\Qj}\\
+    S_{\QE}\\
+    S_{\QZ}
+    \end{pmatrix}}_{\source(\Q, \bm{x}, t)}
+\quad
+ \begin{array}{l}
+ \text{mass cons.} \\
+ \text{momentum cons.} \\
+ \text{energy cons.} \\
+ \text{cont.\ gas} 
+\end{array}
+\end{equation}
+
 where $\pressure$, $\stressT$ and $(\kappa \nabla T)$ denote the pressure, stress tensor and heat flux respectively.
 Temperature is denoted by $T$.
 
@@ -259,7 +311,7 @@ We close the system with the equation of state of an ideal gas
   \label{eq:eos}
   \pressure = (\gamma - 1) \left(\QE - \frac{1}{2} \left(\Qv \cdot \Qj \right)  - q_0 \QZ \right).
 \end{equation}
-%The term $\q_0 \QZ$ corresponds to the chemical energy.
+The term $q_0 \QZ$ corresponds to the chemical energy, where $q_0$ is the heat release.
 The temperature $T$ relates to pressure and density by the ideal gas law
 \begin{equation}
   \label{eq:temperature}
@@ -270,6 +322,7 @@ where $R$ is the specific gas constant.
 We further introduce the ratio of specific heats $\gamma$ and the heat fraction for constant volume $c_v$ and constant volume $c_r$.
 These constants are all fluid dependent and relate to each other by
 \begin{align}
+  \label{eq:fluid-constants}
   \begin{split}
   c_v &= \frac{1}{\gamma - 1} R \\
   c_p &= \frac{\gamma}{\gamma - 1} R\\
@@ -278,7 +331,6 @@ These constants are all fluid dependent and relate to each other by
   \end{split}
 \end{align}
 \todo{Cite sth!}
-
 We can finally define the heat conduction coefficient $\kappa$
 \begin{equation}
   \label{eq:heat-conduction-coeff}
@@ -302,7 +354,7 @@ where Prandtl number $\text{Pr}$ again depends on the fluid.
 The viscous effects are modeled by the stress tensor
 \begin{equation}
   \label{eq:stress-tensor}
-  \stressT(Q, \nabla Q) = \left(\nicefrac{2}{3} \mu \nabla \cdot \Qv \right) -
+  \stressT(Q, \nabla Q) = \left(\frac{2}{3} \mu \nabla \cdot \Qv \right) -
   \mu \left( \nabla (\Qv) + \nabla ( \Qv )^\intercal \right).
 \end{equation}
 
@@ -339,15 +391,17 @@ We enfore this by setting
 \end{align}
 where a superscript of $o$ and $i$ denotes the values outside and inside of the boundary respectively.
 
-\section{Adaptive Mesh Refinement}
-\label{sec:amr}
+\section{Adaptive Mesh Refinement \textit{\&} Finite Volume Limiting}\label{sec:grid}
+Grid, spacefilling curve, and so on.
+
+\subsection{Adaptive Mesh Refinement}\label{sec:amr}
 We use adaptive mesh refinement (\textsc{amr}).
 
-Use total variation (\textsc{tv}) given by
+We use the total variation (\textsc{tv}) over an arbitrary indicator variable given by
 \begin{equation}
   \label{eq:tv}
-  \operatorname{TV}\left( f \right) =
-\intdcell{ \vert \gradient{f} \vert }
+  \operatorname{TV}\left[ f(\bm{x}] \right] =
+\Vert \left(\intdcell{ \vert \gradient{f \left( \bm{x} \right)} \vert } \right) \Vert_1
 \end{equation}
 
 We introduce parallel reduce.
@@ -356,6 +410,36 @@ Reduce mean/std by~\cite{chan1982updating}
 
 Criterion with threshold.
 Justify by Chebychev's inequality?
+\todo{Cite this!}
+This criterion can be justified by Chebychev's inequality, which states that
+\begin{equation}
+  \label{eq:chebychev}
+  \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2}
+\end{equation}
+for an arbitrary distribution with mean $\mu$ and standard deviation $\sigma$ probability $\mathbb{P}$.
+
+
+\subsection{Limiting}\label{sec:limiting}
+Higher order \textsc{dg} methods cannot cope with discontinuous solutions.
+Even worse, in the case of non-linear fluxes, discontinuities can appear even from smooth initial data.
+A classical way of dealing with this problem is the usage of so called limiters.
+The idea is to smooth out steep gradients and thus eliminate discontinuities.\todo{It doesnt work like this exactly..}
+
+A relatively recent way of dealing with this problem is the finite volume subcell limiter.
+Our discussion follows the one in~\cite{dumbser2016simple}.
+This limiting is an a posteriori limiting, which means that we first evaluate a timestep with an unlimited \textsc{ader-dg} method and then check, whether our solution is \enquote{correct}.
+In our case, we check whether the solution is a valid floating point number.
+We also check whether it is physically admissible.
+In our case we use the criterion
+\begin{equation}
+  \label{eq:limiting-physical}
+  \operatorname{is-admissible}(\Q) =
+  \begin{cases}
+    \text{true} & \Qrho > 0 \land \QE > 0 \\
+    \text{false} & \text{otherwise}.
+  \end{cases}
+\end{equation}
+\todo{Mention dmp if I end up using it.}
 
 %%% Local Variables:
 %%% mode: latex

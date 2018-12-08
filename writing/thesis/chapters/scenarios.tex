@@ -1,39 +1,23 @@
 \chapter{Scenarios}\label{sec:scenarios}
+Unless otherwise noted, we use the constants
+\begin{align}
+\begin{split}
+  \gamma &= 1.4, \\
+  \Pr &= 0.7, \\
+  c_v &= 1.0
+\end{split}
+\end{align}
+The other constants follow from the definition of \cref{eq:fluid-constants}.
+
+We describe some scenarios in terms of the primitive variables $(\Qrho, \Qv, \pressure)$, these can be converted to the conservative variables by the definition of momentum and the definition of energy.   
 \section{Numerical Convergence Test}
-We first define the $L_p$ norms for $p > 0$ by
-% notation: https://en.wikipedia.org/wiki/Lp_space#Lp_spaces
-\begin{equation}
-  \label{eq:Lp-nrom}
-  \Vert f(x) \Vert = \left( \int_K \vert f(x) \vert^p d\mu  \right)^{1/p}.
-\end{equation}
-We start by a known analytical solution $f(x)$ and compare it to our approximation $\hat{f}(x)$.
-Let $Q$ and $\hat{Q}$ denote the analytical and approximate solution at node.
-We start by computing the point-wise error, and compute the cell-wise error from this.
-Observe that for our broken space $\Omega$
-\begin{equation}
-  \label{eq:lp-norm-broken}
- \Vert f(x) \Vert = \sum_{K \in \Omega} \Vert f_K(x) \Vert_p.
-\end{equation}
-
-We are now ready to integrate the error for each cell.
-The output contains the position and conserved variables of each point.
-Each cell consists of $(N + 1)^d$ nodes, each associated with a quadrature weight $w_i$.
-The quadrature weights are associated with the reference cuboid.
-We thus need to map our element to the reference element, before we can compute the integral.
-
-Let $V$ denote the volume (or area) of each cell.
-For example, in three dimensions $V = \Delta x \, \Delta y \, \Delta z$.
-The final result is then
-\begin{equation}
-  \Vert f_K(x) \Vert = \left( V \sum_{\bm{i}} \vert f(\bm{x}_{\bm{i}}) \vert^p w_{{\bm{i}}}  \right)^{1/p},
-\end{equation}
-where we used the mapping to the reference triangle (integration by substitution).
-
 Following~\cite{dumbser2010arbitrary}, the scenario can be described in primitive variables by setting
 \begin{align}
-  \pressure &= \pressure_0 \cos( \bm{k} \bm{x} - \omega t ) + \pressure_b, \\
-  \Qrho &= \Qrho_0 \sin (\bm{k} \bm{x} - \omega t) + \Qrho_b, \\
-  \Qv &= \bm{v_0} \sin(\bm{k} \bm{x} - \omega t).
+\begin{split}
+  \pressure(\bm{x}, t) &= \pressure_0 \cos( \bm{k} \bm{x} - \omega t ) + \pressure_b, \\
+  \Qrho(\bm{x}, t) &= \Qrho_0 \sin (\bm{k} \bm{x} - \omega t) + \Qrho_b, \\
+  \Qv(\bm{x}, t) &= \bm{v_0} \sin(\bm{k} \bm{x} - \omega t).
+\end{split}
 \end{align}
 We set the constants to \( \left(  \pressure_0 = 0.1, \pressure_b = \gamma^{-1}, \Qrho_0 = 0.5, \Qrho_b = 1, 
 \bm{v_0} = 0.25 {(1,1)}^\intercal, \bm{k} = \pi/5 {(1,1)}^\intercal \right) \).
@@ -42,12 +26,16 @@ We derive a source term by inserting this solution into the \textsc{pde} by usin
 This procedure is called method of manufactured solutions~\cite{salari2000code}.
 
 \section{Classical Scenarios}
+In addition to the convergence test, we use standard \textsc{cfd} scenarios to evaluate our simulations.
+
 
 \subsection{The first Stokes Problem}
 \cite{dumbser2010arbitrary}
 \subsection{Taylor-Green Vortex}
 \begin{align}
+  \label{eq:taylor-green}
   \begin{split}
+  \Qrho(\bm{x}, t) &= 1\\
   \Qv(\bm{x}, t) &= \exp(-2 \mu t)
   \begin{pmatrix}
     \phantom{-}\sin(x) cos(y) \\
@@ -58,6 +46,10 @@ This procedure is called method of manufactured solutions~\cite{salari2000code}.
 \end{align}
 \todo{Constants!}
 $C = 100/\gamma$ \cite{dumbser2016high}
+
+As initial conditions we use \cref{eq:taylor-green} at time $(t = 0)$ and as boundary conditions we impose the solution and the corresponding gradients.
+Note that this solution is not exactly correct, as it assumes an incompressible flow.
+Due to the low mach number a compressible flow approaches this solution.
 
 \section{Atmospheric Scenarios}
 The scenario is described in terms of potential temperature $\potT$

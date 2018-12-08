@@ -1,5 +1,35 @@
-\chapter{Results}
+\chapter{Results}\label{chap:results}
 \section{Convergence Test}
+Before computing the error we first need to define the $L_p$ norms for a $p > 0$ by
+% notation: https://en.wikipedia.org/wiki/Lp_space#Lp_spaces
+\begin{equation}
+  \label{eq:Lp-nrom}
+  \Vert f(x) \Vert = \left( \int_K \vert f(x) \vert^p d\mu  \right)^{1/p}.
+\end{equation}
+We start by a known analytical solution $f(x)$ and compare it to our approximation $\hat{f}(x)$.
+Let $Q$ and $\hat{Q}$ denote the analytical and approximate solution at node.
+We start by computing the point-wise error, and compute the cell-wise error from this.
+Observe that for our broken space $\Omega$
+\begin{equation}
+  \label{eq:lp-norm-broken}
+ \Vert f(x) \Vert = \sum_{K \in \Omega} \Vert f_K(x) \Vert_p.
+\end{equation}
+
+We are now ready to integrate the error for each cell.
+The output contains the position and conserved variables of each point.
+Each cell consists of $(N + 1)^d$ nodes, each associated with a quadrature weight $w_i$.
+The quadrature weights are associated with the reference cuboid.
+We thus need to map our element to the reference element, before we can compute the integral.
+
+Let $V$ denote the volume (or area) of each cell.
+For example, in three dimensions $V = \Delta x \, \Delta y \, \Delta z$.
+The final result is then
+\begin{equation}
+  \Vert f_K(x) \Vert = \left( V \sum_{\bm{i}} \vert f(\bm{x}_{\bm{i}}) \vert^p w_{{\bm{i}}}  \right)^{1/p},
+\end{equation}
+where we used the mapping to the reference triangle (integration by substitution).
+
+
 \section{Accurate CFD}
 \section{Accurate Clouds}
 \section{AMR Efficiency}
