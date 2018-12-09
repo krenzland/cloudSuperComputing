@@ -30,6 +30,7 @@ In addition to the convergence test, we use standard \textsc{cfd} scenarios to e
 
 
 \subsection{The first Stokes Problem}
+\todo{Do I actually want to include this? Bit boring scenario}
 \cite{dumbser2010arbitrary}
 \subsection{Taylor-Green Vortex}
 \begin{align}
@@ -50,6 +51,34 @@ $C = 100/\gamma$ \cite{dumbser2016high}
 As initial conditions we use \cref{eq:taylor-green} at time $(t = 0)$ and as boundary conditions we impose the solution and the corresponding gradients.
 Note that this solution is not exactly correct, as it assumes an incompressible flow.
 Due to the low mach number a compressible flow approaches this solution.
+
+\subsection{Radialsymmetric CJ Detonation Wave}
+We investigate the radialsymmetric CJ detonation wave scenario from~\cite{helzel2000modified}.
+This scenario for the reactive Euler-equations is set up in a 2D box of size $[-0.5, 0.5] \times [-0.5, 0.5]$.
+Inside a circle of radius $0.3$ we have totally unburnt gas, outside of this circle we have burned gas.
+Let $\alpha =  \operatorname{atan2}(y,x)$ be the angle in polar coordinates.
+We use the initial conditions
+\begin{align}
+  \begin{split}
+  \Qrho_u &= 0.887565\\
+  \Qv_u &= -0.577350
+  \begin{pmatrix}
+     \cos (\alpha)\\
+     \sin (\alpha)
+  \end{pmatrix} \\
+  \pressure_u &= 0.191709 \\
+  \QZZ_u &= 1
+  \end{split}
+\intertext{for the burnt gas and}
+\begin{split}
+  \Qrho_b &= 1.4\\
+  \Qv_b &= 0\\
+  \pressure_b &= 1 \\
+  \QZZ_b &= 0
+  \end{split}
+\end{align}
+for the unburnt gas.
+
 
 \section{Atmospheric Scenarios}
 The scenario is described in terms of potential temperature $\potT$
