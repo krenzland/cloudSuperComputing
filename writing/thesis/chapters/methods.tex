@@ -14,8 +14,18 @@
 \newcommand{\pertubationPotT}{\theta'}
 \newcommand{\stressT}{\bm{\sigma}}
 \newcommand{\pressure}{p}
-\newcommand{\maxConvEigen}{\vert \lambda_c^{\text{max}} \vert}
-\newcommand{\maxViscEigen}{\vert \lambda_v^{\text{max}} \vert}
+\newcommand{\maxConvEigen}[1][]{
+  \vert%
+  \lambda_c^{\text{max}}
+  \notblank{#1}{\left(#1\right)}{}
+  \vert%
+}
+\newcommand{\maxViscEigen}[1][]{
+  \vert%
+  \lambda_v^{\text{max}}
+  \notblank{#1}{\left(#1\right)}{}
+  \vert%
+}
 \newcommand{\Riemann}{\operatorname{Riemann}}
 
 % Stuff for numerics
@@ -86,7 +96,7 @@ We first compute a local solution of the cell in the predictor step and then con
 In the following we first describe the corrector step as it follows directly from the \textsc{pde}.
 The predictor is derived shortly after.
 
-\newcommand{\dsol}{\bm{u}}
+\newcommand{\dsol}[1][h]{\bm{u}_{#1}}
 \newcommand{\stpredictor}[1][h]{\bm{q}_{#1}}
 \sidetitle{Corrector}
 First, we multiply the system \cref{eq:conservation-law} by a test function $\testfunction{i}$ and integrate over the space-time volume $(\cell \times [t^n, t^{n+1}])$.
@@ -137,7 +147,7 @@ The first term motivates an orthogonal basis as this leads to a diagonal mass ma
 \sidetitle{Predictor}
 To derive the predictor, we again take an approximation of our solution in a nodal basis, but now consider polynomials that are defined both in space and time
 \begin{equation}
-  \label{eq:cell-approx-time}
+  \label{eq:cell-approx-space-time}
   q(\bm{x}, t^n)_{|\cell[i]} = \hat{u}^n_{i,l} \stbasis{l}(\bm{x}, t).
 \end{equation}
 We now multiply the conservation law again by a test function (of the same function space as the basis) and arrive at the weak formulation
@@ -148,7 +158,7 @@ We now multiply the conservation law again by a test function (of the same funct
 }}
 +
 \intdt{\intdcell{
-    \testfunction{k}{\bm{x}, t}
+    \testfunction{k}(\bm{x}, t)
     \left(
       \divergence{\flux(\stpredictor)}
     \right)
@@ -163,16 +173,37 @@ This time we do not use the Riemann solver for the flux boundary term but rather
 Note that this neglects the interaction with neighbouring cells; this is corrected in the corrector step.
 \todo{Replace $\bm{x}$ with a macro some other letter. Is also coordinate!}
 
-\begin{equation}
-  \label{eq:space-time-predictor}
-0
-  + \ldots
-\end{equation}
+\begin{align}\label{eq:space-time-predictor}
+\begin{split}
+\intdcell{
+  \testfunction{k} (\bm{x}, t^{n+1}) \stpredictor(\bm{x}. t^{n+1})
+}
+&-
+\intdt{\intdcell{
+    \pdv{}{d} \testfunction{k}(\bm{x}, t) \stpredictor(\bm{x}, t)
+}}
+-
+\intdcell{
+  \testfunction{k}(\bm{x},t^n) \dsol(\bm{x}, t^n)
+} = \\
+\intdt{\intdcell{
+    \testfunction{k}(\bm{x},t) \divergence{\flux(\stpredictor)}
+}}
+&+
+\intdt{\intdcell{
+    \testfunction{k}(\bm{x}, t) \source(\stpredictor)
+}}
+\end{split}
+\end{align}
 Inserting \cref{eq:cell-approx-space-time} results in a local systems of equations that can be solved in a fixed point iteration scheme.
-For details and proof of convergence for the linear case, see (todo).
-Write about initial guess (we use naive one anyway, right?)
+\todo{Inital guess correct? Maybe cite sth?}
+As initial value for the space-time-predictor we use the solution of the timestep before.
+\todo{Maybe collect into matrices and show scheme?}
+For details and proof of convergence for the linear case, see~\cite{dumbser2008unified}.
 
 \sidetitle{Boundary extrapolation and stuff}
+\todo{Explain that stpredictor and fluxes are saved and extrapolated to boundary.
+This is important because we extrapolate the gradient as well!}
 Extrapolate unknowns to boundary, convert from our basis to basis on faces.
 Then Riemann solver
 and so on
@@ -184,8 +215,8 @@ Maybe write algorithm?
 \todo{Actually write this section\ldots}
 
 
-\sidetitle{Diffusive Flux stuff}
-Numerical flux:
+\sidetitle{Riemann solver \textit{\&} timestep}
+As a Riemann solver we use a simple Rusanov-flux that is adapted for diffusive problems
 \begin{equation}
   \label{eq:rusanov-flux}
   \Riemann(q_h^-, \nabla q_h^-; g_h^+, \nabla q_h^+) \cdot \bm{n} =
@@ -193,47 +224,57 @@ Numerical flux:
     F(q_h^+, \nabla q_h^+) +
     F(q_h^-, \nabla q_h^-)
   \right) -
-  \frac{1}{2} s_\text{max} (q_h^+ - q_h^-)
+  \frac{1}{2} s_\text{max} (q_h^+ - q_h^-),
 \end{equation}
-with
+with a penalty term
 \begin{equation}
   \label{eq:parabolic-penalty}
   s_\text{max}  = \max \left(
-\vert \lambda_c(q_h^-) \vert, \, \vert \lambda_c(q_h^+)
+\maxConvEigen[q_h^-], \, \maxConvEigen[q_h^+]
 \right) +
 2 \eta \max \left(
-\vert \lambda_v(q_h^-) \vert, \, \vert \lambda_v(q_h^+)
+\maxViscEigen[q_h^-], \, \maxViscEigen[q_h^+]
 \right)
 \end{equation}
 and
 \begin{equation}
-  \eta = \frac{2N+1}{h \sqrt{\frac{1}{2} \pi}}
+  \eta = \frac{2N+1}{h \sqrt{\frac{1}{2} \pi}}.
 \end{equation}
+In this equation, $N$ is the polynomial order and $h$ is the side-length of an element.
+The penalty term depends on the maximal absolute eigenvalues $\lambda_c$ and $\lambda_v$ \todo{
+Eigenvalues of jacobian (in normal direction), maximal eigenvalues.}.
+Max eigenvalue of convective part $\maxConvEigen$,i.e.\ of $\left( \partial \bm{F}/\partial \bm{Q}\right) \cdot \bm{n}$,
+and viscous part $\maxViscEigen$, i.e.\ of $\left( \partial \bm{F}/\partial \left( \nabla \bm{Q} \cdot \bm{n} \right)\right) \cdot \bm{n}$.
 
-Maximum timestep (\textsc{cfl})
+
+
+This Riemann solver was first published in~\cite{gassner2008discontinuous} and used for an \textsc{ader-dg} scheme in~\cite{dumbser2010arbitrary}.
+The timestep is restriced to a so-called \textsc{cfl}-type penalty
 \begin{equation}
  \Delta t \leq  \text{CFL} \, \frac{\alpha(N) \, h}{\maxConvEigen + 2 \maxViscEigen \frac{2N+1}{h}}
 \end{equation}
 with $N$ polynomial order and $h$ characteristic length scale of elements~\cite{dumbser2010arbitrary,gassner2008discontinuous}.
-The constant $\alpha(N) \leq \frac{1}{2N+1}$ is obtained from von Neumann analysis on a simple model problem and depends on the approximation order~\cite{dumbser2008unified}.
+The constant $\alpha(N) \leq {\left( 2N+1  \right)}^{-1}$ is obtained from von Neumann analysis on a simple model problem and depends on the approximation order~\cite{dumbser2008unified}.
+We use a value of $0.7$ for the constant $\text{CFL}$.
+\todo{Describe CFL-cond.\ for multiple dimensions!}
 
 
 \section{Reactive Compressible Navier Stokes Equations}
 Fluid motion can be described by the compressible Navier Stokes equations.
 We follow the description in~\cite{dumbser2010arbitrary} for the Navier Stokes part.
-The coupling with the advection-diffusion-reaction equation follows~\cite{hidalgo2011ader}.
+The coupling with the advection-diffusion-reaction equation follows~\cite{hidalgo2011ader} which describes this equation set for the one-dimensional case.
 
 The vector of conserved quantities is given by
 \begin{equation}
   \label{eq:conserved-variables}
- \Q = \left( \Qrho, \Qj, \QE, \QZ \right).
+ \Q = \left( \Qrho, \Qj, \QE, \QZ \right),
 \end{equation}
 where $\Qrho$ is the density, $\Qj$ is the momentum, $\QE$ the energy density and $\QZ$ is the mass fraction of the chemical reactant.
 
 We split the flux into a hyperbolic part $\hyperFlux(\Q)$ and an viscous flux $\viscFlux(\gradQ)$
 \begin{equation}
   \label{eq:flux}
-  \flux(\Q, \gradQ) = \hyperFlux(\Q) + \viscFlux(\Q, \gradQ)
+  \flux(\Q, \gradQ) = \hyperFlux(\Q) + \viscFlux(\Q, \gradQ).
 \end{equation}
 
 \newcommand{\diffCoeff}{\varepsilon}
@@ -255,7 +296,6 @@ We split the flux into a hyperbolic part $\hyperFlux(\Q)$ and an viscous flux $\
    \end{pmatrix}
 }
 
-
 The hyperbolic flux is given by
 \begin{equation}
   \label{eq:hyper-flux}
@@ -271,6 +311,14 @@ The viscous flux is
 
 Complete \textsc{pde}:
 \begin{equation}
+ \begin{array}{l}
+ \text{mass cons.} \\
+ \text{momentum cons.} \\
+ \text{energy cons.} \\
+ \text{cont.\ gas} 
+\end{array}
+:
+\quad
   \pdv{}{t}
   \underbrace{
   \begin{pmatrix}
@@ -294,13 +342,6 @@ Complete \textsc{pde}:
     S_{\QE}\\
     S_{\QZ}
     \end{pmatrix}}_{\source(\Q, \bm{x}, t)}
-\quad
- \begin{array}{l}
- \text{mass cons.} \\
- \text{momentum cons.} \\
- \text{energy cons.} \\
- \text{cont.\ gas} 
-\end{array}
 \end{equation}
 
 where $\pressure$, $\stressT$ and $(\kappa \nabla T)$ denote the pressure, stress tensor and heat flux respectively.
