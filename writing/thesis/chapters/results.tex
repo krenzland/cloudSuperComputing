@@ -1,34 +1,43 @@
 \chapter{Results}\label{chap:results}
 \section{Convergence Test}
+\newcommand{\error}{\operatorname{Total-Error}}
 Before computing the error we first need to define the $L_p$ norms for a $p > 0$ by
 % notation: https://en.wikipedia.org/wiki/Lp_space#Lp_spaces
 \begin{equation}
   \label{eq:Lp-nrom}
-  \Vert f(x) \Vert = \left( \int_K \vert f(x) \vert^p d\mu  \right)^{1/p}.
+  \Vert f(x) \Vert_p = \left( \int_K \vert f(x) \vert^p d\mu  \right)^{1/p}.
 \end{equation}
-We start by a known analytical solution $f(x)$ and compare it to our approximation $\hat{f}(x)$.
-Let $Q$ and $\hat{Q}$ denote the analytical and approximate solution at node.
-We start by computing the point-wise error, and compute the cell-wise error from this.
-Observe that for our broken space $\Omega$
+We are interested in the total error which we define as the norm of the difference between an analytical solution $f(\bm{x}, t)$ and our approximation $\hat{f}(\bm{x}, t)$.
+The error at a time $t$ is thus defined as
+\begin{equation}
+  \label{eq:error}
+  \error(t,p) = \Vert f(\bm{x}, t) - \hat{f}(\bm{x}, t) \Vert_p.
+\end{equation}
+
+We first observe that for our approximation space $\broken$ we can split up the error as a sum over all cells
 \begin{equation}
   \label{eq:lp-norm-broken}
- \Vert f(x) \Vert = \sum_{K \in \Omega} \Vert f_K(x) \Vert_p.
+ %\Vert f(\bm{x}) \Vert = \sum_{\cell[] \in \broken} \Vert f_{\cell[]} (\bm{x}) \Vert_p,
+  \error(t,p) = \sum_{\cell[] \in \broken} \error_{\cell[]}(t,p)
 \end{equation}
+where $\error_{\cell[]}$ is the error in the cell $\cell[]$.
 
-We are now ready to integrate the error for each cell.
-The output contains the position and conserved variables of each point.
-Each cell consists of $(N + 1)^d$ nodes, each associated with a quadrature weight $w_i$.
-The quadrature weights are associated with the reference cuboid.
-We thus need to map our element to the reference element, before we can compute the integral.
+\todo{Describe how to integrate the error for cells, and effect of volume}
+% We are now ready to integrate the error for each cell.
+% The output contains the position and conserved variables of each point.
+% Each cell consists of $(N + 1)^d$ nodes, each associated with a quadrature weight $w_i$.
+% The quadrature weights are associated with the reference cuboid.
+% We thus need to map our element to the reference element, before we can compute the integral.
 
-Let $V$ denote the volume (or area) of each cell.
-For example, in three dimensions $V = \Delta x \, \Delta y \, \Delta z$.
-The final result is then
-\begin{equation}
-  \Vert f_K(x) \Vert = \left( V \sum_{\bm{i}} \vert f(\bm{x}_{\bm{i}}) \vert^p w_{{\bm{i}}}  \right)^{1/p},
-\end{equation}
-where we used the mapping to the reference triangle (integration by substitution).
+% Let $V$ denote the volume (or area) of each cell.
+% For example, in two dimensions $V = \Delta x \, \Delta y$.
+% The final result is then
+% \begin{equation}
+%   \Vert f_K(x) \Vert = \left( V \sum_{\bm{i}} \vert f(\bm{x}_{\bm{i}}) \vert^p w_{{\bm{i}}}  \right)^{1/p},
+% \end{equation}
+% where we used the mapping to the reference triangle (integration by substitution).
 
+For the limiting case of $p \to \infty$ we use the maximum point-wise error.
 
 \section{Accurate CFD}
 \section{Accurate Clouds}

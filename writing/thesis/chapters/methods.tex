@@ -37,6 +37,8 @@
 \newcommand{\stbasis}[1]{\Phi_{#1}}
 \newcommand{\testfunction}[1]{\Phi_{#1}}
 \newcommand{\normal}{\bm{n}}
+\newcommand{\dsol}[1][h]{\bm{u}_{#1}}
+\newcommand{\stpredictor}[1][h]{\bm{q}_{#1}}
 
 % Equation parts
 \newcommand{\flux}{F}
@@ -96,8 +98,18 @@ We first compute a local solution of the cell in the predictor step and then con
 In the following we first describe the corrector step as it follows directly from the \textsc{pde}.
 The predictor is derived shortly after.
 
-\newcommand{\dsol}[1][h]{\bm{u}_{#1}}
-\newcommand{\stpredictor}[1][h]{\bm{q}_{#1}}
+\begin{algorithm}[H]
+  \begin{algorithmic}
+    \Let{$\stpredictor$}{Initial guess}
+    \Let{$F_h$}{$\flux(\Q, \gradQ)$}
+    \Let{$\stpredictor$}{Solve \cref{eq:space-time-predictor} using $F_h, \Q, \gradQ$}
+    \Let{$\left( \hat{F_h}, \hat{\Q}, \hat{\gradQ}, \hat{\stpredictor} \right)$}
+        {Extrapolate to boundary using \cref{eq:boundary-extrapolation}}
+    \Let{update}{Use \cref{eq:corrector} with boundary extrapolated values (fluxes of neighbors)}
+  \end{algorithmic}
+  \caption{The \textsc{ader-dg} algorithm for one cell.}
+\end{algorithm}
+
 \sidetitle{Corrector}
 First, we multiply the system \cref{eq:conservation-law} by a test function $\testfunction{i}$ and integrate over the space-time volume $(\cell \times [t^n, t^{n+1}])$.
 We arrive at the so called weak formulation of the \textsc{pde} 
@@ -204,16 +216,7 @@ For details and proof of convergence for the linear case, see~\cite{dumbser2008u
 \sidetitle{Boundary extrapolation and stuff}
 \todo{Explain that stpredictor and fluxes are saved and extrapolated to boundary.
 This is important because we extrapolate the gradient as well!}
-Extrapolate unknowns to boundary, convert from our basis to basis on faces.
-Then Riemann solver
-and so on
-
-\sidetitle{Full Scheme}
-Maybe write algorithm?
-
-
-\todo{Actually write this section\ldots}
-
+Extrapolate unknowns to boundary, convert from our basis to basis on faces and so on
 
 \sidetitle{Riemann solver \textit{\&} timestep}
 As a Riemann solver we use a simple Rusanov-flux that is adapted for diffusive problems
@@ -241,12 +244,14 @@ and
   \eta = \frac{2N+1}{h \sqrt{\frac{1}{2} \pi}}.
 \end{equation}
 In this equation, $N$ is the polynomial order and $h$ is the side-length of an element.
-The penalty term depends on the maximal absolute eigenvalues $\lambda_c$ and $\lambda_v$ \todo{
-Eigenvalues of jacobian (in normal direction), maximal eigenvalues.}.
-Max eigenvalue of convective part $\maxConvEigen$,i.e.\ of $\left( \partial \bm{F}/\partial \bm{Q}\right) \cdot \bm{n}$,
-and viscous part $\maxViscEigen$, i.e.\ of $\left( \partial \bm{F}/\partial \left( \nabla \bm{Q} \cdot \bm{n} \right)\right) \cdot \bm{n}$.
-
-
+The penalty term depends on the maximal absolute eigenvalues of both the convective and viscous part of the equations
+\begin{align}
+  \begin{split}
+    \maxConvEigen &= \left( \partial \bm{F}/\partial \bm{Q}\right) \cdot \normal,\\
+    \maxViscEigen &= \left( \partial \bm{F}/\partial \left( \nabla \bm{Q} \cdot \normal \right)\right) \cdot \normal,
+  \end{split}
+\end{align}
+in direction of the normal vector $\normal$ to the cell face. 
 
 This Riemann solver was first published in~\cite{gassner2008discontinuous} and used for an \textsc{ader-dg} scheme in~\cite{dumbser2010arbitrary}.
 The timestep is restriced to a so-called \textsc{cfl}-type penalty
@@ -307,9 +312,11 @@ The viscous flux is
   \label{eq:visc-flux}
   \viscFlux(\Q, \gradQ) = \viscFluxDef.
 \end{equation}
+where $\pressure$, $\stressT$ and $(\kappa \nabla T)$ denote the pressure, stress tensor and heat flux respectively.
+Temperature is denoted by $T$.
 
 
-Complete \textsc{pde}:
+Putting everything together, our complete \textsc{pde} is a conservation law of the form of \cref{eq:conservation-law-gradient}
 \begin{equation}
  \begin{array}{l}
  \text{mass cons.} \\
@@ -344,10 +351,7 @@ Complete \textsc{pde}:
     \end{pmatrix}}_{\source(\Q, \bm{x}, t)}
 \end{equation}
 
-where $\pressure$, $\stressT$ and $(\kappa \nabla T)$ denote the pressure, stress tensor and heat flux respectively.
-Temperature is denoted by $T$.
-
-We close the system with the equation of state of an ideal gas
+We close the system with the equation of state of an ideal reacting gas
 \begin{equation}
   \label{eq:eos}
   \pressure = (\gamma - 1) \left(\QE - \frac{1}{2} \left(\Qv \cdot \Qj \right)  - q_0 \QZ \right).
@@ -375,9 +379,9 @@ These constants are all fluid dependent and relate to each other by
 We can finally define the heat conduction coefficient $\kappa$
 \begin{equation}
   \label{eq:heat-conduction-coeff}
-  \kappa = \frac{\mu \gamma}{\Pr} \frac{1}{\gamma - 1} R
+  \kappa = \frac{\mu \gamma}{\Pr} \frac{1}{\gamma - 1} R = \frac{\mu \gamma}{\Pr} c_v
 \end{equation}
-where Prandtl number $\text{Pr}$ again depends on the fluid.
+where Prandtl number $\Pr$ again depends on the fluid.
 
 % Sutherland's viscosity law:
 % \begin{equation}
@@ -395,19 +399,22 @@ where Prandtl number $\text{Pr}$ again depends on the fluid.
 The viscous effects are modeled by the stress tensor
 \begin{equation}
   \label{eq:stress-tensor}
-  \stressT(Q, \nabla Q) = \left(\frac{2}{3} \mu \nabla \cdot \Qv \right) -
-  \mu \left( \nabla (\Qv) + \nabla ( \Qv )^\intercal \right).
+  \stressT(Q, \nabla Q) =
+  \mu
+  \left(
+  \left(\nicefrac{2}{3} \divergence{\Qv} \right) -
+  \left( \gradient{\Qv} + \gradient{\Qv}^\intercal \right)
+  \right).
 \end{equation}
 
-Max eigenvalue of convective part $\maxConvEigen$,i.e.\ of $\left( \partial \bm{F}/\partial \bm{Q}\right) \cdot \bm{n}$,
-and viscous part $\maxViscEigen$, i.e.\ of $\left( \partial \bm{F}/\partial \left( \nabla \bm{Q} \cdot \bm{n} \right)\right) \cdot \bm{n}$
-is
+The maximal eigenvalues for convective and viscous part are
 \begin{align}
   \maxConvEigen \vert  &= \Vert \Qv \Vert + c\\
-  \maxViscEigen \vert &= \max \left( \frac{4}{3} \frac{\mu}{\Qrho}
-                                       , \frac{\gamma \mu}{\Pr \Qrho} \right)
+  \maxViscEigen \vert &= \max \left( \frac{4}{3} \frac{\mu}{\Qrho},
+                        \frac{\gamma \mu}{\Pr \Qrho},
+                        \diffCoeff \right)
 \end{align}
-with speed of sound $c = \sqrt{\gamma R T }$
+with speed of sound $c = \sqrt{\gamma R T }$.
 
 \section{Boundary conditions}
 To close the system we need to impose boundary conditions.
@@ -445,20 +452,62 @@ We use the total variation (\textsc{tv}) over an arbitrary indicator variable gi
 \Vert \left(\intdcell{ \vert \gradient{f \left( \bm{x} \right)} \vert } \right) \Vert_1
 \end{equation}
 
-We introduce parallel reduce.
+\newcommand{\gobs}{\operatorname{G}}
+\newcommand{\mean}{\mu}
+\newcommand{\std}{\sigma}
+\newcommand{\variance}{\std^2}
+\newcommand{\gobsCount}{n}
+We want to compute the mean and the variance over all grid cells by performing only pairwise merge operations.
+This allows us to minimize communication over nodes and allows for a simple implementation.
+The simplest way to compute this would be by using the textbook definitions of mean and variance of a random variable $X$
+\newcommand{\expectation}{\mathbb{E}}
+\begin{align}
+  \begin{split}
+    \mu [X] &= \expectation \left[ X \right]\\
+    \variance [X] &= \expectation \left[ X^2 \right] - \expectation \left[ X \right]^2.
+  \end{split}
+\end{align}
+The reduction for the variance is numerically unstable when the variance is orders of magnitudes smaller than the mean as this can lead to catastrophic cancellations.
+We thus compute the mean and variance with the parallel algorithm of~\cite{chan1982updating}.
+To do this, we need to store three variables per computation unit:
+the mean, the variance and the number of processed elements.
+We collect these items in the vector $\gobs = (\mean, \variance, \gobsCount)$
+We can then merge two pairs of observed variables by \cref{alg:merge-variance}.
 
-Reduce mean/std by~\cite{chan1982updating}
-
-Criterion with threshold.
-Justify by Chebychev's inequality?
-\todo{Cite this!}
+\begin{algorithm}[ht]
+  \begin{algorithmic}
+% TODO: Special cases 
+\Function{reduce-variance}{$\gobs_0, \gobs_1$}
+\If{$\gobsCount_0 = 0$}
+  \State\Return{$\mean_1, \variance_1, \gobsCount_1$}
+\EndIf\
+\If{$\gobsCount_1 = 0$}
+  \State\Return{$\mean_0, \variance_0, \gobsCount_0$}
+\EndIf\
+  \Let{$\Delta$}{$\mean_1 - \mean_0$}  
+  \Let{$\gobsCount_\Sigma$}{$\gobsCount_0 + \gobsCount_1$}
+  \Let{$m_a$}{$\variance_0 (\gobsCount_0 - 1)$}
+  \Let{$m_b$}{$\variance_1 (\gobsCount_1 - 1)$}
+  \Let{$m_\Sigma$}{$\nicefrac{m_a + m_b + (\Delta^2 \gobsCount_0 \gobsCount_1)}{\gobsCount_\Sigma}$}
+  \Let{$\mean_\Sigma$}{$\mean_0  \gobsCount_0 + \mean_1 \gobsCount_1$}
+  \State\Return{$
+    \nicefrac{\mean_\Sigma}{\gobsCount_\Sigma},
+    \nicefrac{m_\text{total}}{\gobsCount_\Sigma - 1},
+    \gobsCount_\Sigma
+    $}
+\EndFunction\
+  \end{algorithmic}
+  \caption{\label{alg:merge-variance}
+    Merging two sets of reduced mean and variance~\cite{chan1982updating}}
+\end{algorithm}
+We then use a threshold criterion
+\todo{Cite Chebychev, add concrete form of threshold.}
 This criterion can be justified by Chebychev's inequality, which states that
 \begin{equation}
   \label{eq:chebychev}
   \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2}
 \end{equation}
 for an arbitrary distribution with mean $\mu$ and standard deviation $\sigma$ probability $\mathbb{P}$.
-
 
 \subsection{Limiting}\label{sec:limiting}
 Higher order \textsc{dg} methods cannot cope with discontinuous solutions.

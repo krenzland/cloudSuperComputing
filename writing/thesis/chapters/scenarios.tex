@@ -29,9 +29,10 @@ This procedure is called method of manufactured solutions~\cite{salari2000code}.
 In addition to the convergence test, we use standard \textsc{cfd} scenarios to evaluate our simulations.
 
 
-\subsection{The first Stokes Problem}
-\todo{Do I actually want to include this? Bit boring scenario}
-\cite{dumbser2010arbitrary}
+% \subsection{The first Stokes Problem}
+% \todo{Do I actually want to include this? Bit boring scenario}
+% \cite{dumbser2010arbitrary}
+
 \subsection{Taylor-Green Vortex}
 \begin{align}
   \label{eq:taylor-green}
@@ -51,6 +52,36 @@ $C = 100/\gamma$ \cite{dumbser2016high}
 As initial conditions we use \cref{eq:taylor-green} at time $(t = 0)$ and as boundary conditions we impose the solution and the corresponding gradients.
 Note that this solution is not exactly correct, as it assumes an incompressible flow.
 Due to the low mach number a compressible flow approaches this solution.
+
+\subsection{Lid-Driven Cavity Flow}
+The lid-driven cavity flow is a very simple testing scenario for the Navier-Stokes equations.
+We use a constant pressure of (what exactly) and a constant density $(\Qrho = 1.0)$ for the entire domain.
+The flow is then driven entirely by the boundary conditions.
+They consist in four no-slip walls where the upper wall has a constant velocity $\Qv = (1.0, 0)$.
+This scenario is surprisingly difficult for an \textsc{ader-dg} scheme as the boundary conditions lead to a discontinuity at the top left corner.
+There, the velocity of the wall is piece-wise constant.
+Therefore, this scenario is a good choice to test the stability of the finite volume limiter.
+
+\subsection{ABC-Flow}
+We use theArnold–Beltrami–Childress (\textsc{abc}) flow as a simple example of a three-dimensional scenario~\cite{tavelli2016staggered}.
+This scenario has, unlike the three-dimensional version of the Taylor-Green vortex, at least for the incompressible case an analytical solution
+\begin{align}
+  \label{eq:abc-flow}
+  \begin{split}
+  \Qrho(\bm{x}, t) &= 1\\
+  \Qv(\bm{x}, t) &= \phantom{-} \exp(-1\mu t)
+  \begin{pmatrix}
+    \sin(z) + \cos(y)\\
+    \sin(x) + \cos(z)\\
+    \sin(y) + \cos(x)
+  \end{pmatrix} \\
+  \pressure(\bm{x}, t) &= -\exp(-2 \mu t) \, \left(\cos(x)\sin(y) + \sin(x)\cos(z) + \sin(z)\cos(y)\right)
+  + C
+  \end{split}
+\end{align}
+Thus, we can simulate this without periodic boundary conditions.
+\todo{Analytical solution!}
+
 
 \subsection{Radialsymmetric CJ Detonation Wave}
 We investigate the radialsymmetric CJ detonation wave scenario from~\cite{helzel2000modified}.
