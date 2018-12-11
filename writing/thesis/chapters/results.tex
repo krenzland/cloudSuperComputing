@@ -1,6 +1,23 @@
 \chapter{Results}\label{chap:results}
 \section{Convergence Test}
+\begin{table}[htb]
+  \centering
+\caption{Numerical order of convergence of ADER-DG method}%
+\label{tab:convergence-order}
+\begin{tabular}{@{}lS[table-format=1.2]S[table-format=1.2]S[table-format=1.2]@{}}
+\toprule
+{Order} & {L1} & {L2} & {LInf}\\ \midrule
+1 & 2.03 & 2.00 & 1.92\\
+2 & 2.56 & 2.55 & 2.56\\
+3 & 3.44 & 3.41 & 3.42\\
+4 & 4.27 & 4.27 & 4.33\\
+5 & 5.36 & 5.32 & 5.26\\
+6 & 5.38 & 5.35 & 5.17\\
+\bottomrule
+\end{tabular}
+\end{table}
 \newcommand{\error}{\operatorname{Total-Error}}
+
 Before computing the error we first need to define the $L_p$ norms for a $p > 0$ by
 % notation: https://en.wikipedia.org/wiki/Lp_space#Lp_spaces
 \begin{equation}
@@ -23,19 +40,13 @@ We first observe that for our approximation space $\broken$ we can split up the 
 where $\error_{\cell[]}$ is the error in the cell $\cell[]$.
 
 \todo{Describe how to integrate the error for cells, and effect of volume}
-% We are now ready to integrate the error for each cell.
-% The output contains the position and conserved variables of each point.
-% Each cell consists of $(N + 1)^d$ nodes, each associated with a quadrature weight $w_i$.
-% The quadrature weights are associated with the reference cuboid.
-% We thus need to map our element to the reference element, before we can compute the integral.
-
-% Let $V$ denote the volume (or area) of each cell.
-% For example, in two dimensions $V = \Delta x \, \Delta y$.
-% The final result is then
-% \begin{equation}
-%   \Vert f_K(x) \Vert = \left( V \sum_{\bm{i}} \vert f(\bm{x}_{\bm{i}}) \vert^p w_{{\bm{i}}}  \right)^{1/p},
-% \end{equation}
-% where we used the mapping to the reference triangle (integration by substitution).
+We evaluate the cell-wise error with Gaussian quadrature.
+ \begin{equation}
+   \Vert f_K(x) \Vert_p = \left( V \sum_{\bm{i}} \vert f(\bm{x}_i, t) - \hat{f}(\bm{x}_i, t) \vert^p w_{{\bm{i}}}  \right)^{1/p},
+ \end{equation}
+where $V = \Delta x \Delta y$ is the volume of each two-dimensional cell.
+The sum runs over all quadrature nodes $x_i$ with weights $w_i$.
+We use ten nodes.
 
 For the limiting case of $p \to \infty$ we use the maximum point-wise error.
 
