@@ -51,8 +51,21 @@
 \newcommand{\intdcell}[1]{\int_{\cell} #1 \dd{\bm{x}}}
 \newcommand{\intdcellb}[1]{\int_{\partial{} \cell} #1 \dd{S}} % TODO: define boundary of cell
 
+% Names of methods or so
+\newcommand{\muscl}{\textsc{muscl}-Hancock}
+\newcommand{\dg}{\textsc{dg}}
+\newcommand{\ader}{\textsc{ader}}
+\newcommand{\aderdg}{\textsc{ader-dg}}
+\newcommand{\amr}{\textsc{amr}}
 
 \chapter{An ADER-DG scheme for the Navier-Stokes Equations}\label{chap:methods}
+This chapter describes the numerical and physical background that is needed to simulate reacting fluids with good accuracy.
+We start with a description of the arbitrary high order derivatives (\ader) discontinuous Galerkin (\dg) method with a focus on equations that contain both advective and diffusive terms.
+We then seque into a short description of the \muscl\ scheme, a second order finite volume scheme.
+This discussion of the discretization enables us to talk about the equation set in sufficient detail.
+
+We conclude this chapter by a description of adaptive mesh refinement (\amr) and finite volume limiting, which combines both numerical methods to achieve a stable, high-order method.
+
 \section{Conservative Form}
 Standard (hyperbolic) form of conservation law
 \begin{equation}
@@ -65,8 +78,7 @@ extend to:
  \frac{\partial}{\partial_t}  \Q + \div \flux(\Q, \gradQ) = \source(\bm{x}, t, \Q)
 \end{equation}
 
-\section{The ADER-DG Method}
-\label{sec:ader-dg}
+\section{The ADER-DG Method}\label{sec:ader-dg}
 We describe the arbitrary derivative discontinous Galerkin (ADER-DG) method in this chapter.
 See: \cite{dumbser2018efficient}
 
@@ -263,8 +275,113 @@ The constant $\alpha(N) \leq {\left( 2N+1  \right)}^{-1}$ is obtained from von N
 We use a value of $0.7$ for the constant $\text{CFL}$.
 \todo{Describe CFL-cond.\ for multiple dimensions!}
 
+\section{MUSCL-Hancock Finite Volume Scheme}\label{sec:muscl}
+\newcommand{\cellAvg}[1][i,j]{U_{#1}}
+\newcommand{\sign}{\operatorname{sign}}
+\newcommand{\minmod}{\operatorname{minmod}}
+\newcommand{\slope}[2][i,j]{s^{#2}_{#1}}
+\newcommand{\gradCellAvg}[1][i,j]{\gradient{\cellAvg[#1]}}
+\newcommand{\fluxX}{\flux_x}
+\newcommand{\fluxY}{\flux_y}
+We discussed a modern, high-order \textsc{DG} method in the previous chapter.
+While this scheme is efficient, it can become unstable, especially in case of discontinuities.
+A simple alternative is a finite volume scheme.
+We use the \muscl\ method, our discussion and notation follows the one in~\cite{toro2013riemann}.
+Similar to~\cite{toro2013riemann} we only describe the two-dimensional case, an extension to three dimensions is straigthforward.
+\todo{Source term!}
 
-\section{Reactive Compressible Navier Stokes Equations}
+In contrast to the previous \dg\ scheme, we now only store cell averages instead of a full polynomial solution per cell.
+We achieve higher order then by a reconstruction of a linear function.
+Let $\cellAvg$ denote the averages per cell at spatial coordinates $i,j$.
+
+\sidetitle{Boundary Extrapolated Values}
+We first compute the slope of the linear function connecting the cells.
+This is done by assuming a linear function per cell.
+\todo{Explain concrete limiter!}
+\todo{Cite minmod limiter. Is this correct? It's the one used}
+We use the minmod slope-limiter
+\begin{equation}
+  \label{eq:minmod}
+  \operatorname{minmod}(a, b) =
+  \begin{cases}
+    0.0 & \sign(a) \neq \sign(b) \\
+      a & \vert a \vert < \vert b \vert \\
+      b & \text{otherwise}
+  \end{cases}
+\end{equation}
+to avoid unphyiscally steep gradients and stabilize the system.
+This function then be used to compute the slopes
+\begin{align}\label{eq:slopes}
+  \begin{split}
+   \slope{x} &=  \Delta x \minmod \left( \cellAvg[i+1,j] - \cellAvg[i,j], \, \cellAvg[i,j] - \cellAvg[i-1, j] \right),\\ 
+   \slope{y} &=  \Delta y \minmod \left( \cellAvg[i,j+1] - \cellAvg[i,j], \, \cellAvg[i,j] - \cellAvg[i, j-1] \right),
+   \end{split}
+\end{align}
+where $\Delta x$ and $\Delta y$ are the inverse cell sizes in $x$ and $y$ direction respectively.
+
+We then use the slope to reconstruct the value of the boundary.
+In the following $\cellAvg^{\pm x}$ is the average of the left ($+$) or right ($-$) cell boundary.
+Similar, $\cellAvg^{\pm y}$ is the value at the top/bottom cell boundary.
+These so called boundary extrapolated values are given by
+\newcommand{\extrapolatedCellAvg}[3][i,j]{\cellAvg[#1]^{#3 #2} = \cellAvg #3 \frac{1}{2} \slope{#2}}
+\begin{equation}
+\begin{alignedat}{2}
+& \extrapolatedCellAvg{x}{-} , \qquad && \extrapolatedCellAvg{x}{+}, \\
+& \extrapolatedCellAvg{y}{-} , \qquad && \extrapolatedCellAvg{y}{+}.
+\end{alignedat}
+\end{equation}
+We also use the slopes defined in \cref{eq:slopes} to estimate the gradient of $\Q$ in each cell by the block matrix\todo{Notation!}
+\begin{equation}
+  \label{eq:muscl-gradient}
+  \gradCellAvg = \left( \slope{x} \bigg\rvert \slope{y} \right),
+\end{equation}
+which is of course an abuse of notation insofar as it is not the gradient of the constant cell value but rather of the linear reconstruction.
+\sidetitle{Time Evolution}
+To achieve second order in time, we evolve the boundary extrapolated values in time by
+\todo{Correct index for gradient of cell average}
+\todo{Actually compare with implementation. Currently gradient is ignored here!}
+\todo{Describe splliting of $\flux$ into $\fluxX, \fluxY$}
+\newcommand{\evolvedCellAvg}[2][i,j]{\hat{U}_{#1}^{#2}}
+\begin{equation}\label{eq:muscl-time-evolution}
+  \begin{split}
+  \forall_{k \in [-x, +x, -y, +y]}:  \hat{U}_{ij}^k = \cellAvg^k &+
+  \frac{\Delta t}{2 \Delta x} \left[ \fluxX(\cellAvg^{-x}, \gradCellAvg) - \fluxX(\cellAvg^{+x}, \gradCellAvg) \right] \\&+
+  \frac{\Delta t}{2 \Delta y} \left[ \fluxY(\cellAvg^{-y}, \gradCellAvg) - \fluxY(\cellAvg^{+y}, \gradCellAvg) \right].
+  \end{split}
+\end{equation}
+
+Finally, the update can be described by\todo{Double check update}
+\begin{align}
+  \begin{split}
+    \cellAvg (t^{n+1}) &= \cellAvg (t^n)
+    \\ &+
+  \frac{\Delta t}{\Delta x}
+    \Riemann \left(
+      \evolvedCellAvg[i-1,j]{+x}, \gradCellAvg[i-1,j]; \ %
+      \evolvedCellAvg[i,j\phantom{-1}]{-x}, \gradCellAvg[i,j\phantom{-1}]
+    \right)
+    \\ &-
+  \frac{\Delta t}{\Delta x}
+    \Riemann \left(
+      \evolvedCellAvg[i,j\phantom{+1}]{+x}, \gradCellAvg[i,j\phantom{+1}]; \ %
+      \evolvedCellAvg[i+1,j]{-x}, \gradCellAvg[i+1,j]
+    \right)
+    \\ &+
+  \frac{\Delta t}{\Delta y}
+    \Riemann \left(
+      \evolvedCellAvg[i,j-1]{+y}, \gradCellAvg[i,j-1]; \ %
+      \evolvedCellAvg[i,j\phantom{-1}]{-y}, \gradCellAvg[i,j\phantom{-1}]
+    \right)
+    \\ &-
+  \frac{\Delta t}{\Delta y}
+    \Riemann \left(
+      \evolvedCellAvg[i,j\phantom{+1}]{+y}, \gradCellAvg[i,j\phantom{+1}]; \ %
+      \evolvedCellAvg[i,j+1]{-y}, \gradCellAvg[i,j+1]
+    \right)    
+  \end{split}
+\end{align}
+
+\section{Reactive Compressible Navier Stokes Equations}\label{sec:navier-stokes}
 Fluid motion can be described by the compressible Navier Stokes equations.
 We follow the description in~\cite{dumbser2010arbitrary} for the Navier Stokes part.
 The coupling with the advection-diffusion-reaction equation follows~\cite{hidalgo2011ader} which describes this equation set for the one-dimensional case.
@@ -416,7 +533,7 @@ The maximal eigenvalues for convective and viscous part are
 \end{align}
 with speed of sound $c = \sqrt{\gamma R T }$.
 
-\section{Boundary conditions}
+\subsection{Boundary conditions}
 To close the system we need to impose boundary conditions.
 
 For some scenarios we use Cauchy boundary conditions.
