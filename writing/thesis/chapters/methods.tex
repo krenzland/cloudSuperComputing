@@ -57,6 +57,7 @@
 \newcommand{\ader}{\textsc{ader}}
 \newcommand{\aderdg}{\textsc{ader-dg}}
 \newcommand{\amr}{\textsc{amr}}
+\newcommand{\pde}{\textsc{pde}}
 
 \chapter{An ADER-DG scheme for the Navier-Stokes Equations}\label{chap:methods}
 This chapter describes the numerical and physical background that is needed to simulate reacting fluids with good accuracy.
@@ -66,30 +67,31 @@ This discussion of the discretization enables us to talk about the equation set 
 
 We conclude this chapter by a description of adaptive mesh refinement (\amr) and finite volume limiting, which combines both numerical methods to achieve a stable, high-order method.
 
-\section{Conservative Form}
-Standard (hyperbolic) form of conservation law
+\section{The ADER-DG Method}\label{sec:ader-dg}
+We describe the arbitrary derivative discontinous Galerkin (\aderdg) method in this chapter.
+Our description of the main method follows~\cite{dumbser2008unified,dumbser2010arbitrary,dumbser2018efficient}, our notation follows primarily~\cite{dumbser2018efficient}.
+We discuss the approximation of systems of partial differential equations (\pde) of the form
+\begin{equation}
+  \label{eq:conservation-law-gradient}
+ \frac{\partial}{\partial_t}  \Q + \div \flux(\Q, \gradQ) = \source(\bm{x}, t, \Q),
+\end{equation}
+which in contrast to hyperbolic conservation laws of the form
 \begin{equation}
   \label{eq:conservation-law}
  \frac{\partial}{\partial_t}  \Q + \div \flux(\Q) = \source(\bm{x}, t, \Q)
 \end{equation}
-extend to:
-\begin{equation}
-  \label{eq:conservation-law-gradient}
- \frac{\partial}{\partial_t}  \Q + \div \flux(\Q, \gradQ) = \source(\bm{x}, t, \Q)
-\end{equation}
+contain the gradient $\gradQ$ of the so called vector of conservative variables $\Q$~\cite{dumbser2010arbitrary}.
+There are therefore not hyperbolic but rather parabolic or elliptic.
 
-\section{The ADER-DG Method}\label{sec:ader-dg}
-We describe the arbitrary derivative discontinous Galerkin (ADER-DG) method in this chapter.
-See: \cite{dumbser2018efficient}
-
-We discuss the solution of a hyperbolic conservation law \cref{eq:conservation-law} with domain $\domain$ and boundary $boundary$.
-In the discontinous Galerkin (DG) framework, we approximate this solution in the space
+We discuss the solution of a hyperbolic conservation law \cref{eq:conservation-law} with domain $\domain$ and boundary $\boundary$.
+Let $\domain$ and $\boundary$ denote our two- or three-dimensional computational domain and its boundary.
+In our implementation of the discontinous Galerkin (\dg) framework, we approximate this solution in the space
 \begin{equation}
   \label{eq:dg-space}
   \broken = \bigcup_i \cell
 \end{equation}
 of disjoint quadrilateral cells $\cell$.
-Note that we do not distinguish between the approximation space and the domain, the use should be clear given its surrounding context.
+Note that we do not distinguish between the broken approximation space and the domain, the use should be clear given its surrounding context.
 In the following we make use of the Einstein summation convention where summation over repeated indexes is implied.
 
 Inside each cell $\cell$ we represent the solution in terms of the basis function 
@@ -107,7 +109,7 @@ In detail, we use a the Lagrange interpolation polynomials.
 We now describe the derivation of the \textsc{ader-dg} method.
 This scheme is a predictor-corrector method.
 We first compute a local solution of the cell in the predictor step and then connect with the neighbors in the corrector step.
-In the following we first describe the corrector step as it follows directly from the \textsc{pde}.
+In the following we first describe the corrector step as it follows directly from the \pde.
 The predictor is derived shortly after.
 
 \begin{algorithm}[H]
@@ -124,7 +126,7 @@ The predictor is derived shortly after.
 
 \sidetitle{Corrector}
 First, we multiply the system \cref{eq:conservation-law} by a test function $\testfunction{i}$ and integrate over the space-time volume $(\cell \times [t^n, t^{n+1}])$.
-We arrive at the so called weak formulation of the \textsc{pde} 
+We arrive at the so called weak formulation of the \pde\
 \begin{equation}
   \label{eq:weak-pde}
 \intdt{\intdcell{
@@ -158,7 +160,7 @@ Integrate first by parts in time (note basis here not defined over time), flux d
 }}\right)
 -\\
 \left(\intdt{\intdcell{
-    \gradient{\testfunction{k}} \cdot  \flux(\stpredictor)
+    \gradient{\testfunction{k}} \cdot  \flux(\stpredictor, \gradient{\stpredictor}) % todo correct gradient?
 }}\right)
 &=
 \left(\intdt{\intdcell{
@@ -184,7 +186,7 @@ We now multiply the conservation law again by a test function (of the same funct
 \intdt{\intdcell{
     \testfunction{k}(\bm{x}, t)
     \left(
-      \divergence{\flux(\stpredictor)}
+      \divergence{\flux(\stpredictor, \gradient{\stpredictor})}
     \right)
 }}
 =
@@ -194,24 +196,24 @@ We now multiply the conservation law again by a test function (of the same funct
 \end{equation}
 Similar to the derivation of the corrector, we again integrate the first term by parts in time and the flux divergence in space.
 This time we do not use the Riemann solver for the flux boundary term but rather use the discrete solution at time $t$.
-Note that this neglects the interaction with neighbouring cells; this is corrected in the corrector step.
+Note that this neglects the interaction with neighbouring cells; we account for this in the corrector step.
 \todo{Replace $\bm{x}$ with a macro some other letter. Is also coordinate!}
 
 \begin{align}\label{eq:space-time-predictor}
 \begin{split}
 \intdcell{
-  \testfunction{k} (\bm{x}, t^{n+1}) \stpredictor(\bm{x}. t^{n+1})
+  \testfunction{k} (\bm{x}, t^{n+1}) \stpredictor(\bm{x}, t^{n+1})
 }
 &-
 \intdt{\intdcell{
-    \pdv{}{d} \testfunction{k}(\bm{x}, t) \stpredictor(\bm{x}, t)
+    \pdv{}{t} \testfunction{k}(\bm{x}, t) \stpredictor(\bm{x}, t)
 }}
 -
 \intdcell{
   \testfunction{k}(\bm{x},t^n) \dsol(\bm{x}, t^n)
 } = \\
 \intdt{\intdcell{
-    \testfunction{k}(\bm{x},t) \divergence{\flux(\stpredictor)}
+    \testfunction{k}(\bm{x},t) \divergence{\flux(\stpredictor, \gradient{\stpredictor})}
 }}
 &+
 \intdt{\intdcell{
@@ -267,7 +269,7 @@ in direction of the normal vector $\normal$ to the cell face.
 
 This Riemann solver was first published in~\cite{gassner2008discontinuous} and used for an \textsc{ader-dg} scheme in~\cite{dumbser2010arbitrary}.
 The timestep is restriced to a so-called \textsc{cfl}-type penalty
-\begin{equation}
+\begin{equation}\label{eq:cfl-aderdg}
  \Delta t \leq  \text{CFL} \, \frac{\alpha(N) \, h}{\maxConvEigen + 2 \maxViscEigen \frac{2N+1}{h}}
 \end{equation}
 with $N$ polynomial order and $h$ characteristic length scale of elements~\cite{dumbser2010arbitrary,gassner2008discontinuous}.
@@ -381,6 +383,13 @@ Finally, the update can be described by\todo{Double check update}
   \end{split}
 \end{align}
 
+We again use the Rusanov-type Riemann solver~\cref{eq:rusanov-flux}.
+The timestep is subject to a penalty of the form
+\begin{equation}\label{eq:cfl-muscl}
+ \Delta t \leq  \text{CFL} \, \frac{h}{\maxConvEigen + 2 \maxViscEigen \frac{1}{h}},
+\end{equation}
+with a constant value of CFL that is typically close to $0.7$.
+
 \section{Reactive Compressible Navier Stokes Equations}\label{sec:navier-stokes}
 Fluid motion can be described by the compressible Navier Stokes equations.
 We follow the description in~\cite{dumbser2010arbitrary} for the Navier Stokes part.
@@ -433,7 +442,7 @@ where $\pressure$, $\stressT$ and $(\kappa \nabla T)$ denote the pressure, stres
 Temperature is denoted by $T$.
 
 
-Putting everything together, our complete \textsc{pde} is a conservation law of the form of \cref{eq:conservation-law-gradient}
+Putting everything together, our complete \pde\ is a conservation law of the form of \cref{eq:conservation-law-gradient}
 \begin{equation}
  \begin{array}{l}
  \text{mass cons.} \\
@@ -642,12 +651,16 @@ In our case we use the criterion
   \label{eq:limiting-physical}
   \operatorname{is-admissible}(\Q) =
   \begin{cases}
-    \text{true} & \Qrho > 0 \land \pressure > 0 \land \QZ > 0\\
+    \text{true} & \Qrho > 0 \land \pressure > 0 \land \left(0 \leq \QZ \leq 1 \right)\\
     \text{false} & \text{otherwise}.
   \end{cases}
 \end{equation}
 The positivity of the pressure implies positivity of energy.
 \todo{Mention dmp if I end up using it.}
+
+If a solution violates our criteria, we subdivide the infringing cell into $N_2 = 2N + 1$ subcells.
+This results in the remarkable properties, that we first do not loose any spatial resolution and secondly that we can use the same timestep size for both methods.
+This can be seen easily by noticing the similar form of \cref{eq:cfl-aderdg} and \cref{eq:cfl-muscl}.
 
 %%% Local Variables:
 %%% mode: latex
