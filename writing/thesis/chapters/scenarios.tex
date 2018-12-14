@@ -10,7 +10,7 @@ Unless otherwise noted, we use the constants
 The other constants follow from the definition of \cref{eq:fluid-constants}.
 
 We describe some scenarios in terms of the primitive variables $(\Qrho, \Qv, \pressure)$, these can be converted to the conservative variables by the definition of momentum and the definition of energy.   
-\section{Numerical Convergence Test}
+\section{A Manufactured Solution}\label{sec:manufactured-solution}
 Following~\cite{dumbser2010arbitrary}, the scenario can be described in primitive variables by setting
 \begin{align}
 \begin{split}
@@ -63,7 +63,7 @@ There, the velocity of the wall is piece-wise constant.
 Therefore, this scenario is a good choice to test the stability of the finite volume limiter.
 
 \subsection{ABC-Flow}
-We use theArnold–Beltrami–Childress (\textsc{abc}) flow as a simple example of a three-dimensional scenario~\cite{tavelli2016staggered}.
+We use the Arnold–Beltrami–Childress (\textsc{abc}) flow as a simple example of a three-dimensional scenario~\cite{tavelli2016staggered}.
 This scenario has, unlike the three-dimensional version of the Taylor-Green vortex, at least for the incompressible case an analytical solution
 \begin{align}
   \label{eq:abc-flow}
@@ -110,6 +110,16 @@ We use the initial conditions
 \end{align}
 for the unburnt gas.
 
+Similar to~\cite{helzel2000modified}, we use the constants
+\begin{align}
+  \begin{split}
+  \gamma &= 1.4, \\
+  \Pr &= 0.7, \\
+  c_v &= 2.5, \\
+  c_p &= 3.5, \\
+  R &= 1.0.
+  \end{split}
+\end{align}
 
 \section{Atmospheric Scenarios}
 The scenario is described in terms of potential temperature $\potT$
@@ -179,6 +189,17 @@ Concretely, we need to impose a viscous heat flux to ensure that the atmosphere 
 \frac{R \overline{\theta} \left(\frac{\overline{p}{\left (z \right )}}{p_{0}}\right)^{\frac{R}{c_{p}}} \frac{d}{d z} \overline{p}{\left (z \right )}}{c_{p} \overline{p}{\left (z \right )}}.
 \end{equation}
 The background pressure can be reconstructed by \cref{eq:hydrostatic-background-pressure}, its derivative is given by \cref{eq:hydrostatic-balance-potT}.
+
+We use the following set of fluid dependent constants for these scenarios
+\begin{align}
+  \begin{split}
+    \gamma &= 1, \\
+    \Pr &=  0.71, \\
+    R &= 287.058, \\
+    p_0 &= 10000,
+  \end{split}
+\end{align}
+the other constants are evaluated following \cref{eq:fluid-constants}.
 
 \subsection{Robert's smooth bubble}
 \cite{robert1993bubble}
