@@ -6,7 +6,7 @@
 \label{tab:convergence-order}
 \begin{tabular}{@{}lS[table-format=1.2]S[table-format=1.2]S[table-format=1.2]@{}}
 \toprule
-{Order} & {L1} & {L2} & {LInf}\\ \midrule
+{Order} & {$L_1$} & {$L_2$} & {$L_\infty$}\\ \midrule
 1 & 2.03 & 2.00 & 1.92\\
 2 & 2.56 & 2.55 & 2.56\\
 3 & 3.44 & 3.41 & 3.42\\
@@ -49,6 +49,18 @@ The sum runs over all quadrature nodes $x_i$ with weights $w_i$.
 We use ten nodes.
 
 For the limiting case of $p \to \infty$ we use the maximum point-wise error.
+
+
+We compute the error for the manufactured-solution scenario (\cref{sec:manufactured-solution}).
+Looking at the plot for the $L_2$ error (refer to plot here) shows that our method converges for all tested polynomial orders.
+\todo{Preliminary results used here!}
+
+To compute the numerical order of convergence, we perform a linear regression of the logarithm of the error vs.\ the logarithm of the meshsize.
+The size of the slope is then the convergence order.
+We can see (\cref{tab:convergence-order}) that our numerical convergence rate increases with the polynomial order.
+We do not achieve the optimal theoretical order of convergence of $N+1$.
+In~\cite{dumbser2010arbitrary}, which use a similar numerical method and the same scenario, but a different grid, \citeauthor{dumbser2010arbitrary} achieves the optimal order for most polynomial orders.
+Some \textsc{dg}-methods of odd order only achieve a numerical convergence order of $N+\nicefrac{1}{2}$.
 
 \section{Accurate CFD}
 \section{Accurate Clouds}
