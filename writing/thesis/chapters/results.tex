@@ -40,7 +40,7 @@ We first observe that for our approximation space $\broken$ we can split up the 
 where $\error_{\cell[]}$ is the error in the cell $\cell[]$.
 
 \todo{Describe how to integrate the error for cells, and effect of volume}
-We evaluate the cell-wise error with Gaussian quadrature.
+We evaluate the cell-wise error with Gaussian quadrature using \cref{eq:integration-by-substitution}
  \begin{equation}
    \Vert f_K(x) \Vert_p = \left( V \sum_{\bm{i}} \vert f(\bm{x}_i, t) - \hat{f}(\bm{x}_i, t) \vert^p w_{{\bm{i}}}  \right)^{1/p},
  \end{equation}

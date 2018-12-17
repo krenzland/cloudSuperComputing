@@ -49,7 +49,9 @@
 % Integrals
 \newcommand{\intdt}[1]{\int_{t^n}^{t^{n+1}} #1 \dd{t}}
 \newcommand{\intdcell}[1]{\int_{\cell} #1 \dd{\bm{x}}}
+\newcommand{\intdrefcell}[1]{\int_{\cell} #1 \dd{\hat{\bm{x}}}}
 \newcommand{\intdcellb}[1]{\int_{\partial{} \cell} #1 \dd{S}} % TODO: define boundary of cell
+\newcommand{\intdrefcellb}[1]{\int_{\partial{} \cell} #1 \hat{\dd{S}}} % TODO: define boundary of cell
 
 % Names of methods or so
 \newcommand{\muscl}{\textsc{muscl}-Hancock}
@@ -124,51 +126,53 @@ The predictor is derived shortly after.
   \caption{The \textsc{ader-dg} algorithm for one cell.}
 \end{algorithm}
 
-\sidetitle{Corrector}
-First, we multiply the system \cref{eq:conservation-law} by a test function $\testfunction{i}$ and integrate over the space-time volume $(\cell \times [t^n, t^{n+1}])$.
-We arrive at the so called weak formulation of the \pde\
+\sidetitle{Reference Cell}
+\newcommand{\mapping}{\mathcal{M}}
+\newcommand{\volume}{V}
+For reasons of computational efficiency, we describe the scheme in terms of a reference cell.
+We use the quad cell $\cell = [0, 1]^D$\todo{check if $[0,1]$ detontes correct interval}.
+The mapping, which takes a point on the reference cell with coordinates $\hat{\bm{x}}$ and returns a point $\bm{x}$ on a cell with center and widths $(\Delta x, \Delta y, \Delta z)$, is given by
 \begin{equation}
-  \label{eq:weak-pde}
-\intdt{\intdcell{
-\testfunction{k} \pdv{\Q}{t}
-}}
-+
-\intdt{\intdcell{
-    \testfunction{k} \left( \div{F(\Q, \gradQ} \right)
-}}
-=
-\intdt{\intdcell{
-    \testfunction{k} S(\Q, \bm{x}, t)
-}}
+  \hat{x} = \mapping (\bm{x}) =
+  \operatorname{cell-center}(\cell) +
+\begin{pmatrix}
+\Delta x && \\
+&\Delta y & \\
+&&\Delta z&
+\end{pmatrix}
+ % \operatorname{diag}(\Delta x, \Delta y, \Delta z)
+  \begin{pmatrix}
+    x - 0.5\\
+    y - 0.5\\
+    z - 0.5
+  \end{pmatrix}.
 \end{equation}
-\todo{Include gradient everywhere!}
-\todo{Double check the following description}
-We now replace the solution $\bm{Q}$ with so called spacetime-predictor $\stpredictor (\bm{x},t)$ into the weak form and write it as a polynomial using the representation of \cref{eq:cell-approx}.
-Integrate first by parts in time (note basis here not defined over time), flux divergence by parts in space.
-\begin{align}
-\begin{split}
-\label{eq:corrector}
-\left(
-\intdcell{
-  \testfunction{k} \sbasis{l}
-}
-\right)
-(\bm{u^{n+1} - u^{n}})
-&+
-\left(\intdt{\intdcell{
-      \testfunction{k} \Riemann(\stpredictor^-, \stpredictor^+) \cdot \normal
-}}\right)
--\\
-\left(\intdt{\intdcell{
-    \gradient{\testfunction{k}} \cdot  \flux(\stpredictor, \gradient{\stpredictor}) % todo correct gradient?
-}}\right)
-&=
-\left(\intdt{\intdcell{
-      \testfunction{k} \source(\stpredictor)
-}}\right)
-\end{split}
-\end{align}
-The first term motivates an orthogonal basis as this leads to a diagonal mass matrix.
+We also define the inverse mapping $\mapping^{-1}$.
+This can be used to define a function $f(\bm{x})$ acting on a point $\bm{x}$ of a regular cell in term of a function $\hat{f}(\bm{x})$ that acts on a point of the reference cell by considering
+\begin{equation}
+  \label{eq:function-ref-cell}
+  f(\bm{x}) = f\left( \mapping^{-1}(\bm{x}) \right) = \hat{f}(\hat{\bm{x}}).
+\end{equation}
+
+The determinant of $\mapping$ is simply the volume $V$ of the cell
+\begin{equation}
+  \label{eq:determinant-mapping}
+  \volume = \operatorname{det}(\operatorname{Jacobian}\mapping) = \Delta x \, \Delta y \,\Delta z.
+\end{equation}
+This is useful for evaluating derivatives by the chain rule and, similarly, integrals by substitution.
+For example, we can evaluate a volume integral by
+\begin{equation}
+  \label{eq:integration-by-substitution}
+  \intdcell{
+f(\bm{x})
+  }
+  =
+\volume \intdrefcell{
+    \hat{f}(\hat{\bm{x}})
+  }
+\end{equation}
+
+\todo{Maybe show this.}
 
 \sidetitle{Predictor}
 To derive the predictor, we again take an approximation of our solution in a nodal basis, but now consider polynomials that are defined both in space and time
@@ -224,13 +228,99 @@ Note that this neglects the interaction with neighbouring cells; we account for 
 Inserting \cref{eq:cell-approx-space-time} results in a local systems of equations that can be solved in a fixed point iteration scheme.
 \todo{Inital guess correct? Maybe cite sth?}
 As initial value for the space-time-predictor we use the solution of the timestep before.
-\todo{Maybe collect into matrices and show scheme?}
+\todo{Collect into matrices and show scheme?}
+To show the computational efficiency of our scheme, we follow the approach of~\cite{dumbser2008unified} and collect our integrals into matrices.
+\begin{equation}
+  \label{eq:predictor-matrices}
+  \begin{alignedat}{2}
+& A = \intdt{\intdcell{
+    \testfunction{k} \pdv{t} \stbasis{l}
+}}
+\qquad&& B \\
+& A
+\qquad&& B
+\end{alignedat}
+\end{equation}
 For details and proof of convergence for the linear case, see~\cite{dumbser2008unified}.
 
 \sidetitle{Boundary extrapolation and stuff}
 \todo{Explain that stpredictor and fluxes are saved and extrapolated to boundary.
 This is important because we extrapolate the gradient as well!}
 Extrapolate unknowns to boundary, convert from our basis to basis on faces and so on
+
+\sidetitle{Corrector}
+First, we multiply the system \cref{eq:conservation-law} by a test function $\testfunction{i}$ and integrate over the space-time volume $(\cell \times [t^n, t^{n+1}])$.
+We arrive at the so called weak formulation of the \pde\
+\begin{equation}
+  \label{eq:weak-pde}
+\intdt{\intdcell{
+\testfunction{k} \pdv{\Q}{t}
+}}
++
+\intdt{\intdcell{
+    \testfunction{k} \left( \div{F(\Q, \gradQ} \right)
+}}
+=
+\intdt{\intdcell{
+    \testfunction{k} S(\Q, \bm{x}, t)
+}}
+\end{equation}
+\todo{Include gradient everywhere!}
+\todo{Double check the following description}
+We now replace the solution $\bm{Q}$ with so called spacetime-predictor $\stpredictor (\bm{x},t)$ into the weak form and write it as a polynomial using the representation of \cref{eq:cell-approx}.
+Integrate first by parts in time (note basis here not defined over time), flux divergence by parts in space.
+\newcommand{\massMatrixDef}{\intdcell{
+  \testfunction{k} \sbasis{l}
+}}
+\begin{align}
+\begin{split}
+\label{eq:corrector}
+\left(
+\massMatrixDef
+\right)
+(\bm{u^{n+1} - u^{n}})
+&+
+\left(\intdt{\intdcell{
+      \testfunction{k} \Riemann(\stpredictor^-, \stpredictor^+) \cdot \normal
+}}\right)
+-\\
+\left(\intdt{\intdcell{
+    \gradient{\testfunction{k}} \cdot  \flux(\stpredictor, \gradient{\stpredictor}) % todo correct gradient?
+}}\right)
+&=
+\left(\intdt{\intdcell{
+      \testfunction{k} \source(\stpredictor)
+}}\right)
+\end{split}
+\end{align}
+The first term is our mass matrix with entries
+\newcommand{\massMatrix}[1][]{\bm{M}_{#1}}
+\newcommand{\quadWeight}[1][i]{w_{#1}}
+\begin{equation}
+  \label{eq:mass-matrix}
+  \massMatrix[kl] = \massMatrixDef = \volume \underbrace{\quadWeight[k] \delta_{kl}}_{\text{diagonal}}
+\end{equation}
+which is diagonal and thus convenient to invert.
+\newcommand{\sumbasis}{\sum_i^{(N + 1)^d - 1}}
+We can then insert the definition of our basis function into our equation and arrive at
+\begin{align}
+  \massMatrix \left( \dsol^{t+1} - \dsol^{t} \right) &=
+  \Delta t \left( \bm{a} - \bm{b} + \bm{s} \right) 
+  \intertext{with}
+\begin{split}
+  a &= \sumbasis \\
+  b &= \sumbasis \\
+  s &= \sumbasis.
+\end{split}
+\end{align}
+We can solve this for the new unknows $\bm{u}^{n+1}$
+\begin{align}\label{eq:update-predictor}
+\begin{split}
+  \bm{u}^{n+1} &= \bm{u}^{n} + \Delta t (\operatorname{update}) \\
+  \operatorname{update} &= \massMatrix^{-1} \left( \bm{a} - \bm{b} + \bm{s} \right)
+\end{split}
+\end{align}
+which is clearly of the form of a one-step scheme.
 
 \sidetitle{Riemann solver \textit{\&} timestep}
 As a Riemann solver we use a simple Rusanov-flux that is adapted for diffusive problems
@@ -535,10 +625,12 @@ The viscous effects are modeled by the stress tensor
 
 The maximal eigenvalues for convective and viscous part are
 \begin{align}
+  \begin{split}
   \maxConvEigen \vert  &= \Vert \Qv \Vert + c\\
   \maxViscEigen \vert &= \max \left( \frac{4}{3} \frac{\mu}{\Qrho},
                         \frac{\gamma \mu}{\Pr \Qrho},
                         \diffCoeff \right)
+  \end{split}
 \end{align}
 with speed of sound $c = \sqrt{\gamma R T }$.
 
@@ -572,11 +664,15 @@ Grid, spacefilling curve, and so on.
 We use adaptive mesh refinement (\textsc{amr}).
 
 We use the total variation (\textsc{tv}) over an arbitrary indicator variable given by
+\newcommand{\tv}{\operatorname{TV}}
 \begin{equation}
   \label{eq:tv}
-  \operatorname{TV}\left[ f(\bm{x}] \right] =
+  \tv \left[ f(\bm{x}] \right] =
 \Vert \left(\intdcell{ \vert \gradient{f \left( \bm{x} \right)} \vert } \right) \Vert_1
 \end{equation}
+This integral can be evaluated efficiently using \cref{eq:integration-by-substitution}.
+\todo{Gradient on reference cell, Gaussian quad., inline}
+\todo{Definition for FV schemes (maybe just mapping to DG-Cells)}
 
 \newcommand{\gobs}{\operatorname{G}}
 \newcommand{\mean}{\mu}
@@ -598,7 +694,7 @@ We thus compute the mean and variance with the parallel algorithm of~\cite{chan1
 To do this, we need to store three variables per computation unit:
 the mean, the variance and the number of processed elements.
 We collect these items in the vector $\gobs = (\mean, \variance, \gobsCount)$
-We can then merge two pairs of observed variables by \cref{alg:merge-variance}.
+We can then merge two pairs of observed variables (\cref{alg:merge-variance}).
 
 \begin{algorithm}[ht]
   \begin{algorithmic}
@@ -626,14 +722,30 @@ We can then merge two pairs of observed variables by \cref{alg:merge-variance}.
   \caption{\label{alg:merge-variance}
     Merging two sets of reduced mean and variance~\cite{chan1982updating}}
 \end{algorithm}
-We then use a threshold criterion
 \todo{Cite Chebychev, add concrete form of threshold.}
-This criterion can be justified by Chebychev's inequality, which states that
+Chebychev's inequality
 \begin{equation}
   \label{eq:chebychev}
-  \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2}
+  \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2},
 \end{equation}
-for an arbitrary distribution with mean $\mu$ and standard deviation $\sigma$ probability $\mathbb{P}$.
+with probability $\mathbb{P}$,
+holds for an arbitrary distribution with mean $\mu$ and standard deviation $\sigma$ probability $\mathbb{P}$.
+This motivates the following refinement criterion
+\begin{equation}
+  \label{eq:refinement-criterion}
+  \operatorname{evaluate-refinement}(\Q, \mu, \sigma) =
+  \begin{cases}
+    \text{refine} & \text{if } \tv(\Q) \geq \mu + T_r \sigma \\
+    \text{delete} & \text{if } \tv(\Q) \leq \mu + T_r \sigma \\
+    \text{keep} & \text{otherwise}
+    \end{cases}
+\end{equation}
+which refines when a cell has a significantly higher standard deviation.
+In this equation, the constants $T_r$ and $T_d$ can be used to tailor the trade-off between the quality of approximation and computational cost.
+They can be chosen freely, as long $T_d < T_r$ holds.
+Chebychev's inequality then guarantees that only a subset is marked for refinement.
+Note that even though this inequality provides only a loose bound.
+If one would be willing to assume a distribution of the indicator variable, tighter bounds can be derived.
 
 \subsection{Limiting}\label{sec:limiting}
 Higher order \textsc{dg} methods cannot cope with discontinuous solutions.
@@ -658,9 +770,14 @@ In our case we use the criterion
 The positivity of the pressure implies positivity of energy.
 \todo{Mention dmp if I end up using it.}
 
-If a solution violates our criteria, we subdivide the infringing cell into $N_2 = 2N + 1$ subcells.
-This results in the remarkable properties, that we first do not loose any spatial resolution and secondly that we can use the same timestep size for both methods.
-This can be seen easily by noticing the similar form of \cref{eq:cfl-aderdg} and \cref{eq:cfl-muscl}.
+If a solution violates our criteria, we recompute the timestep using a limited finite volume method.
+In our case we use the \muscl{}-method (\cref{sec:muscl}).
+The recomputation starts by subdividing the infringing cell into $N_2 = 2N + 1$ subcells.
+This number of subcells has the advantage that we do not loose spatial resolution.
+We can see this easily by noticing the similar form of \cref{eq:cfl-aderdg} and \cref{eq:cfl-muscl}.
+
+For the sake of brevity, we omit technical details.
+We refer the interested reader to~\cite{dumbser2016simple}.
 
 %%% Local Variables:
 %%% mode: latex
