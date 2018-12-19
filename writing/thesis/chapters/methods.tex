@@ -44,7 +44,14 @@
 \newcommand{\flux}{F}
 \newcommand{\viscFlux}{\flux^{v}}
 \newcommand{\hyperFlux}{\flux^{h}}
-\newcommand{\source}{\bm{S}}
+%\newcommand{\source}{\bm{S}}
+\newcommand{\source}[1][]{
+  \notblank{#1}{
+S_{#1}
+}{
+\bm{S}
+}
+}
 
 % Integrals
 \newcommand{\intdt}[1]{\int_{t^n}^{t^{n+1}} #1 \dd{t}}
@@ -61,6 +68,9 @@
 \newcommand{\amr}{\textsc{amr}}
 \newcommand{\pde}{\textsc{pde}}
 
+% Yet to be sorted
+\newcommand{\quadWeight}[1][i]{w_{#1}}
+
 \chapter{An ADER-DG scheme for the Navier-Stokes Equations}\label{chap:methods}
 This chapter describes the numerical and physical background that is needed to simulate reacting fluids with good accuracy.
 We start with a description of the arbitrary high order derivatives (\ader) discontinuous Galerkin (\dg) method with a focus on equations that contain both advective and diffusive terms.
@@ -68,6 +78,205 @@ We then seque into a short description of the \muscl\ scheme, a second order fin
 This discussion of the discretization enables us to talk about the equation set in sufficient detail.
 
 We conclude this chapter by a description of adaptive mesh refinement (\amr) and finite volume limiting, which combines both numerical methods to achieve a stable, high-order method.
+
+\section{Reactive Compressible Navier Stokes Equations}\label{sec:navier-stokes}
+\newcommand{\diffCoeff}{\varepsilon}
+\newcommand{\hyperFluxDef}{
+  \begin{pmatrix}
+    \Qj \\
+    \Qv  \otimes \Qj + \bm{I} \pressure  \\
+    \Qv \cdot (\bm{I} \QE + \bm{I} \pressure) \\
+    \Qj \QZZ
+  \end{pmatrix}
+}
+
+\newcommand{\viscFluxDef}{
+  \begin{pmatrix}
+     -\diffCoeff \gradient{\Qrho}\\
+     \stressT (\Q, \gradQ)  \\
+     \Qv \cdot \stressT (\Q, \gradQ) - \kappa \gradient{T}\\
+     -\diffCoeff \gradient{\QZ}
+   \end{pmatrix}
+}
+
+Fluid motion can be described by the compressible Navier Stokes equations.
+We follow the description in~\cite{dumbser2010arbitrary} for the Navier Stokes part.
+The coupling with the advection-diffusion-reaction equation follows~\cite{hidalgo2011ader} which describes this equation set for the one-dimensional case.
+We solve the \pde\ in the conversative form \pcref{eq:conservation-law-gradient}\todo{Dont reference to following chapter!}
+\begin{equation}
+ \begin{array}{l}
+ \text{mass cons.} \\
+ \text{momentum cons.} \\
+ \text{energy cons.} \\
+ \text{cont.\ gas} 
+\end{array}
+:
+\quad
+  \pdv{}{t}
+  \underbrace{
+  \begin{pmatrix}
+    \Qrho\\
+    \Qj\\
+    \QE\\
+    \QZ
+    \end{pmatrix}}_{\Q}
+  +
+  \divergence{
+  \underbrace{
+  \left(
+   \underbrace{\hyperFluxDef}_{\hyperFlux(\Q)}
++
+\underbrace{\viscFluxDef}_{\viscFlux(\Q, \gradQ)}
+  \right)}_{\flux(\Q, \gradQ)}}
+ =
+  \underbrace{
+  \begin{pmatrix}
+    \source[\Qrho\phantom{\Qrho}]\\
+    \source[\Qj]\\
+    \source[\QE]\\
+    \source[\QZ]
+    \end{pmatrix}}_{\source(\Q, \bm{x}, t)}
+\end{equation}
+which describes the time evolution of variables $\Q$ with respect to a flux $\flux(\Q, \gradQ)$ and a source $\source(\Q)$.
+The vector of conserved quantities is given by
+\begin{equation}
+  \label{eq:conserved-variables}
+ \Q = \left( \Qrho, \Qj, \QE, \QZ \right),
+\end{equation}
+where $\Qrho$ is the density, $\Qj$ is the two or three-dimensional momentum, $\QE$ the energy density and $\QZ$ is the mass fraction of the chemical reactant.
+The chemical reactant in our case is unburnt gas.
+The rows of the equation are the conservation of mass, the conservation of momentum, the conservation of energy and the continuity of the reactant.
+We split the flux into a hyperbolic $\hyperFlux(\Q)$ and a viscous part$\viscFlux(\gradQ)$
+
+\begin{equation}
+  \label{eq:flux}
+  \flux(\Q, \gradQ) = \hyperFlux(\Q) + \viscFlux(\Q, \gradQ).
+\end{equation}
+The hyperbolic flux is given by
+\begin{equation}
+  \label{eq:hyper-flux}
+  \hyperFlux(\Q) = \hyperFluxDef,
+\end{equation}
+which are the Euler equations coupled with an advection equation.
+In this equation $\bm{a} \otimes \bm{b} = \bm{a} \bm{b}^\intercal$ is the Kronecker or outer product of two vectors $\bm{a}$ and $\bm{b}$.
+The pressure $\pressure$ is given by the caloric equation of state of an ideal reacting gas
+\begin{equation}
+  \label{eq:eos}
+  \pressure = (\gamma - 1) \left(\QE - \frac{1}{2} \left(\Qv \cdot \Qj \right)  - q_0 \QZ \right).
+\end{equation}
+The term $q_0 \QZ$ is the chemical energy with the heat release $q_0$.
+The pressure is related to the temperature $T$ by the thermic ideal gas law
+\begin{equation}
+  \label{eq:temperature}
+ \frac{\pressure}{\Qrho} = RT,
+\end{equation}
+where $R$ is the specific gas constant of a fluid.
+
+The viscous flux is
+\begin{equation}
+  \label{eq:visc-flux}
+  \viscFlux(\Q, \gradQ) = \viscFluxDef.
+\end{equation}
+where $\stressT$ and $(\kappa \nabla T)$ denote the stress tensor and heat flux respectively.
+The viscous effects of the fluid are modeled by the stress tensor
+\begin{equation}
+  \label{eq:stress-tensor}
+  \stressT(Q, \nabla Q) =
+  \mu
+  \left(
+  \left(\nicefrac{2}{3} \divergence{\Qv} \right) -
+  \left( \gradient{\Qv} + \gradient{\Qv}^\intercal \right)
+  \right).
+\end{equation}
+
+We further introduce the ratio of specific heats $\gamma$ and the heat fraction for constant volume $c_v$ and constant volume $c_r$.
+These constants are all fluid dependent and relate to each other and the gas constant by
+\begin{align}
+  \label{eq:fluid-constants}
+  \begin{split}
+  c_v &= \frac{1}{\gamma - 1} R \\
+  c_p &= \frac{\gamma}{\gamma - 1} R\\
+  R &= c_p - c_v\\
+  \gamma &= \frac{c_p}{c_v}.
+  \end{split}
+\end{align}
+\todo{Cite sth for this!}
+We can then compute the heat conduction coefficient
+\begin{equation}
+  \label{eq:heat-conduction-coeff}
+  \kappa = \frac{\mu \gamma}{\Pr} \frac{1}{\gamma - 1} R = \frac{\mu \gamma}{\Pr} c_v,
+\end{equation}
+where the Prandtl number $\Pr$ depends on the fluid.
+% Sutherland's viscosity law:
+% \begin{equation}
+%   \label{eq:sutherland}
+%  \mu(T)  = \mu_0 {\left(\frac{T}{T_0}  \right)}^{\beta} \frac{T_0 + C}{T + C}
+% \end{equation}
+% with \(\beta = 1.5\), \(C = \text{const.}\), reference temperature $T_0$ and reference viscosity $\mu_=$.
+% Equal to
+% \begin{align}
+%   \lambda &= \frac{\mu_0 (T_0 + C)}{T_0^\beta} \\
+%   \mu(T) &= \lambda \frac{T^\beta}{T + C},
+% \end{align}
+% where $\lambda$ is constant for a given fluid.
+
+The maximal absolute eigenvalues for convective and viscous part in direction of a normal vector $\normal$ are
+\begin{align}
+  \begin{split}
+    \maxConvEigen &= \left( \partial \bm{F}/\partial \bm{Q}\right) \cdot \normal = \vert \Qv_{\normal} \vert + c,\\
+    \maxViscEigen &= \left( \partial \bm{F}/\partial \left( \nabla \bm{Q} \cdot \normal \right)\right) \cdot \normal =
+    \max \left( \frac{4}{3} \frac{\mu}{\Qrho},
+                        \frac{\gamma \mu}{\Pr \Qrho},
+                        \diffCoeff \right)
+  \end{split}
+\end{align}
+with velocity in direction of the normal $\Qv_{\normal}$ and speed of sound $c = \sqrt{\gamma R T }$.
+
+We also support two different kind of (optional) source terms.
+\todo{Either include gravity in pressure or add source term for energy.}
+The first source term is gravity, given by
+\begin{equation}\label{eq:source-gravity}
+  \source[\Qj] = - g \bm{k} \cdot \Qj,
+\end{equation}
+where $g = 9.81$ and $\bm{k}$ is a unit vector pointing in $z$-direction.
+
+\newcommand{\reactionTimescale}{\tau}
+\newcommand{\reactionTemperature}{T_{\text{ign}}}
+The chemical reactive source term is
+\begin{equation}\label{eq:source-reaction}
+  \source[\QZ] = - K(T) \QZ.
+\end{equation}
+We use the very simple reaction model
+\begin{equation}\label{eq:reaction-model}
+\begin{cases}
+  - \frac{1}{\reactionTimescale} & T > \reactionTemperature\\
+  0 & \text{otherwise}
+\end{cases}  
+\end{equation}
+where $\reactionTimescale$ is the timescale of the reaction and $\reactionTemperature$ is the activation temperature.
+
+\subsection{Boundary conditions}
+To close the system we need to impose boundary conditions.
+
+For some scenarios we use Cauchy boundary conditions.
+In most cases, we would like to impose periodic boundary conditions, due to the inner workings of ExaHyPE this is not possible.
+Instead we use the analytical solution of our problems at the boundary, imposing both value and gradients of the conservative variables.
+Note that this leads to an error when our problem does not posses an exact analytical solution.
+This is the case for test cases that are analytical solutions to the incompressible Navier Stokes equations but do not satisfy the compressible equation set.
+
+As a physical boundary condition we limit ourselves to the no-slip boundary condition, where we assume that the fluid has a velocity of zero near the wall.
+\todo{Check if this is the correct physical description!}
+We enfore this by setting
+\begin{align}
+  \label{eq:no-slip}
+  \begin{split}
+  \Qrho^o &= \Qrho^i, \\
+  \Qj^o &= -\Qj^i, \\
+  \QE^0 &= \QE^i,\\
+  {(\nabla Q)}^o &= {(\nabla Q)}^i,
+  \end{split}
+\end{align}
+where a superscript of $o$ and $i$ denotes the values outside and inside of the boundary respectively.
 
 \section{The ADER-DG Method}\label{sec:ader-dg}
 We describe the arbitrary derivative discontinous Galerkin (\aderdg) method in this chapter.
@@ -96,35 +305,34 @@ of disjoint quadrilateral cells $\cell$.
 Note that we do not distinguish between the broken approximation space and the domain, the use should be clear given its surrounding context.
 In the following we make use of the Einstein summation convention where summation over repeated indexes is implied.
 
-Inside each cell $\cell$ we represent the solution in terms of the basis function 
-\begin{equation}
-  \label{eq:cell-approx}
-  u(\bm{x}, t^n)_{|\cell[i]} = \hat{u}^n_{i,l} \sbasis{l}(\bm{x}),
-\end{equation}
-where $l$ is a multi-index, containing one index per spatial dimension.
-\todo{dofs $\hat{u}$, local solution, etc.}
-For example, $(l = (l_1, l_2))$ for the two dimensional case.
-This polynomial is interpolating, i.e.\ \ldots\todo{interpolating?}.
-This choice of basis (called \textit{nodal} basis) allows us to easily compute integrals over cells using Gaussian quadrature.
-In detail, we use a the Lagrange interpolation polynomials.
+% Inside each cell $\cell$ we represent the solution in terms of the basis function 
+% \begin{equation}
+%   \label{eq:cell-approx}
+%   u(\bm{x}, t^n)_{|\cell[i]} = \hat{u}^n_{i,l} \sbasis{l}(\bm{x}),
+% \end{equation}
+% where $l$ is a multi-index, containing one index per spatial dimension.
+% \todo{dofs $\hat{u}$, local solution, etc.}
+% For example, $(l = (l_1, l_2))$ for the two dimensional case.
+% This polynomial is interpolating, i.e.\ \ldots\todo{interpolating?}.
+% This choice of basis (called \textit{nodal} basis) allows us to easily compute integrals over cells using Gaussian quadrature.
+% In detail, we use a the Lagrange interpolation polynomials.
 
 We now describe the derivation of the \textsc{ader-dg} method.
 This scheme is a predictor-corrector method.
-We first compute a local solution of the cell in the predictor step and then connect with the neighbors in the corrector step.
-In the following we first describe the corrector step as it follows directly from the \pde.
-The predictor is derived shortly after.
+We first compute a local time evolution of each cell in a predictor step and then add the influence of the neighbors in the corrector step.
+$\ldots$
 
-\begin{algorithm}[H]
-  \begin{algorithmic}
-    \Let{$\stpredictor$}{Initial guess}
-    \Let{$F_h$}{$\flux(\Q, \gradQ)$}
-    \Let{$\stpredictor$}{Solve \cref{eq:space-time-predictor} using $F_h, \Q, \gradQ$}
-    \Let{$\left( \hat{F_h}, \hat{\Q}, \hat{\gradQ}, \hat{\stpredictor} \right)$}
-        {Extrapolate to boundary using \cref{eq:boundary-extrapolation}}
-    \Let{update}{Use \cref{eq:corrector} with boundary extrapolated values (fluxes of neighbors)}
-  \end{algorithmic}
-  \caption{The \textsc{ader-dg} algorithm for one cell.}
-\end{algorithm}
+% \begin{algorithm}[H]
+%   \begin{algorithmic}
+%     \Let{$\stpredictor$}{Initial guess}
+%     \Let{$F_h$}{$\flux(\Q, \gradQ)$}
+%     \Let{$\stpredictor$}{Solve \cref{eq:space-time-predictor} using $F_h, \Q, \gradQ$}
+%     \Let{$\left( \hat{F_h}, \hat{\Q}, \hat{\gradQ}, \hat{\stpredictor} \right)$}
+%         {Extrapolate to boundary using \cref{eq:boundary-extrapolation}}
+%     \Let{update}{Use \cref{eq:corrector} with boundary extrapolated values (fluxes of neighbors)}
+%   \end{algorithmic}
+%   \caption{The \textsc{ader-dg} algorithm for one cell.}
+% \end{algorithm}
 
 \sidetitle{Reference Cell}
 \newcommand{\mapping}{\mathcal{M}}
@@ -172,15 +380,59 @@ f(\bm{x})
   }
 \end{equation}
 
-\todo{Maybe show this.}
+\sidetitle{Basis Functions}
+\newcommand{\lagrange}[1][i]{L_{#1}}
+We define basis functions on the reference cell.
+We use Langrange polynomials that are defined in the one-dimensional case by
+\begin{equation}
+  \label{eq:lagrange-basis}
+  \lagrange(x) = \prod_{i \neq j}^N \frac{x - x_j}{x_i - x_j}.
+\end{equation}
+We can then represent functions as a sum over the support points $x_j$
+\begin{equation}
+  \label{eq:langrange-expansion-1d}
+  f(x) = \sum_{i = 0}^N f(x_i) \lagrange[i](x) = f(x_i) \lagrange[i](x),
+\end{equation}
+where we used the Einstein summation convention where summation over repeated indices is implied.
+The support points $x_i$ are chosen such that they coincide with the nodes of the Gauss-Legendre quadrature which we can use to evaluate integrals
+\begin{equation}
+  \label{eq:quadrature-1d}
+  \int_0^1 f(x) \dd{x} = \sum_n^N \quadWeight[n] f(x_n),
+\end{equation}
+where $x_n$ is a quadrature point with weight $\quadWeight[n]$.
+The basis functions are similarly defined in $d$ dimensions by considering nodes that are the tensor-products of $d$ one-dimensional Gauss-Legendre quadrature.
+To simplify notation, we order the polynomials by a linearised index, a $d$-dimensional function is then approximated by
+\begin{equation}
+  \label{eq:lagrange-expansion}
+  f(\bm{x}) = \sum_{i = 0}^{N^d} f(\bm{x}_i) \lagrange[i](\bm{x}) = f(\bm{x}_i) \lagrange[i](\bm{x}).
+\end{equation}
+Similarly to the one-dimensional case, we can evaluate integrals by
+\begin{align}
+  \label{eq:quadrature}
+  \int_0^1 f(\bm{x}) \dd{\bm{x}} &= \sum_n^{(N+1)^D - 1} \quadWeight[n] f(\bm{x}_n) \\
+  \intertext{with}
+  \quadWeight[n] &= \prod_{i}^{d} \quadWeight[i].
+\end{align}
+\todo{Fix notation, especially multi-dimensional integral.}
+\todo{Check number of total polynomials.}
+% TODO: Quadrature
+
+Two important properties of this family of polynomials are
+  \begin{alignat}{10}
+    \label{eq:basis-interpolating}
+&& \text{Interpolating:} \qquad & \lagrange[i] (x_j) &= \delta_{ij}\\
+\label{eq:basis-orthogonality}
+&& \text{Orthogonality:} \qquad & \ldots &= \ldots
+    \end{alignat}
 
 \sidetitle{Predictor}
-To derive the predictor, we again take an approximation of our solution in a nodal basis, but now consider polynomials that are defined both in space and time
+To derive the predictor, we take an approximation of our solution in a nodal basis that is defined both in space and time
 \begin{equation}
   \label{eq:cell-approx-space-time}
   q(\bm{x}, t^n)_{|\cell[i]} = \hat{u}^n_{i,l} \stbasis{l}(\bm{x}, t).
 \end{equation}
-We now multiply the conservation law again by a test function (of the same function space as the basis) and arrive at the weak formulation
+Furthermore we assume that all quantities are given in this represantation.
+We now multiply the conservation law by a test function (of the same function space as the basis) and arrive at the weak formulation
 \begin{equation}\label{eq:weak-pde-space-time}
 \intdt{\intdcell{
     \testfunction{k}(\bm{x}, t)
@@ -198,11 +450,10 @@ We now multiply the conservation law again by a test function (of the same funct
   \testfunction{k} \source(\stpredictor)
 }}.
 \end{equation}
-Similar to the derivation of the corrector, we again integrate the first term by parts in time and the flux divergence in space.
-This time we do not use the Riemann solver for the flux boundary term but rather use the discrete solution at time $t$.
-Note that this neglects the interaction with neighbouring cells; we account for this in the corrector step.
+We integrate the first term by parts in time and the flux divergence in space.
+Here we do not use the Riemann solver for the flux boundary term but rather use the discrete solution at time $t$.
+Note that this neglects the interaction with neighbouring cells, we account for this in the corrector step.
 \todo{Replace $\bm{x}$ with a macro some other letter. Is also coordinate!}
-
 \begin{align}\label{eq:space-time-predictor}
 \begin{split}
 \intdcell{
@@ -225,23 +476,44 @@ Note that this neglects the interaction with neighbouring cells; we account for 
 }}
 \end{split}
 \end{align}
-Inserting \cref{eq:cell-approx-space-time} results in a local systems of equations that can be solved in a fixed point iteration scheme.
+Inserting \cref{eq:cell-approx-space-time} results in a local systems of equations that can be by a fixed point iteration scheme.
 \todo{Inital guess correct? Maybe cite sth?}
 As initial value for the space-time-predictor we use the solution of the timestep before.
 \todo{Collect into matrices and show scheme?}
-To show the computational efficiency of our scheme, we follow the approach of~\cite{dumbser2008unified} and collect our integrals into matrices.
-\begin{equation}
+To show the computational efficiency of our scheme, we follow the approach of~\cite{dumbser2008unified} and collect our integrals into matrices\todo{Source is Dominics \aderdg-document.}.
+
+\newcommand{\pleft}{\bm{L}}
+\newcommand{\prightsol}{\bm{r}}
+\newcommand{\prightpred}{\bm{w}}
+\begin{align}
   \label{eq:predictor-matrices}
-  \begin{alignedat}{2}
-& A = \intdt{\intdcell{
-    \testfunction{k} \pdv{t} \stbasis{l}
-}}
-\qquad&& B \\
-& A
-\qquad&& B
-\end{alignedat}
-\end{equation}
+  \pleft &= \ldots \\
+  \prightsol &= \ldots \\
+  \prightpred &= \ldots
+\end{align}
+Using these matrices, we can solve for the space-time-predictor with the iterative scheme
+\begin{align}
+  \label{eq:predictor-iterative}
+  \pleft \stpredictor &= \prightsol (\dsol) - \prightpred(\stpredictor) \\
+ \stpredictor &= \pleft^{-1} \left( \prightsol (\dsol) - \prightpred(\stpredictor) \right).
+\end{align}
 For details and proof of convergence for the linear case, see~\cite{dumbser2008unified}.
+
+We then prepare the space-time-predictor for use in the corrector step.
+Due to the linearity of the Riemann solver, we can exchange time and space integration and thus only need to consider the Riemann problem for time-averaged quantities.
+We can compute this for the space-time-predictor by
+\begin{align}
+  \ldots = \ldots,
+\end{align}
+the procedure is similar for all other quantities (Q, gradQ, fluxes).
+
+Finally, we extrapolate all quantities to the boundary.
+This is needed for the Riemann solver and for the reconstruction of boundary values.
+We achieve this by
+\begin{align}
+  \label{eq:boundary-extrapolation}
+  \ldots = \ldots.
+\end{align}
 
 \sidetitle{Boundary extrapolation and stuff}
 \todo{Explain that stpredictor and fluxes are saved and extrapolated to boundary.
@@ -249,8 +521,15 @@ This is important because we extrapolate the gradient as well!}
 Extrapolate unknowns to boundary, convert from our basis to basis on faces and so on
 
 \sidetitle{Corrector}
-First, we multiply the system \cref{eq:conservation-law} by a test function $\testfunction{i}$ and integrate over the space-time volume $(\cell \times [t^n, t^{n+1}])$.
-We arrive at the so called weak formulation of the \pde\
+First, we multiply the system \cref{eq:conservation-law-gradient} by a test function $\testfunction{i}$ and integrate over the space-time volume $(\cell \times [t^n, t^{n+1}])$.
+Note that the testfunctions
+\begin{equation}
+  \label{eq:cell-approx-space}
+  q(\bm{x})_{|\cell[i]} = \hat{u}^n_{i,l} \stbasis{l}(\bm{x}).
+\end{equation}
+
+here do not depend on time but only on the spatial dimensions.
+We arrive yet again at the weak formulation of the \pde\
 \begin{equation}
   \label{eq:weak-pde}
 \intdt{\intdcell{
@@ -263,11 +542,11 @@ We arrive at the so called weak formulation of the \pde\
 =
 \intdt{\intdcell{
     \testfunction{k} S(\Q, \bm{x}, t)
-}}
+}}.
 \end{equation}
 \todo{Include gradient everywhere!}
 \todo{Double check the following description}
-We now replace the solution $\bm{Q}$ with so called spacetime-predictor $\stpredictor (\bm{x},t)$ into the weak form and write it as a polynomial using the representation of \cref{eq:cell-approx}.
+We now replace the solution $\bm{Q}$ with the spacetime-predictor $\stpredictor (\bm{x},t)$ and write it as a polynomial using the representation of \cref{eq:cell-approx}.
 Integrate first by parts in time (note basis here not defined over time), flux divergence by parts in space.
 \newcommand{\massMatrixDef}{\intdcell{
   \testfunction{k} \sbasis{l}
@@ -295,12 +574,11 @@ Integrate first by parts in time (note basis here not defined over time), flux d
 \end{align}
 The first term is our mass matrix with entries
 \newcommand{\massMatrix}[1][]{\bm{M}_{#1}}
-\newcommand{\quadWeight}[1][i]{w_{#1}}
 \begin{equation}
   \label{eq:mass-matrix}
   \massMatrix[kl] = \massMatrixDef = \volume \underbrace{\quadWeight[k] \delta_{kl}}_{\text{diagonal}}
 \end{equation}
-which is diagonal and thus convenient to invert.
+which is diagonal thanks to the orthogonal basis \pcref{eq:basis-orthogonality} and thus trivial to invert.
 \newcommand{\sumbasis}{\sum_i^{(N + 1)^d - 1}}
 We can then insert the definition of our basis function into our equation and arrive at
 \begin{align}
@@ -422,12 +700,12 @@ These so called boundary extrapolated values are given by
 & \extrapolatedCellAvg{y}{-} , \qquad && \extrapolatedCellAvg{y}{+}.
 \end{alignedat}
 \end{equation}
-We also use the slopes defined in \cref{eq:slopes} to estimate the gradient of $\Q$ in each cell by the block matrix\todo{Notation!}
+We also use the slopes defined in \cref{eq:slopes} to estimate the gradient of $\cellAvg$ in each cell by the block matrix\todo{Notation!}
 \begin{equation}
   \label{eq:muscl-gradient}
   \gradCellAvg = \left( \slope{x} \bigg\rvert \slope{y} \right),
 \end{equation}
-which is of course an abuse of notation insofar as it is not the gradient of the constant cell value but rather of the linear reconstruction.
+which is of course an abuse of notation insofar as it is not the gradient of the constant cell value but rather of the linear reconstruction \pcref{eq:slopes}.
 \sidetitle{Time Evolution}
 To achieve second order in time, we evolve the boundary extrapolated values in time by
 \todo{Correct index for gradient of cell average}
@@ -479,183 +757,6 @@ The timestep is subject to a penalty of the form
  \Delta t \leq  \text{CFL} \, \frac{h}{\maxConvEigen + 2 \maxViscEigen \frac{1}{h}},
 \end{equation}
 with a constant value of CFL that is typically close to $0.7$.
-
-\section{Reactive Compressible Navier Stokes Equations}\label{sec:navier-stokes}
-Fluid motion can be described by the compressible Navier Stokes equations.
-We follow the description in~\cite{dumbser2010arbitrary} for the Navier Stokes part.
-The coupling with the advection-diffusion-reaction equation follows~\cite{hidalgo2011ader} which describes this equation set for the one-dimensional case.
-
-The vector of conserved quantities is given by
-\begin{equation}
-  \label{eq:conserved-variables}
- \Q = \left( \Qrho, \Qj, \QE, \QZ \right),
-\end{equation}
-where $\Qrho$ is the density, $\Qj$ is the momentum, $\QE$ the energy density and $\QZ$ is the mass fraction of the chemical reactant.
-
-We split the flux into a hyperbolic part $\hyperFlux(\Q)$ and an viscous flux $\viscFlux(\gradQ)$
-\begin{equation}
-  \label{eq:flux}
-  \flux(\Q, \gradQ) = \hyperFlux(\Q) + \viscFlux(\Q, \gradQ).
-\end{equation}
-
-\newcommand{\diffCoeff}{\varepsilon}
-\newcommand{\hyperFluxDef}{
-  \begin{pmatrix}
-    \Qj \\
-    \Qv  \otimes \Qj + \bm{I} \pressure  \\
-    \Qv \cdot (\bm{I} \QE + \bm{I} \pressure) \\
-    \Qj \QZZ
-  \end{pmatrix}
-}
-
-\newcommand{\viscFluxDef}{
-  \begin{pmatrix}
-     -\diffCoeff \gradient{\Qrho}\\
-     \stressT (\Q, \gradQ)  \\
-     \Qv \cdot \stressT (\Q, \gradQ) - \kappa \gradient{T}\\
-     -\diffCoeff \gradient{\QZ}
-   \end{pmatrix}
-}
-
-The hyperbolic flux is given by
-\begin{equation}
-  \label{eq:hyper-flux}
-  \hyperFlux(\Q) = \hyperFluxDef,
-\end{equation}
-which are the Euler equations coupled with an advection equation.
-The viscous flux is
-\begin{equation}
-  \label{eq:visc-flux}
-  \viscFlux(\Q, \gradQ) = \viscFluxDef.
-\end{equation}
-where $\pressure$, $\stressT$ and $(\kappa \nabla T)$ denote the pressure, stress tensor and heat flux respectively.
-Temperature is denoted by $T$.
-
-
-Putting everything together, our complete \pde\ is a conservation law of the form of \cref{eq:conservation-law-gradient}
-\begin{equation}
- \begin{array}{l}
- \text{mass cons.} \\
- \text{momentum cons.} \\
- \text{energy cons.} \\
- \text{cont.\ gas} 
-\end{array}
-:
-\quad
-  \pdv{}{t}
-  \underbrace{
-  \begin{pmatrix}
-    \Qrho\\
-    \Qj\\
-    \QE\\
-    \QZ
-    \end{pmatrix}}_{\Q}
-  + 
-  \divergence{
-  \left(
-   \underbrace{\hyperFluxDef}_{\hyperFlux(\Q)}
-+
-\underbrace{\viscFluxDef}_{\viscFlux(\Q, \gradQ)}
-  \right)}
- =
-  \underbrace{
-  \begin{pmatrix}
-    S_{\Qrho\phantom{\Qrho}}\\
-    S_{\Qj}\\
-    S_{\QE}\\
-    S_{\QZ}
-    \end{pmatrix}}_{\source(\Q, \bm{x}, t)}
-\end{equation}
-
-We close the system with the equation of state of an ideal reacting gas
-\begin{equation}
-  \label{eq:eos}
-  \pressure = (\gamma - 1) \left(\QE - \frac{1}{2} \left(\Qv \cdot \Qj \right)  - q_0 \QZ \right).
-\end{equation}
-The term $q_0 \QZ$ corresponds to the chemical energy, where $q_0$ is the heat release.
-The temperature $T$ relates to pressure and density by the ideal gas law
-\begin{equation}
-  \label{eq:temperature}
- \frac{\pressure}{\Qrho} = RT,
-\end{equation}
-where $R$ is the specific gas constant.
-
-We further introduce the ratio of specific heats $\gamma$ and the heat fraction for constant volume $c_v$ and constant volume $c_r$.
-These constants are all fluid dependent and relate to each other by
-\begin{align}
-  \label{eq:fluid-constants}
-  \begin{split}
-  c_v &= \frac{1}{\gamma - 1} R \\
-  c_p &= \frac{\gamma}{\gamma - 1} R\\
-  R &= c_p - c_v\\
-  \gamma &= \frac{c_p}{c_v}.
-  \end{split}
-\end{align}
-\todo{Cite sth!}
-We can finally define the heat conduction coefficient $\kappa$
-\begin{equation}
-  \label{eq:heat-conduction-coeff}
-  \kappa = \frac{\mu \gamma}{\Pr} \frac{1}{\gamma - 1} R = \frac{\mu \gamma}{\Pr} c_v
-\end{equation}
-where Prandtl number $\Pr$ again depends on the fluid.
-
-% Sutherland's viscosity law:
-% \begin{equation}
-%   \label{eq:sutherland}
-%  \mu(T)  = \mu_0 {\left(\frac{T}{T_0}  \right)}^{\beta} \frac{T_0 + C}{T + C}
-% \end{equation}
-% with \(\beta = 1.5\), \(C = \text{const.}\), reference temperature $T_0$ and reference viscosity $\mu_=$.
-% Equal to
-% \begin{align}
-%   \lambda &= \frac{\mu_0 (T_0 + C)}{T_0^\beta} \\
-%   \mu(T) &= \lambda \frac{T^\beta}{T + C},
-% \end{align}
-% where $\lambda$ is constant for a given fluid.
-
-The viscous effects are modeled by the stress tensor
-\begin{equation}
-  \label{eq:stress-tensor}
-  \stressT(Q, \nabla Q) =
-  \mu
-  \left(
-  \left(\nicefrac{2}{3} \divergence{\Qv} \right) -
-  \left( \gradient{\Qv} + \gradient{\Qv}^\intercal \right)
-  \right).
-\end{equation}
-
-The maximal eigenvalues for convective and viscous part are
-\begin{align}
-  \begin{split}
-  \maxConvEigen \vert  &= \Vert \Qv \Vert + c\\
-  \maxViscEigen \vert &= \max \left( \frac{4}{3} \frac{\mu}{\Qrho},
-                        \frac{\gamma \mu}{\Pr \Qrho},
-                        \diffCoeff \right)
-  \end{split}
-\end{align}
-with speed of sound $c = \sqrt{\gamma R T }$.
-
-\subsection{Boundary conditions}
-To close the system we need to impose boundary conditions.
-
-For some scenarios we use Cauchy boundary conditions.
-In most cases, we would like to impose periodic boundary conditions, due to the inner workings of ExaHyPE this is not possible.
-Instead we use the analytical solution of our problems at the boundary, imposing both value and gradients of the conservative variables.
-Note that this leads to an error when our problem does not posses an exact analytical solution.
-This is the case for test cases that are analytical solutions to the incompressible Navier Stokes equations but do not satisfy the compressible equation set.
-
-As a physical boundary condition we limit ourselves to the no-slip boundary condition, where we assume that the fluid has a velocity of zero near the wall.
-\todo{Check if this is the correct physical description!}
-We enfore this by setting
-\begin{align}
-  \label{eq:no-slip}
-  \begin{split}
-  \Qrho^o &= \Qrho^i, \\
-  \Qj^o &= -\Qj^i, \\
-  \QE^0 &= \QE^i,\\
-  {(\nabla Q)}^o &= {(\nabla Q)}^i,
-  \end{split}
-\end{align}
-where a superscript of $o$ and $i$ denotes the values outside and inside of the boundary respectively.
 
 \section{Adaptive Mesh Refinement \textit{\&} Finite Volume Limiting}\label{sec:grid}
 Grid, spacefilling curve, and so on.
@@ -763,7 +864,7 @@ In our case we use the criterion
   \label{eq:limiting-physical}
   \operatorname{is-admissible}(\Q) =
   \begin{cases}
-    \text{true} & \Qrho > 0 \land \pressure > 0 \land \left(0 \leq \QZ \leq 1 \right)\\
+    \text{true} & \Qrho > 0 \land \pressure > 0 \land \QZZ > 0 \\
     \text{false} & \text{otherwise}.
   \end{cases}
 \end{equation}
