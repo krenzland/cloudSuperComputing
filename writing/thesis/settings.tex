@@ -126,11 +126,15 @@
 % For referencing in a form of (equation 5) instead of (equation (5))
 % From https://tex.stackexchange.com/questions/263523/is-it-possible-to-remove-parenthesis-from-single-cref-references
 \crefformat{equation}{\eqA eq.~\eqB #2#1#3)}
+% TODO: Fix for more than two equations!
+\crefmultiformat{equation}{eqs.~\eqA#2#1#3\eqB}%
+{ and\eqC~#2#1#3\eqB)}{, \eqC#2#1#3\eqB}{ and~\eqC#2#1#3\eqB}
 \newcommand{\eqA}{}
 \newcommand{\eqB}{(}
+\newcommand{\eqC}{(}
 \DeclareRobustCommand{\pcref}[1]{%
   \begingroup
-  \renewcommand{\eqA}{(}\renewcommand{\eqB}{}%
+  \renewcommand{\eqA}{(}\renewcommand{\eqB}{}\renewcommand{\eqC}{}%
   \cref{#1}%
   \endgroup
 }
