@@ -126,26 +126,25 @@
 
 % For referencing in a form of (equation 5) instead of (equation (5))
 % From https://tex.stackexchange.com/questions/263523/is-it-possible-to-remove-parenthesis-from-single-cref-references
-\crefformat{equation}{\eqA eq.~\eqB #2#1#3)}
+\crefformat{equation}{\eqA{}eq.~\eqB #2#1#3)}
 % TODO: Fix for more than two equations!
-\crefmultiformat{equation}{\eqMultiSpace{}eqs.~\eqMultiA#2#1#3\eqMultiB}%
+\crefmultiformat{equation}{eqs.~\eqMultiA#2#1#3\eqMultiB}%
 { and\eqMultiA~#2#1#3\eqMultiB}{, \eqMultiA#2#1#3\eqMultiB}{ and~\eqMultiA#2#1#3\eqMultiB}
 \newcommand{\eqA}{}
 \newcommand{\eqB}{(}
 \newcommand{\eqMultiA}{(}
 \newcommand{\eqMultiB}{)}
-\newcommand{\eqMultiSpace}{ }
 \DeclareRobustCommand{\pcrefSingle}[1]{%
-  \begingroup
-  \renewcommand{\eqA}{(}\renewcommand{\eqB}{}
-  \cref{#1}%
-  \endgroup
+\begingroup%
+  \renewcommand{\eqA}{(}\renewcommand{\eqB}{}%
+\cref{#1}%
+\endgroup
 }
 \DeclareRobustCommand{\pcrefMulti}[1]{%
-  \begingroup
-  \renewcommand{\eqMultiA}{}\renewcommand{\eqMultiB}{}\renewcommand{\eqMultiSpace}{}
-(\cref{#1})%
-  \endgroup
+\begingroup%
+    \renewcommand{\eqMultiA}{}\renewcommand{\eqMultiB}{}%
+    (\cref{#1})%
+\endgroup
 }
 \DeclareRobustCommand{\pcref}[1]{%
 \IfSubStr{#1}{,}{\pcrefMulti{#1}}{\pcrefSingle{#1}}
