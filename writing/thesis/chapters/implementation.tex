@@ -1,5 +1,157 @@
+\newcommand{\softwareName}[1]{\textit{#1}}
+\newcommand{\exahype}{\softwareName{ExaHyPE}}
+\newcommand{\peano}{\softwareName{Peano}}
+\newcommand{\className}[1]{\texttt{#1}}
+\newcommand{\funName}[1]{\textsf{#1}}
+\newcommand{\fileName}[1]{\textbf{#1}}
+\newcommand{\varName}[1]{\enquote{#1}}
+
+\newcommand{\cpp}{C\texttt{++}}
+\newcommand{\tbb}{\textsc{tbb}}
+\newcommand{\mpi}{\textsc{mpi}}
+
 \chapter{Implementation}\label{chap:implementation}
-\todo{Write this chapter!}
+This chapter is organized as follows:
+We first give a short overview of the general structure of the \exahype{} code and then describe the changes done over the course of this project.
+\exahype{} implements an \aderdg{} solver with \muscl{} limiting and \textsc{amr}, as described in \cref{chap:methods}.
+It uses \softwareName{Intel® Threading Building Blocks} (\tbb{}) for node-level parallelism and the \softwareName{Message Passing Interface} (\mpi{}) for intra-node parallelism. 
+In the following we define a \enquote{user} as someone who implements the logic of a \pde{} but does not change the implementation of \exahype{} itself.
+This is in contrast with a \enquote{developer} whose scope is the entirety of the source code.
+The goal of our implementation is that all new features should be accesible to users, not only developers.
+
+\section{ExaHyPE}
+\exahype\ is based on the space-filling-curves library \peano~\cite{weinzierl2011}.
+The workflow from the perspective of a user is
+\begin{itemize}
+\item Generate glue-code using a \softwareName{Python}-based Toolkit that inserts parameters into templates.\todo{Jinja? Or sth else?}
+  The parameters are configured in a setting file.
+  The user can configure the number of dimensions, numerical order and type of solver (\aderdg{}, \muscl, or limiting-\aderdg).
+  Depending on the solver type, a different implementation is generated.
+  In case of a limiting solver, a finite-volume and a \dg\ implementation is generated.
+  An implementation consists of
+  \begin{itemize}
+  \item An \className{AbstractSolver} that is a subclass of \className{FiniteVolumesSolver}, \className{ADERDGSolver} or \className{LimitingADERDGSolver}.
+    The solver types all have a shared superclass \className{Solver} which describes a common interface.
+  \item A class that inherits from the aforementioned abstract class that needs to be used to implement the program logic.
+  \end{itemize}
+  
+\item The user then needs to modify the generated glue code.
+  The \pde{} is specified in the methods \funName{flux} and \funName{eigenvalues}.
+  We describe the grid refinement criterion in \funName{refinementCriterion} and the limiting criterion in \funName{isPhysicallyAdmissible}
+  To close the system, the user needs to prescribe initial and boundary conditions with \funName{adjustPointSolution}, \funName{boundaryConditions} and \funName{boundaryValues}.
+  The methods \funName{boundaryConditions} first calls \funName{boundaryValues} and then solves the Riemann-problem at the boundary.
+  In many cases it thus suffices to only override the latter method.
+\item Finally, the user can specify more options such as mesh size and spacing, simulation time, parallelization options, plotters, and optimization parameters.
+ After compiling the program, it can be run with the setting file as first and only parameter.
+\end{itemize}
+
+From the perspective of a developer, the situation is more complicated.
+We will thus only give the necessary minimum of information that is needed to understand the modifications conducted by us.
+\exahype{} is structured as a \peano{} project and follows the basic structure:
+\begin{itemize}
+\item A runner iterates through the grid and calls an adapter for so-called events.
+  An example for an event is entering a cell, for example.
+\item An adapter calls one or multiple mappings.
+\item A mapping then performs the actual program logic.
+  For our purposes, we only need to consider the mappings (with corresponding adapters):
+  \begin{itemize}
+  \item \className{FinalizeMeshRefinement}
+  \item \className{FusedTimeStep}
+  \end{itemize}
+\item Often, a mapping calls a method defined in \className{Solver}.
+  These implementation can differ between different solvers.
+\end{itemize}
+Furthermore, the degrees of freedom and some meta-information are stored each cell in a heap data-structure.
+The information for each cell is defined in the file \fileName{ADERDGCellDescrition.def} for the \dg{}-solver.
+Similar files exists for the finite volume solver but are not relevant for us.
+These files are converted to \cpp{} files by the software \softwareName{DaStGen}~\cite{bungartz2008dastgen}.
+
+\section{Implementing numerics}
+We needed to modify the existing implementation of the numerics to be able to solve problems with diffusive fluxes.
+These changes are:
+\begin{itemize}
+\item Modifying the space-time-predictor (defined in file \fileName{spaceTimePredictorNonlinear.cpph}).
+  \begin{itemize}
+  \item In the function \funName{aderPicardLoopNonlinear} we pass the gradient of the conserved variables to the \funName{flux} method.
+    We also return the time-average of the gradient.
+   \item In the function \funName{aderExtrapolatorNonlinear} we also compute the extrapolated gradient.
+    \item In the function \funName{spaceTimePredictorNonlinear} we also return the extrapolated gradient.
+  \end{itemize}
+\item Storing the extrapolated gradient for each cell for use in the boundary conditions.
+\item Using the gradient for the computation of the boundary conditions.
+  They are defined in the file \fileName{boundaryConditions.cpph}.
+\item Adding the diffusive penalty terms for Riemann solver (\fileName{riemannSolverNonlinear.cpph}) and \textsc{cfl}-condition (\fileName{stableTimeStepSize.cpph}).
+\item Computing the gradient for the \muscl{} scheme (\fileName{musclhancock.cpph}) and passing it to the flux (\fileName{rusanov.cpph}).
+\end{itemize}
+Furthermore, we needed to change the templates for the glue code and needed to modify some function signatures to accompany the other changes.
+
+\section{Implementing Global Observables}
+\newcommand{\ngobs}{N^{\text{gobs}}}
+The implementation of the global observables is quite simple.
+
+We use three functions that need to be defined by the user and adher to the interface
+\begin{itemize}
+\item The function \funName{resetGlobalObservables} takes no arguments and returns a vector of size $\ngobs$.
+  This vector should be the identity of the reduction, i.e.\ a value $a$ with the property that $\operatorname{reduce}(a, b) = b$.
+  \todo{Is this right?}
+\item The function \funName{mapGlobalObservables} that takes the degrees of freedoms of a cell and its cell size and returns a vector of size $\ngobs$.
+  This vector should be the observables that correspond to the cell.
+\item The function \funName{reduceGlobalObservables} updates the current partially reduced vector of global observables \varName{reducedGlobalObservables} with another vector of partially reduced observables \varName{curGlobalObservables}.
+\end{itemize}
+We then compute the observables by \cref{alg:reduce-gobs}
+\begin{algorithm}[htb]
+  \begin{algorithmic}
+    \Let{observables}{\Call{resetGlobalObservables}{}}
+    \For{$\text{cell} \in \text{cells}$}
+    \Let{curObservables}{\Call{mapGlobalObservables}{$Q_\text{cell}, \Delta x_\text{cell}$}}
+    \Let{observables}{\Call{reduceGlobalObservables}{observables, curObservables}}
+    \EndFor{}
+    \State\Return{observables}
+  \end{algorithmic}
+  \caption{\label{alg:reduce-gobs}Reducing global observables}
+\end{algorithm}
+This results in a simple, yet powerful interface, which can be used to implement all reductions that can be done in a pair-wise manner.
+Examples are computing the minimum, maximum, sum, mean and variance.
+
+For the variance of the total variation, we store the partial mean, variance, and count as global observables.
+\todo{Use Q, TV macro here!}
+The vector $(-1, -1, 0)$ is then the base-case for the iteration (\funName{resetGlobalObservables}).
+The method \funName{mapGlobalObservables} is defined to return $\left( \operatorname{TV} \left[ f(\bm{Q}) \right], 0, 1 \right)$, where $f(\bm{Q})$ returns an arbitary indicator value per cell.
+Finally, \funName{reduceGlobalObservables} is implemented exactly as described in \cref{alg:merge-variance}.
+
+For the actual implementation we follow \cref{alg:reduce-gobs} but include nodal and intra-nodal parallelization in the following way:
+\begin{itemize}
+\item Add vectors \varName{\_globalObservables} and \varName{\_nextGlobalObservables} to all solvers.
+  The former stores the observables of the previous timestep, the latter the ones of the current timestep.
+  We can thus use the old observables for mesh refinement and compute a new reduction concurrently.
+  Before the first timestep, we reset both current and next observables.
+  At the beginning of each timestep, we overwrite the previous timestep data with the current data, and reset \varName{\_nextGlobalObservables} with \funName{resetGlobalObservables}.
+  This is done in the methods \funName{startNewTimeStep}, \funName{startNewTimeStepFused}, \funName{updateTimeStepSizesFused}, \funName{updateTimeStepSizes}.
+\item Reduce global observables in solver with method \funName{reduceGlobalObservables} that takes \varName{cellInfo} and \varName{solverNumber}.
+  The cell information stores pointers to the cell data for all solvers.
+  We implement this method for all solvers.
+  This has the advantage that we have a shared interface for all solver types.
+\item Reduce global observables per node in the mappings \className{FinaliseMashRefinement}, \className{FusedTimeStep}, \className{UpdateAndReduce}.
+  \begin{itemize}
+  \item We initialize the observables in the method \funName{beginIteration} with \funName{resetGlobalObservables}. 
+  \item We reduce the observables in \funName{leaveCell} by calling the solver method \funName{reduceGlobalObservables} with the \varName{cellInfo} of the current cell as argument.
+    For the mapping \className{UpdateAndReduce} this is done in the method \funName{enterCell} instead.
+  \item If we use \tbb{}, we merge the partially reduced observables in \funName{mergeWithWorkerThread} with \funName{reduceGlobalObservables} with two vectors as arguments.
+    This is not necessary for the mapping \className{FinaliseMeshRefinement}.
+   \item We update the global observables of the solver in the method \funName{endIteration}.
+  \end{itemize}
+\item If we use \mpi{}, we also need to reduce the observables over all ranks.
+  \exahype{} already reduces the timestep size, we extend these already existing \mpi{} messages to also include the global observables.
+  For this, we changed the following methods\todo{Next and current?!} of the \dg{}-solver:
+  \begin{itemize}
+  \item \funName{compileMessageForMaster} and \funName{sendDataToMaster} to send data from the workers to the master rank.
+  \item \funName{mergeWithWorkerData} to merge the received worker data with the current master data. 
+  \item \funName{compileMessageForWorker} and \funName{sendDateToWorker} to send the reduced data from the master to the workers.
+  \item \funName{mergeWithMasterData} to overwrite the current data of the workers with the reductions from the previous timestep.
+  \end{itemize}
+  This reduction is not supported for the limiting and finite volumes solver.\todo{Support for limiting?}
+  Together with the aforementioned resetting of the observables, this again corresponds to \cref{alg:reduce-gobs}.
+\end{itemize}
 
 %%% Local Variables:
 %%% mode: latex
