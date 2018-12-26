@@ -1,0 +1,40 @@
+\chapter{PDE: Eigenvalues \textit{\&} Stuff}
+In this appendix we collect the derivation of the two-dimensional eigenvalues and spatial derivatives of variables.
+We only present results for two-dimensions, the results for three-dimensions follows trivially.
+
+In x-direction
+\begin{equation}
+\gradient{Q}_n = \left(\begin{array}{rrrrr}
+0 & 0 & 1 & 0 & 0 \\
+-\frac{j_{x} j_{y}}{\rho^{2}} & \frac{j_{y}}{\rho} & \frac{j_{x}}{\rho} & 0 & 0 \\
+-\frac{1}{2} \, {\left(2 \, g y - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{y}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} - \frac{j_{y}^{2}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{y}}{\rho} + \frac{2 \, j_{y}}{\rho} & \gamma - 1 & -{\left(\gamma - 1\right)} q_{0} \\
+-\frac{{\left(2 \, g y - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{y}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} j_{y}}{2 \, \rho} - \frac{{\left(E + \mathit{pvar}\right)} j_{y}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x} j_{y}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{y}^{2}}{\rho^{2}} + \frac{E + \mathit{pvar}}{\rho} & \frac{\gamma j_{y}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{y} q_{0}}{\rho} \\
+-\frac{Z j_{y}}{\rho^{2}} & 0 & \frac{Z}{\rho} & 0 & \frac{j_{y}}{\rho}
+\end{array}\right)
+\end{equation}
+
+
+Heat flux\footnote{$a,b,c$ terms from personal communication with Michael Dumbser.}:
+\newcommand{\Td}[1]{
+  \frac{1}{c_v} \left(
+  a \pdv{\rho}{#1} +
+  b \pdv{j_x}{#1} +
+  c \pdv{j_y}{#1}
+ - q_0 \frac{{\rho \frac{\partial}{\partial #1}Z - Z \frac{\partial}{\partial #1}\rho}}{\rho^{2}} 
+\IfSubStr{#1}{y}{-g}{}
+  \right)
+}
+
+\begin{align}
+  \begin{split}
+  a &=  -\frac{E}{\rho^{2}} + \frac{j_{x}^{2} + j_{y}^{2}}{\rho^{3}} \\
+  b &= -\frac{j_{x}}{\rho^{2}}\\
+  c &=-\frac{j_{y}}{\rho^{2}}\\
+  \pdv{T}{x} &= \Td{x}\\
+  \pdv{T}{y} &= \Td{y}
+  \end{split}
+\end{align}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:
