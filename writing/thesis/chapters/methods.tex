@@ -101,6 +101,7 @@ In the following, we will denote the spatial coordinates as $\bm{x} = \left( x,z
 The variable $t$ corresponds to the currenty (physical) time.
 We solve the \pde\ in the conversative form \pcref{eq:conservation-law-gradient}\todo{Dont reference to following chapter!}
 \begin{equation}
+ \label{eq:equation-set} 
  \begin{array}{l}
  \text{mass cons.} \\
  \text{momentum cons.} \\
@@ -237,6 +238,41 @@ The first source term is gravity, given by
   \source[\Qj] = - g \bm{k} \cdot \Qj,
 \end{equation}
 where $g = 9.81$ and $\bm{k}$ is a unit vector pointing in $z$-direction.
+
+\newcommand{\backgroundPressure}{\overline{\pressure}}
+\newcommand{\backgroundRho}{\overline{\Qrho}}
+Some of our scenarios can be described as a pertubation of a background state that is in hydrostatic balance
+\begin{equation}
+  \label{eq:hydrostatic-balance}
+  \pdv{}{z} \backgroundPressure{\left (z \right )} = -g \backgroundRho(z),
+\end{equation}
+where $\backgroundPressure$ and $\backgroundRho$ is the background pressure and density.
+We now focus on the following part of the momentum equation (neglecting viscous effects) of \cref{eq:equation-set}
+\begin{equation}
+  \label{eq:momentum-equation}
+  \pdv{\Qj}{t}+ \divergence{
+    \Qv \cdot \left( \bm{I} \QE + \bm{I} \pressure \right)
+  }
+  =
+  -g \bm{k} \cdot \Qrho
+\end{equation}.
+The background state \cref{eq:hydrostatic-balance} leads to large values and can diminish other parts of the flux due to numerical instabilities~\cite{muller2010adaptive}.
+We can now split the pressure as $\pressure = \backgroundPressure(z) + \pressure' (\bm{x}, t)$ and the density as $\Qrho = \backgroundRho(z) + \Qrho'(\bm{x}, t)$.
+Inserting this splitting, the definition of divergence into \cref{eq:momentum-equation} allows us to apply \cref{eq:hydrostatic-balance}.
+Furthermore, the background states have zero derivatives in all directions but in $z$.
+We arrive at 
+\begin{equation}
+  \label{eq:momentum-equation}
+  \pdv{\Qj}{t}+ \divergence \left(
+    \Qv \cdot \left( \bm{I} \QE + \bm{I} \pressure' \right)
+   \right)
+  =
+  -g \bm{k} \Qrho'.
+\end{equation}.
+We thus cancel parts of the flux with parts of the source term.
+Note that the time derivative of the background density also vanishes.
+We do not use this to simplify the implementation of the gradient computation.
+This form of the equation is similar to equation set 3 of~\cite{giraldo2008study} but without splitting the energy.
 
 \newcommand{\reactionTimescale}{\tau}
 \newcommand{\reactionTemperature}{T_{\text{ign}}}
