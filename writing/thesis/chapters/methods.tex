@@ -97,6 +97,8 @@ We conclude this chapter by a description of adaptive mesh refinement (\amr) and
 Fluid motion can be described by the compressible Navier Stokes equations.
 We follow the description in~\cite{dumbser2010arbitrary} for the Navier Stokes part.
 The coupling with the advection-diffusion-reaction equation follows~\cite{hidalgo2011ader} which describes this equation set for the one-dimensional case.
+In the following, we will denote the spatial coordinates as $\bm{x} = \left( x,z \right)$ and $\bm{x} = \left( x,y,z \right)$ for the two and three-dimensional case respectively.
+The variable $t$ corresponds to the currenty (physical) time.
 We solve the \pde\ in the conversative form \pcref{eq:conservation-law-gradient}\todo{Dont reference to following chapter!}
 \begin{equation}
  \begin{array}{l}
@@ -140,6 +142,7 @@ The vector of conserved quantities is given by
 \end{equation}
 where $\Qrho$ is the density, $\Qj$ is the two or three-dimensional momentum, $\QE$ the energy density and $\QZ$ is the mass fraction of the chemical reactant.
 The chemical reactant in our case is unburnt gas.
+
 The rows of the equation are the conservation of mass, the conservation of momentum, the conservation of energy and the continuity of the reactant.
 We split the flux into a hyperbolic $\hyperFlux(\Q)$ and a viscous part$\viscFlux(\gradQ)$
 
@@ -154,12 +157,12 @@ The hyperbolic flux is given by
 \end{equation}
 which are the Euler equations coupled with an advection equation.
 In this equation $\bm{a} \otimes \bm{b} = \bm{a} \bm{b}^\intercal$ is the Kronecker or outer product of two vectors $\bm{a}$ and $\bm{b}$.
-The pressure $\pressure$ is given by the caloric equation of state of an ideal reacting gas
+The pressure $\pressure$ is given by the caloric equation of state of an ideal reacting gas\todo{Geopot height correct?}
 \begin{equation}
   \label{eq:eos}
-  \pressure = (\gamma - 1) \left(\QE - \frac{1}{2} \left(\Qv \cdot \Qj \right)  - q_0 \QZ \right).
+  \pressure = (\gamma - 1) \left(\QE - \frac{1}{2} \left(\Qv \cdot \Qj \right)  - q_0 \QZ - gz \right).
 \end{equation}
-The term $q_0 \QZ$ is the chemical energy with the heat release $q_0$.
+The term $q_0 \QZ$ is the chemical energy with the heat release $q_0$, the term $gz$ is the geopotential height.
 The pressure is related to the temperature $T$ by the thermic ideal gas law
 \begin{equation}
   \label{eq:temperature}
@@ -253,13 +256,17 @@ where $\reactionTimescale$ is the timescale of the reaction and $\reactionTemper
 \subsection{Boundary conditions}
 To close the system we need to impose boundary conditions.
 
+\sidetitle{Cauchy}
 For some scenarios we use Cauchy boundary conditions.
-In most cases, we would like to impose periodic boundary conditions, due to the inner workings of ExaHyPE this is not possible.
+In most cases, we would like to impose periodic boundary conditions, due to the inner workings of \exahype{} this is not possible.
 Instead we use the analytical solution of our problems at the boundary, imposing both value and gradients of the conservative variables.
 Note that this leads to an error when our problem does not posses an exact analytical solution.
 This is the case for test cases that are analytical solutions to the incompressible Navier Stokes equations but do not satisfy the compressible equation set.
 
-As a physical boundary condition we limit ourselves to the no-slip boundary condition, where we assume that the fluid has a velocity of zero near the wall.
+As a physical boundary condition we limit ourselves to wall boundary condition
+
+\sidetitle{No-Slip}
+A standard wall boundary condition for viscous fluid is the no-slip condition, where we assume that the fluid has a velocity of zero near the wall.
 \todo{Check if this is the correct physical description!}
 We enfore this by setting
 \begin{align}
@@ -273,6 +280,19 @@ We enfore this by setting
 \end{align}
 where a superscript of $o$ and $i$ denotes the values outside and inside of the boundary respectively.
 
+\sidetitle{Free-Slip}
+Similarly to the no-slip condition, we define the free-slip condition
+\begin{equation}
+  \label{eq:free-slip}
+  \Qj^o_d = \begin{cases}
+    -\Qj^i_d & d = \text{normal} \\
+    \Qj^i_d & \text{otherwise}
+    \end{cases}
+\end{equation}
+where only the velocity in normal direction is zero after the Riemann solver.
+The other variables are extrapolated in the same manner as in \cref{eq:no-slip}.
+
+We manually set the energy component of the numerical flux to zero for both no- and free-slip conditions.
 \section{The ADER-DG Method}\label{sec:ader-dg}
 We describe the arbitrary derivative discontinous Galerkin (\aderdg) method in this chapter.
 Our description of the main method follows~\cite{dumbser2008unified,dumbser2010arbitrary,dumbser2018efficient}, our notation follows primarily~\cite{dumbser2018efficient}.
@@ -786,21 +806,30 @@ The timestep is subject to a penalty of the form
 with a constant value of CFL that is typically close to $0.7$.
 
 \section{Adaptive Mesh Refinement \textit{\&} Finite Volume Limiting}\label{sec:grid}
-Grid, spacefilling curve, and so on.
+\todo{Grid, spacefilling curve, and so on.}
+This section is concerned with two different but related concepts:%
+adaptive mesh refinement \amr{} and finite volume limiting.
+Both have in common that they change the structure of the grid.
+Instead of a regular grid where each cell has the same size, we now have different cell sizes.
 
 \subsection{Adaptive Mesh Refinement}\label{sec:amr}
-We use adaptive mesh refinement (\textsc{amr}).
+The goal of \amr{} is increasing the computational efficiency by using a higher spatial resolution in areas of interest.
+A simple example for this would be using finer mesh cells for the simulation of a wave, while using a low resolution for areas where the wave does not pass through.
+Of course, the difficult part is defining areas of interest.
+We use a global, gradient based refinement strategy.
+We first describe the computation of our indicator variable and then describe a simple way how one can detect outliers.
 
 Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a function that maps the discrete solution of a cell to an arbitrary indicator variable.
-Furthermore, we assume that $\bm{f}$ is expanded in the space-basis as in \cref{eq:cell-approx-space}.
-Then the total variation (\textsc{tv}) of this function is defined by
+Furthermore, we assume that $\bm{f}$ is expanded in the space-basis \pcref{eq:cell-approx-space}.
+Then the total variation (\textsc{tv}) of this function is defined by\todo{Cite sth for this?}
 \newcommand{\tv}{\operatorname{TV}}
 \begin{equation}
   \label{eq:tv}
   \tv \left[ f(\bm{x}] \right] =
-\left(\intdcell{ \vert \gradient{f \left( \bm{x} \right)} \vert } \right).
+\int_{\domain} \vert \gradient{f \left( \bm{x} \right)} \vert.
 \end{equation}
 This integral can be evaluated efficiently on the reference cell \pcref{eq:space-mapping,eq:cell-approx-space} with Gaussian quadrature \pcref{eq:quadrature}.
+In the following, we divide this total variation by the volume of each cell, i.e.\ we use the volume of the corresponding reference cells as criterion. 
 
 \todo{Gradient on reference cell, Gaussian quad., inline}
 \todo{Definition for FV schemes (maybe just mapping to DG-Cells)}
@@ -809,22 +838,26 @@ This integral can be evaluated efficiently on the reference cell \pcref{eq:space
 \newcommand{\std}{\sigma}
 \newcommand{\variance}{\std^2}
 \newcommand{\gobsCount}{n}
-We want to compute the mean and the variance over all grid cells by performing only pairwise merge operations.
-This allows us to minimize communication over nodes and allows for a simple implementation.
-The simplest way to compute this would be by using the textbook definitions of mean and variance of a random variable $X$
+A simple way of determining outliers is by how many standard deviations it differs from the mean value.
+We thus want to compute the mean and variance over all grid cells.
+To minimize intranodal communications and to simplify the implementation, we do this by performing only pairwise merge operations.
+The simplest way to compute this would be by using the textbook definitions of mean $\mean$ and variance $\variance$ of a random variable $X$
 \newcommand{\expectation}{\mathbb{E}}
 \begin{align}
   \begin{split}
-    \mu [X] &= \expectation \left[ X \right]\\
+    \mean [X] &= \expectation \left[ X \right]\\
     \variance [X] &= \expectation \left[ X^2 \right] - \expectation \left[ X \right]^2.
   \end{split}
 \end{align}
-The reduction for the variance is numerically unstable when the variance is orders of magnitudes smaller than the mean as this can lead to catastrophic cancellations.
+The naive algorithm is numerically unstable when the variance is orders of magnitudes smaller than the mean as this can lead to catastrophic cancellations.
 We thus compute the mean and variance with the parallel algorithm of~\cite{chan1982updating}.
 To do this, we need to store three variables per computation unit:
 the mean, the variance and the number of processed elements.
 We collect these items in the vector $\gobs = (\mean, \variance, \gobsCount)$
-We can then merge two pairs of observed variables (\cref{alg:merge-variance}).
+We can then merge two pairs of observed variables with \cref{alg:merge-variance}.
+This algorithm computes an estimate of the population variance using Bessel's correction, i.e.\ it returns the sample variance times $\nicefrac{n}{n-1}$.
+In our case, the compute the variance over all grid cells.
+Because of this, we multiply the estimate of \cref{alg:merge-variance} with $\nicefrac{n-1}{n}$ to undo the correction.
 
 \begin{algorithm}[ht]
   \begin{algorithmic}
@@ -872,16 +905,18 @@ This motivates the following refinement criterion
 \end{equation}
 which refines when a cell has a significantly higher standard deviation.
 In this equation, the constants $T_r$ and $T_d$ can be used to tailor the trade-off between the quality of approximation and computational cost.
-They can be chosen freely, as long $T_d < T_r$ holds.
+They can be chosen freely, as long as $T_d < T_r$ holds.
 Chebychev's inequality then guarantees that only a subset is marked for refinement.
-Note that even though this inequality provides only a loose bound.
+Note that this inequality provides only a loose bound.
 If one would be willing to assume a distribution of the indicator variable, tighter bounds can be derived.
 
 \subsection{Limiting}\label{sec:limiting}
 Higher order \textsc{dg} methods cannot cope with discontinuous solutions.
 Even worse, in the case of non-linear fluxes, discontinuities can appear even from smooth initial data.
+In addition, oscillations stemming from the high-order polynomical approximation can lead to wrong or unphyiscal data.
+This is called the Gibbs phenomenon.
 A classical way of dealing with this problem is the usage of so called limiters.
-The idea is to smooth out steep gradients and thus eliminate discontinuities.\todo{It doesnt work like this exactly..}
+The idea is to smooth out steep gradients and thus eliminate discontinuities.\todo{It doesnt work like this exactly. Cite DG book}
 
 A relatively recent way of dealing with this problem is the finite volume subcell limiter.
 Our discussion follows the one in~\cite{dumbser2016simple}.
@@ -902,9 +937,10 @@ The positivity of the pressure implies positivity of energy.
 
 If a solution violates our criteria, we recompute the timestep using a limited finite volume method.
 In our case we use the \muscl{}-method (\cref{sec:muscl}).
-The recomputation starts by subdividing the infringing cell into $N_2 = 2N + 1$ subcells.
+The recomputation starts by subdividing the infringing cell into $N_s = 2N + 1$ subcells\todo{Show picture!}.
 This number of subcells has the advantage that we do not loose spatial resolution.
-We can see this easily by noticing the similar form of \cref{eq:cfl-aderdg} and \cref{eq:cfl-muscl}.
+Similarly, we can use the same timestep size for both cell types.
+The reason for this is that the \textsc{cfl}-conditions for both schemes \pcref{eq:cfl-aderdg,eq:cfl-muscl} coincide for our choice of $N_s$.
 
 For the sake of brevity, we omit technical details.
 We refer the interested reader to~\cite{dumbser2016simple}.

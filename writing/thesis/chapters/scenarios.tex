@@ -82,10 +82,9 @@ This scenario has, unlike the three-dimensional version of the Taylor-Green vort
 Thus, we can simulate this without periodic boundary conditions.
 \todo{Analytical solution!}
 
-
 \subsection{Radialsymmetric CJ Detonation Wave}
 We investigate the radialsymmetric CJ detonation wave scenario from~\cite{helzel2000modified}.
-This scenario for the reactive Euler-equations is set up in a 2D box of size $[-1, 1] \times [-1, 1]$.
+This scenario for the reactive Euler-equations is set up in a 2D box of size $[-1, 1] \times [-1, 1]$ surrounded by free-slip walls~\pcref{eq:free-slip}.
 Inside a circle of radius $0.3$ we have totally unburnt gas, outside of this circle we have burned gas.
 Let $\alpha =  \operatorname{atan2}(y,x)$ be the angle in polar coordinates.
 We use the initial conditions
@@ -120,6 +119,7 @@ Similar to~\cite{helzel2000modified}, we use the constants
   R &= 1.0.
   \end{split}
 \end{align}
+\todo{What about viscous effects?}
 
 \section{Atmospheric Scenarios}
 The scenario is described in terms of potential temperature $\potT$
@@ -165,7 +165,7 @@ Inserting this assumption in the momentum equation in $z$-direction and using \c
   p{\left (0 \right )} &= p_0
   \end{split}
 \end{align}
-where we use the reference pressure $p_0$ as the pressure on ground level.
+where we use the reference pressure $p_0$ as the pressure on ground level\todo{Refer to hydrostatic balance eq.\ in methods chapter!\cref{eq:hydrostatic-balance}}.
 This \textsc{ode} can be now simply solved by separation of variables.
 We then obtain after simplifying the solution
 \begin{align}
@@ -237,9 +237,9 @@ We have two bubbles, with the values
 
 Similar to~\cite{muller2010adaptive}, we use a constant viscosity of $\mu = 0.1$ to regularize the solution.
 
-\subsection{Density current}
-A similar scenario is the density current~\cite{straka1993numerical} by \citeauthor{straka1993numerical}.
-In this scenario we only have one cold bubble.
+\subsection{Cosine Bubble}
+A similar scenario is the cosine bubble as described in~\cite{giraldo2008study}.
+In this scenario the flow is driven by one warm bubble.
 We use the same procedure as before to compute the initial conditions, again with $\backgroundPotT = 300$ but with a pertubation of the form
 \begin{align}
   \label{eq:cos-pertubation}
@@ -247,14 +247,12 @@ We use the same procedure as before to compute the initial conditions, again wit
     \nicefrac{A}{2} \left[ 1 + \cos(\pi r) \right] & r \leq a \\
     0 & r > a
     \end{cases}
-\intertext{with}        
-        r^2 &=  \left( \frac{x - x_c}{x_r} \right)^2 + \left( \frac{z -z_c}{z_r} \right)^2
-\end{align}
-and constants
+\end{align},
+where $r$ again is the radius to the center~\pcref{eq:radius} and constants
 \begin{equation}\label{eq:density-bubble}
-  A = -15 \quad a = \SI{1}{\m} \quad x_r = \SI{4000}{\m} \quad z_r = \SI{2000}{\m} \quad x_c = \SI{0}{\m} \quad z_c = \SI{3000}{\m}.
+  A = 0.5 \quad a = \SI{250}{\m} \quad x_c = \SI{500}{\m} \quad z_c = \SI{350}{\m}.
 \end{equation}
-Similar to~\cite{giraldo2008study} we use a constant viscosity of $\mu = 75$.
+Similar to the previous scenario, we use a constant viscosity of $\mu = 0.1$\todo{Are we? Check~\cite{giraldo2008study}!}.
 
 %%% Local Variables:
 %%% mode: latex
