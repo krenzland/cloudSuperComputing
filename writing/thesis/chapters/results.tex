@@ -8,14 +8,22 @@
 \toprule
 {Order} & {$L_1$} & {$L_2$} & {$L_\infty$}\\ \midrule
 1 & 2.03 & 2.00 & 1.92\\
-2 & 2.56 & 2.55 & 2.56\\
-3 & 3.44 & 3.41 & 3.42\\
-4 & 4.27 & 4.27 & 4.33\\
-5 & 5.36 & 5.32 & 5.26\\
-6 & 5.38 & 5.35 & 5.17\\
+2 & 2.56 & 2.55 & 2.55\\
+3 & 3.43 & 3.40 & 3.44\\
+4 & 4.44 & 4.44 & 4.67\\
+5 & 5.37 & 5.34 & 5.28\\
+6 & 5.43 & 5.42 & 5.30\\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics{thesis_convergence}
+  \caption{$L_2$-Error vs.\ Grid Size}
+  \label{fig:convergence-l2-error}
+\end{figure}
+
 \newcommand{\error}{\operatorname{Total-Error}}
 
 Before computing the error we first need to define the $L_p$ norms for a $p > 0$ by
@@ -65,6 +73,27 @@ Some \textsc{dg}-methods of odd order only achieve a numerical convergence order
 \section{Accurate CFD}
 \section{Accurate Clouds}
 \section{AMR Efficiency}
+To show the effectiveness of the \amr{}, we compare the time to solution of a simulation using \amr{} and another simulation with a fully refined mesh.
+In detail, we compare
+\begin{description}
+\item[AMR] We use a coarse mesh with just $9 \times 9$ cells.
+  Each cell can be refined up to three times.
+  That is, the cells have sidelengths of roughly $\left( \SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.35}{\m} \right)$.
+  As refinement thresholds we use $T_\text{refine} = 2.5$ and $T_\text{delete} = -0.5$ in \cref{eq:refinement-criterion}.
+\item[Fine] We use a uniform grid where all cells have a sidelength corresponding to the finest mesh of the \amr{}-test case.
+  In addition, we disable the reduction of global observables.
+\end{description}
+We use an \aderdg{}-method of order $4$ and thus have a minimal effective resolution of ca.\ $\SI{3.09}{\m}$.
+
+To ensure a fair comparison, we ran both configurations with the same optimisation option.
+
+We use a single node of the Haswell-nodes of the Supermuc (Phase 2).
+The node has two xxx \textsc{cpu}s with 28 cores each.
+We use the \tbb{} parallelisation of \exahype{}.
+To find a reasonable parameter for the number of background threads, we ran a grid search.
+We ran three \arm{} testcases for a simulation time of $\SI{1}{\min}$.
+The best median performance was achieved by only using two background threads!
+
 \section{Reactive Euler \textit{\&} Navier Stokes}
 
 %%% Local Variables:
