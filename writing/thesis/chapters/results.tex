@@ -71,8 +71,17 @@ In~\cite{dumbser2010arbitrary}, which use a similar numerical method and the sam
 Some \textsc{dg}-methods of odd order only achieve a numerical convergence order of $N+\nicefrac{1}{2}$.
 
 \section{Accurate CFD}
+Show:
+\begin{itemize}
+\item Taylor-Green High Order
+\item ABC Medium Order
+\end{itemize}
 \section{Accurate Clouds}
-\section{AMR Efficiency}
+\begin{itemize}
+\item Cosine Bubble
+\item Two Bubbles
+\end{itemize}
+\section{Time-to-solution: AMR vs Static Mesh}
 To show the effectiveness of the \amr{}, we compare the time to solution of a simulation using \amr{} and another simulation with a fully refined mesh.
 In detail, we compare
 \begin{description}
@@ -88,14 +97,19 @@ We use an \aderdg{}-method of order $4$ and thus have a minimal effective resolu
 To ensure a fair comparison, we ran both configurations with the same optimisation option.
 
 We use a single node of the Haswell-nodes of the Supermuc (Phase 2).
-The node has two xxx \textsc{cpu}s with 28 cores each.
+The node has two xxx\todo{name cpus} \textsc{cpu}s with 28 cores each.
+Both \textsc{cpu}s currently run on \SI{1.8}{\GHz}
 We use the \tbb{} parallelisation of \exahype{}.
 To find a reasonable parameter for the number of background threads, we ran a grid search.
-We ran three \arm{} testcases for a simulation time of $\SI{1}{\min}$.
-The best median performance was achieved by only using two background threads!
+We ran three \amr{} testcases for a simulation time of \SI{1}{\min}.
+\todo{Noisy, show results}
+The best median performance was achieved by using seven background threads.
 
 \section{Reactive Euler \textit{\&} Navier Stokes}
-
+\begin{itemize}
+\item With viscous effects
+\item Without viscous effects  
+\end{itemize}
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"
