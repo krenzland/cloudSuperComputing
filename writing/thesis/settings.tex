@@ -138,16 +138,16 @@
 \begingroup%
   \renewcommand{\eqA}{(}\renewcommand{\eqB}{}%
 \cref{#1}%
-\endgroup
+\endgroup%
 }
 \DeclareRobustCommand{\pcrefMulti}[1]{%
 \begingroup%
     \renewcommand{\eqMultiA}{}\renewcommand{\eqMultiB}{}%
     (\cref{#1})%
-\endgroup
+\endgroup%
 }
 \DeclareRobustCommand{\pcref}[1]{%
-\IfSubStr{#1}{,}{\pcrefMulti{#1}}{\pcrefSingle{#1}}
+\IfSubStr{#1}{,}{\pcrefMulti{#1}}{\pcrefSingle{#1}}%
 }
 
 
