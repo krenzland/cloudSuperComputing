@@ -31,14 +31,15 @@
 % Stuff for numerics
 \newcommand{\domain}{\Omega}
 \newcommand{\broken}{\domain}
-\newcommand{\cell}[1][i]{C_{#1}}
+\newcommand{\cell}[1][]{C_{#1}}
 \newcommand{\boundary}{\partial \domain}
-\newcommand{\sbasis}[1][]{\Phi_{#1}}
-\newcommand{\stbasis}[1][]{\Theta_{#1}}
-\newcommand{\sbasisRef}[1][]{\hat{\sbasis[#1]}}
-\newcommand{\stbasisRef}[1][]{\hat{\stbasis[#1]}}
-\newcommand{\stestfunction}[1]{\sbasis[#1]}
-\newcommand{\sttestfunction}[1]{\stbasis[#1]}
+\NewDocumentCommand{\sbasis}{ O{} O{} }{\phi^{#1}_{#2}}
+\NewDocumentCommand{\stbasis}{ O{} O{} }{ \Theta^{#1}_{#2}}
+\NewDocumentCommand{\sbasisRef}{ O{} O{} }{\hat{\sbasis[#1][#2]}}
+\NewDocumentCommand{\stbasisRef}{ O{} O{} }{\hat{\stbasis[#1][#2]}}
+%\newcommand{\stestfunction}[1]{\sbasis[#1]}
+\NewDocumentCommand{\stestfunction}{ O{} O{} }{\sbasis[#1][#2]}
+\NewDocumentCommand{\sttestfunction}{ O{} O{} }{\stbasis[#1][#2]}
 \newcommand{\normal}{\bm{n}}
 \newcommand{\dsol}[1][h]{\bm{u}_{#1}}
 \newcommand{\stpredictor}[1][h]{\bm{q}_{#1}}
