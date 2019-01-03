@@ -904,9 +904,11 @@ The simplest way to compute this would be by using the textbook definitions of m
 \begin{align}
   \begin{split}
     \mean [X] &= \expectation \left[ X \right]\\
-    \variance [X] &= \expectation \left[ X^2 \right] - \expectation \left[ X \right]^2.
+    \variance [X] &= \frac{n}{n-1} \expectation \left[ X^2 \right] - \expectation \left[ X \right]^2.
   \end{split}
 \end{align}
+\todo{Bessel's correction here!}
+The variance is corrected for bias by the so-called Bessel's correction~\cite{holtzman1950unbiased}.
 The naive algorithm is numerically unstable when the variance is orders of magnitudes smaller than the mean as this can lead to catastrophic cancellations.
 We thus compute the mean and variance with the parallel algorithm of~\cite{chan1982updating}.
 To do this, we need to store three variables per computation unit:
@@ -915,9 +917,14 @@ We collect these items in the vector $\gobs = (\mean, \variance, \gobsCount)$
 We can then merge two pairs of observed variables with \cref{alg:merge-variance}.
 This algorithm computes an estimate of the population variance using Bessel's correction, i.e.\ it returns the sample variance times $\nicefrac{n}{n-1}$.
 In our case, the compute the variance over all grid cells.
-\todo{Std is still slightly biased!}
-Because of this, we multiply the estimate of \cref{alg:merge-variance} with $\nicefrac{n-1}{n}$ to undo the correction.\todo{Is this actually correct? Doesn't bessel's correction come from the dofs ``used for the mean?''. (Doesnt really matter anyway.)}
-
+We then use
+\begin{equation}
+  \label{eq:sample-std}
+ \sigma = \sqrt{\variance[X]} 
+\end{equation}
+as sample standard deviaton.
+Note, that this estimate is biased; an unbiased estimate for general distributions does not exist~\cite{holtzman1950unbiased}.
+\todo{Do we actually care about the bias?}
 \begin{algorithm}[ht]
   \begin{algorithmic}
 % TODO: Special cases 
