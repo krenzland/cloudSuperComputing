@@ -132,7 +132,7 @@ For the actual implementation, we follow \cref{alg:reduce-gobs} but include dist
    \item We update the global observables of the solver in the method \funName{endIteration}, which call the method \funName{updateG}.
   \end{itemize}
 \item If we use \mpi{}, we also need to reduce the observables over all ranks.
-  \exahype{} already reduces the timestep size, we extend these already existing \mpi{} messages to also include the global observables \varName{_globalObservables}.
+  \exahype{} already reduces the timestep size, we extend these already existing \mpi{} messages to also include the global observables \varName{\_globalObservables}.
   For this, we changed the following methods\todo{Next and current?!} of the \dg{}-solver:
   \begin{itemize}
   \item \funName{compileMessageForMaster} and \funName{sendDataToMaster} to send data from the workers to the master rank.
@@ -140,7 +140,7 @@ For the actual implementation, we follow \cref{alg:reduce-gobs} but include dist
   \item \funName{compileMessageForWorker} and \funName{sendDateToWorker} to send the reduced data from the master to the workers.
   \item \funName{mergeWithMasterData} to overwrite the current data of the workers with the reductions from the previous timestep.
   \end{itemize}
-  The solvers update the variable \varName{_nextGlobalObservables} during the \mpi{}-reduction.
+  The solvers update the variable \varName{\_nextGlobalObservables} during the \mpi{}-reduction.
   Together with the aforementioned resetting of the observables, this again corresponds to \cref{alg:reduce-gobs}.
 \end{itemize}
 The global observables interface is defined for all solvers, the \mpi{}-reduction only for the \aderdg{}-solver.
