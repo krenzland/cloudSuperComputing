@@ -7,7 +7,7 @@ OUT  := build
 all: main.pdf
 
 main.pdf: main.tex
-	latexmk -outdir=$(OUT) -pdflatex="pdflatex -interaction=nonstopmode" -pdf $(FILE) #-use-make
+	latexmk -outdir=$(OUT) -shell-escape -interaction=nonstopmode -pdf $(FILE) -use-make
 
 clean:
 	latexmk -CA
