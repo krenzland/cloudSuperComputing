@@ -1,5 +1,5 @@
 FILE := main
-OUT  := build
+#OUT  := build
 
 
 .PHONY: main.pdf latexmk clean purge
@@ -7,17 +7,10 @@ OUT  := build
 all: main.pdf
 
 main.pdf: main.tex
-	latexmk -outdir=$(OUT) -shell-escape -interaction=nonstopmode -pdf $(FILE) -use-make
-
+        #latexmk -outdir=$(OUT) -shell-escape -interaction=nonstopmode -synctex=1 -bibtex -pdf $(FILE)
+	latexmk -synctex=1 -shell-escape -interaction=nonstopmode -pdf $(FILE)
 clean:
 	latexmk -CA
-
-pdf:
-	# Also see .latexmkrc
-	latexmk -outdir=$(OUT) -pdf $(FILE)
-
-#clean:
-#	rm -rf $(filter-out $(OUT)/$(FILE).pdf, $(wildcard $(OUT)/*))
 
 purge:
 	rm -rf $(OUT)

@@ -10,6 +10,7 @@ fi
 
 rev=$(git rev-parse --short HEAD)
 
+cp writing/thesis/main.pdf writing/thesis/build/
 cd writing/thesis/build
 
 git init

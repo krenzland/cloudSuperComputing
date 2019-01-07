@@ -7,7 +7,7 @@ before_install:
 - sudo apt-get -qq update && sudo apt-get install -y --no-install-recommends texlive-full biber
 script:
 - (cd writing/thesis && make)
-- ls writing/thesis/build
+- ls writing/thesis
 after_success:
   - bash deploy.sh
 env:
