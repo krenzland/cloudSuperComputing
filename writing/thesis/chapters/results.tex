@@ -20,7 +20,9 @@
 \begin{figure}[htb]
   \centering
   \includegraphics{thesis_convergence}
-  \caption{$L_2$-Error vs.\ Grid Size}
+  \caption{$L_2$-Error vs.\ Grid Size.
+    The dashed lines are the optimal order of convergence $N+1$.
+  The line is estimated by using the constant part of a linear regression fit and the ideal order as slope.}
   \label{fig:convergence-l2-error}
 \end{figure}
 
@@ -53,8 +55,10 @@ We evaluate the cell-wise error with Gaussian quadrature using \cref{eq:integrat
    \Vert f_K(x) \Vert_p = \left( V \sum_{\bm{i}} \vert f(\bm{x}_i, t) - \hat{f}(\bm{x}_i, t) \vert^p w_{{\bm{i}}}  \right)^{1/p},
  \end{equation}
 where $V = \Delta x \Delta y$ is the volume of each two-dimensional cell.
+\todo{Use quadNodes, quadWeights and volume macro}
 The sum runs over all quadrature nodes $x_i$ with weights $w_i$.
-We use ten nodes.
+We use ten nodes for all orders and evaluate our solution for all nodes.
+In this way we ensure a fair comparision.
 
 For the limiting case of $p \to \infty$ we use the maximum point-wise error.
 
