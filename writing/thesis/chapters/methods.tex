@@ -28,22 +28,27 @@
 }
 \newcommand{\Riemann}{\operatorname{Riemann}}
 
-% Stuff for numerics
+% Domain
 \newcommand{\domain}{\Omega}
-\newcommand{\broken}{\domain}
-\newcommand{\cell}[1][]{C_{#1}}
 \newcommand{\boundary}{\partial \domain}
+\newcommand{\broken}{\domain}
+
+% Cells
+\newcommand{\cell}[1][]{C_{#1}}
+\newcommand{\refCell}[1][]{\hat{C}_{#1}}
+\newcommand{\cellb}{\partial{} \cell}
+\newcommand{\refCellb}{\partial{} \refCell}
+
+% Basis functions
 \newcommand{\lagrange}[1][i]{\varphi_{#1}}
 \newcommand{\lagrangeRef}[1][i]{\hat{\varphi}_{#1}}
 \NewDocumentCommand{\sbasis}{ O{} O{} }{\phi^{#1}_{#2}}
-\NewDocumentCommand{\stbasis}{ O{} O{} }{ \Theta^{#1}_{#2}}
 \NewDocumentCommand{\sbasisRef}{ O{} O{} }{\hat{\phi}^{#1}_{#2}} %{\hat{\sbasis[#1][#2]}}
-\NewDocumentCommand{\stbasisRef}{ O{} O{} }{\hat{\Theta}^{#1}_{#2}} %{\hat{\stbasis[#1][#2]}}
+\NewDocumentCommand{\stbasis}{ O{} O{} }{ \psi^{#1}_{#2}}
+\NewDocumentCommand{\stbasisRef}{ O{} O{} }{\hat{\psi}^{#1}_{#2}} %{\hat{\stbasis[#1][#2]}}
 %\newcommand{\stestfunction}[1]{\sbasis[#1]}
 \NewDocumentCommand{\stestfunction}{ O{} O{} }{\sbasis[#1][#2]}
 \NewDocumentCommand{\sttestfunction}{ O{} O{} }{\stbasis[#1][#2]}
-\newcommand{\normal}{\bm{n}}
-\newcommand{\dsol}[1][h]{\bm{u}_{#1}}
 
 % Space-time dofs
 \NewDocumentCommand{\stpredictor}{ O{} O{} }{\overline{\bm{q}}^{#1}_{#2}}
@@ -52,14 +57,11 @@
 \NewDocumentCommand{\stflux}{ O{} O{} }{\overline{F}^{#1}_{#2}}
 \NewDocumentCommand{\stfluxCoeff}{ O{} O{} }{\underline{\overline{F}}^{#1}_{#2}}
 
+% \NewDocumentCommand{\stsol}{ O{} O{} }{\overline{u}^{#1}_{#2}}
+% \NewDocumentCommand{\stsol}{ O{} O{} }{\underline{\overline{u}}^{#1}_{#2}}
+
 \NewDocumentCommand{\stsource}{ O{} O{} }{\overline{S}^{#1}_{#2}}
 \NewDocumentCommand{\stsourceCoeff}{ O{} O{} }{\underline{\overline{S}}^{#1}_{#2}}
-
-\NewDocumentCommand{\ssol}{ O{} O{} }{u^{#1}_{#2}}
-\NewDocumentCommand{\ssolCoeff}{ O{} O{} }{\underline{u}^{#1}_{#2}}
-
-\NewDocumentCommand{\sflux}{ O{} O{} }{F^{#1}_{#2}}
-\NewDocumentCommand{\sfluxCoeff}{ O{} O{} }{\underline{F}^{#1}_{#2}}
 
 % Space dofs
 \NewDocumentCommand{\spredictor}{ O{} O{} }{\bm{q}^{#1}_{#2}}
@@ -68,7 +70,11 @@
 \NewDocumentCommand{\ssource}{ O{} O{} }{S^{#1}_{#2}}
 \NewDocumentCommand{\ssourceCoeff}{ O{} O{} }{\underline{S}^{#1}_{#2}}
 
+\NewDocumentCommand{\ssol}{ O{} O{} }{u^{#1}_{#2}}
+\NewDocumentCommand{\ssolCoeff}{ O{} O{} }{\underline{u}^{#1}_{#2}}
 
+\NewDocumentCommand{\sflux}{ O{} O{} }{F^{#1}_{#2}}
+\NewDocumentCommand{\sfluxCoeff}{ O{} O{} }{\underline{F}^{#1}_{#2}}
 
 % Equation parts
 \newcommand{\flux}{F}
@@ -84,27 +90,34 @@ S_{#1}
 }
 
 % Integrals
-\newcommand{\curTime}{t^n}
-\newcommand{\nextTime}{t^{n+1}}
+\newcommand{\curTime}{t^k}
+\newcommand{\nextTime}{t^{k+1}}
 \newcommand{\intdt}[1]{\int_{\curTime}^{\nextTime} #1 \dd{t}}
 \newcommand{\intdcell}[1]{\int_{\cell} #1 \dd{\bm{x}}}
-\newcommand{\intdrefcell}[1]{\int_{\cell} #1 \dd{\hat{\bm{x}}}}
-\newcommand{\intdcellb}[1]{\int_{\partial{} \cell} #1 \dd{S}} % TODO: define boundary of cell
-\newcommand{\intdrefcellb}[1]{\int_{\partial{} \cell} #1 \hat{\dd{S}}} % TODO: define boundary of cell
+\newcommand{\intdrefcell}[1]{\int_{\refCell} #1 \dd{\hat{\bm{x}}}}
+\newcommand{\intdcellb}[1]{\int_{\cellb} #1 \dd{S}} % TODO: define boundary of cell
+\newcommand{\intdrefcellb}[1]{\int_{\refCellb} #1 \hat{\dd{S}}} % TODO: define boundary of cell
 
 % Yet to be sorted
 \newcommand{\quadWeight}[1][i]{w_{#1}}
-\newcommand{\quadNode}[1][i]{n_{#1}}
+\newcommand{\quadNode}[1][i]{\hat{x}_{#1}}
+\newcommand{\quadNodeNd}[1][i]{\hat{\bm{x}}_{#1}}
 \newcommand{\sbasisSize}{(N+1)^\dimensions}
 \newcommand{\stbasisSize}{(N+1)^{\dimensions+1}}
+\newcommand{\normal}{\bm{n}}
+
+\newcommand{\pleft}{\bm{L}}
+\newcommand{\prightsol}{\bm{r}}
+\newcommand{\prightpred}{\bm{w}}
+
 
 \chapter{An ADER-DG scheme for the Navier-Stokes Equations}\label{chap:methods}
 This chapter describes the numerical and physical background that is needed to simulate reacting fluids with good accuracy.
-We start with a description 
-We start with a description of the arbitrary high order derivatives (\ader) discontinuous Galerkin (\dg) method with a focus on equations that contain both advective and diffusive terms.
-We then seque into a short description of the \muscl\ scheme, a second order finite volume scheme.
+We start with a description of the arbitrary high order derivatives (\ader{}) discontinuous Galerkin (\dg{}) method with a focus on equations that contain both advective and diffusive terms.
+We then seque into a short description of the \muscl{} scheme which is a second order finite volume scheme.
 
-We conclude this chapter by a description of adaptive mesh refinement (\amr) and finite volume limiting, which combines both numerical methods to achieve a stable, high-order method.
+We conclude this chapter by a description of finite volume limiting and adaptive mesh refinement (\amr{}).
+The limiting combines both numerical methods to achieve a stable, high-order method and the \amr{} allows us to perform high quality simulations with a smaller computational cost.
 
 \section{Reactive Compressible Navier Stokes Equations}\label{sec:navier-stokes}
 \newcommand{\diffCoeff}{\varepsilon}
@@ -116,7 +129,6 @@ We conclude this chapter by a description of adaptive mesh refinement (\amr) and
     \Qj \QZZ
   \end{pmatrix}
 }
-
 \newcommand{\viscFluxDef}{
   \begin{pmatrix}
      -\diffCoeff \gradient{\Qrho}\\
@@ -125,13 +137,12 @@ We conclude this chapter by a description of adaptive mesh refinement (\amr) and
      -\diffCoeff \gradient{\QZ}
    \end{pmatrix}
 }
-
 Fluid motion can be described by the compressible Navier Stokes equations.
 We follow the description in~\cite{dumbser2010arbitrary} for the Navier Stokes part.
 The coupling with the advection-diffusion-reaction equation follows~\cite{hidalgo2011ader} which describes this equation set for the one-dimensional case.
 In the following, we will denote the spatial coordinates as $\bm{x} = \left( x,z \right)$ and $\bm{x} = \left( x,y,z \right)$ for the two and three-dimensional case respectively.
-The variable $t$ corresponds to the currenty (physical) time.
-We solve the \pde\ in the conversative form \pcref{eq:conservation-law-gradient}\todo{Dont reference to following chapter!}
+The variable $t$ corresponds to the current physical time.
+We solve the \pde{} in the conservative form% \pcref{eq:conservation-law-gradient}
 \begin{equation}
  \label{eq:equation-set} 
  \begin{array}{l}
@@ -176,9 +187,8 @@ The vector of conserved quantities is given by
 where $\Qrho$ is the density, $\Qj$ is the two or three-dimensional momentum, $\QE$ the energy density and $\QZ$ is the mass fraction of the chemical reactant.
 The chemical reactant in our case is unburnt gas.
 
-The rows of the equation are the conservation of mass, the conservation of momentum, the conservation of energy and the continuity of the reactant.
-We split the flux into a hyperbolic $\hyperFlux(\Q)$ and a viscous part$\viscFlux(\gradQ)$
-
+The rows of the equation are the conservation of mass, the conservation of momentum, the conservation of energy and the continuity equation of the reactant.
+We split the flux into a hyperbolic $\hyperFlux(\Q)$ and a viscous part $\viscFlux(\Q, \gradQ)$
 \begin{equation}
   \label{eq:flux}
   \flux(\Q, \gradQ) = \hyperFlux(\Q) + \viscFlux(\Q, \gradQ).
@@ -190,7 +200,7 @@ The hyperbolic flux is given by
 \end{equation}
 which are the Euler equations coupled with an advection equation.
 In this equation $\bm{a} \otimes \bm{b} = \bm{a} \bm{b}^\intercal$ is the Kronecker or outer product of two vectors $\bm{a}$ and $\bm{b}$.
-The pressure $\pressure$ is given by the caloric equation of state of an ideal reacting gas\todo{Geopot height correct?}
+The pressure $\pressure$ is given by the caloric equation of state of an ideal reacting gas
 \begin{equation}
   \label{eq:eos}
   \pressure = (\gamma - 1) \left(\QE - \frac{1}{2} \left(\Qv \cdot \Qj \right)  - q_0 \QZ - gz \right).
@@ -263,17 +273,16 @@ The maximal absolute eigenvalues for convective and viscous part in direction of
 \end{align}
 with velocity in direction of the normal $\Qv_{\normal}$ and speed of sound $c = \sqrt{\gamma R T }$.
 
-We also support two different kind of (optional) source terms.
-\todo{Either include gravity in pressure or add source term for energy.}
+We also support two different kind of optional source terms.
 The first source term is gravity, given by
 \begin{equation}\label{eq:source-gravity}
   \source[\Qj] = - g \bm{k} \cdot \Qj,
 \end{equation}
-where $g = 9.81$ and $\bm{k}$ is a unit vector pointing in $z$-direction.
+where $g = 9.81$ and $\bm{k}$ is a unit vector pointing in $z$-direction\todo{Discuss $g$ either in pressure or scenario.}.
 
 \newcommand{\backgroundPressure}{\overline{\pressure}}
 \newcommand{\backgroundRho}{\overline{\Qrho}}
-Some of our scenarios can be described as a pertubation of a background state that is in hydrostatic balance
+Some of our scenarios can be described as a pertubation of a background state that is initially in hydrostatic balance
 \begin{equation}
   \label{eq:hydrostatic-balance}
   \pdv{}{z} \backgroundPressure{\left (z \right )} = -g \backgroundRho(z),
@@ -286,11 +295,11 @@ We now focus on the following part of the momentum equation (neglecting viscous 
     \Qv \cdot \left( \bm{I} \QE + \bm{I} \pressure \right)
   }
   =
-  -g \bm{k} \cdot \Qrho
-\end{equation}.
-The background state \cref{eq:hydrostatic-balance} leads to large values and can diminish other parts of the flux due to numerical instabilities~\cite{muller2010adaptive}.
-We can now split the pressure as $\pressure = \backgroundPressure(z) + \pressure' (\bm{x}, t)$ and the density as $\Qrho = \backgroundRho(z) + \Qrho'(\bm{x}, t)$.
-Inserting this splitting, the definition of divergence into \cref{eq:momentum-equation} allows us to apply \cref{eq:hydrostatic-balance}.
+  -g \bm{k} \cdot \Qrho.
+\end{equation}
+The background state \cref{eq:hydrostatic-balance} can be comparitively large and can thus diminish other parts of the flux due to numerical instabilities~\cite{muller2010adaptive}.
+To avoid this, we split the pressure as $\pressure = \backgroundPressure(z) + \pressure' (\bm{x}, t)$ and the density as $\Qrho = \backgroundRho(z) + \Qrho'(\bm{x}, t)$.
+Inserting this splitting and the definition of divergence into \cref{eq:momentum-equation} allows us to apply \cref{eq:hydrostatic-balance}.
 Furthermore, the background states have zero derivatives in all directions but in $z$.
 We arrive at 
 \begin{equation}
@@ -303,8 +312,9 @@ We arrive at
 \end{equation}.
 We thus cancel parts of the flux with parts of the source term.
 Note that the time derivative of the background density also vanishes.
-We do not use this to simplify the implementation of the gradient computation.
-This form of the equation is similar to equation set 3 of~\cite{giraldo2008study} but without splitting the energy.
+This form of the equation is inspired by equation set 3 of~\cite{giraldo2008study}.
+They additionally use a splitting of the energy and use the pertubations directly as conservative variables.
+%We do not use this to simplify the implementation of gradients.
 
 \newcommand{\reactionTimescale}{\tau}
 \newcommand{\reactionTemperature}{T_{\text{ign}}}
@@ -312,17 +322,17 @@ The chemical reactive source term is
 \begin{equation}\label{eq:source-reaction}
   \source[\QZ] = - K(T) \QZ.
 \end{equation}
-We use the very simple reaction model
+We use the simple reaction model
 \begin{equation}\label{eq:reaction-model}
 \begin{cases}
   - \frac{1}{\reactionTimescale} & T > \reactionTemperature\\
   0 & \text{otherwise}
 \end{cases}  
 \end{equation}
-where $\reactionTimescale$ is the timescale of the reaction and $\reactionTemperature$ is the activation temperature.
+where $\reactionTimescale$ is the timescale of the reaction and $\reactionTemperature$ is the activation temperature~\cite{hidalgo2011ader,helzel2000modified}.
 
 \subsection{Boundary conditions}
-To close the system we need to impose boundary conditions.
+To close the system we need to impose boundary conditions.\todo{Adapt this chapter to implementation!}
 
 \sidetitle{Cauchy}
 For some scenarios we use Cauchy boundary conditions, i.e.\ we prescribe both $\Q$ and $\gradQ$ at the boundary.
@@ -369,7 +379,7 @@ We manually set the energy component of the numerical flux to zero for both no- 
 \newcommand{\cellCenter}{\operatorname{cell-center}}
 We describe the arbitrary derivative discontinous Galerkin (\aderdg) method in this chapter.
 Our description of the main method follows~\cite{dumbser2008unified,dumbser2010arbitrary,dumbser2018efficient}, our notation follows primarily~\cite{dumbser2018efficient}.
-Let $\NVar$ be the number of variables and $\dimensions$ the number of spatial dimensions.
+Let $\NVar$ be the number of variables, $\dimensions$ the number of spatial dimensions and $N > 0$ the order of the method.
 We discuss the approximation of systems of partial differential equations (\pde) of the form
 \begin{equation}
   \label{eq:conservation-law-gradient}
@@ -392,18 +402,6 @@ In our implementation of the discontinous Galerkin (\dg) framework, we approxima
 of disjoint quadrilateral cells $\cell$.
 Note that we do not distinguish between the broken approximation space and the domain, the use should be clear given its surrounding context.
 For each cell we denote its center by $\cellCenter{\cell}$ and its size by $\Delta x, \Delta y$ and $\Delta z$.
-%In the following we make use of the Einstein summation convention where summation over repeated indexes is implied.
-% Inside each cell $\cell$ we represent the solution in terms of the basis function 
-% \begin{equation}
-%   \label{eq:cell-approx}
-%   u(\bm{x}, t^n)_{|\cell[i]} = \hat{u}^n_{i,l} \sbasis{l}(\bm{x}),
-% \end{equation}
-% where $l$ is a multi-index, containing one index per spatial dimension.
-% \todo{dofs $\hat{u}$, local solution, etc.}
-% For example, $(l = (l_1, l_2))$ for the two dimensional case.
-% This polynomial is interpolating, i.e.\ \ldots\todo{interpolating?}.
-% This choice of basis (called \textit{nodal} basis) allows us to easily compute integrals over cells using Gaussian quadrature.
-% In detail, we use a the Lagrange interpolation polynomials.
 
 The \aderdg{}-scheme is a predictor-corrector method.
 We first compute a local time evolution of each cell in a predictor step and then add the influence of the neighbors in the corrector step.
@@ -421,10 +419,10 @@ We first compute a local time evolution of each cell in a predictor step and the
 
 \sidetitle{Reference Cell}
 For reasons of computational efficiency, we describe the scheme in terms of a reference cell.
-We use the quad cell $\hat{\cell} = [0, 1]^\dimensions$ as space reference cell.\todo{check if $[0,1]$ detontes correct interval}.
-The mapping, which takes a point on a grid cell with coordinates $\bm{x}$ and returns the corresponding point $\hat{\bm{x}}$ on the reference cell
+We use the quad cell $\hat{\cell} = (0, 1)^\dimensions$ as space reference cell.
+The mapping, which takes a point on the reference cell with coordinates $\hat{\bm{x}}$ and and returns a the coordinates $\bm{x}$ in a grid cell $\cell$ is
 \begin{equation}\label{eq:space-mapping}
-  \hat{x} = \mapping (\bm{x}) =
+  \bm{x} = \mapping (\hat{\bm{x}}) =
   \cellCenter(\cell) +
 \begin{pmatrix}
 \Delta x && \\
@@ -432,26 +430,25 @@ The mapping, which takes a point on a grid cell with coordinates $\bm{x}$ and re
 &&\Delta z&
 \end{pmatrix}
   \begin{pmatrix}
-    x - 0.5\\
-    y - 0.5\\
-    z - 0.5
+    \hat{x} - 0.5\\
+    \hat{y} - 0.5\\
+    \hat{z} - 0.5
   \end{pmatrix}.
 \end{equation}
-We also define the inverse mapping $\mapping^{-1}$.
-This can be used to define a function $f(\bm{x})$ acting on a point $\bm{x}$ of a regular cell in terms of a function $\hat{f}(\bm{x})$ that acts on the corresponding point of the reference cell by the relation
+The inverse mapping $\mapping^{-1}$ can be used to define a function $f(\bm{x})$ acting on a point $\hat{\bm{x}}$ of a regular cell in terms of a function $\hat{f}(\bm{x})$ that acts on the corresponding point of the reference cell by the relation
 \begin{equation}
   \label{eq:function-ref-cell}
   f(\bm{x}) = f\left( \mapping^{-1}(\bm{x}) \right) = \hat{f}(\hat{\bm{x}}).
 \end{equation}
 
-Similar to this, we define a mapping that maps a point in time to the reference time $\hat{t} \in (0,1)$
+Similar to this, we define a mapping that maps a reference time point $\hat t$ to simulation time $t$
 \newcommand{\timeMapping}{\mathcal{T}}
 \begin{equation}
   \label{eq:time-mapping}
-  \hat{t} = \timeMapping(t) = t_0 + (\Delta t) t,
+  t = \timeMapping(\hat{t}) = \curTime + (\Delta t) \hat{t},
 \end{equation}
-where $\Delta t$ is timestep of a cell and $t_0$ is the beginning of its time interval.
-The space-time reference cell is then $\hat{\cell} = [0,1]^{D+1}$
+where the reference time interval is $[0,1]$ and the time interval of a cell is $[\curTime, \nextTime]$.
+The time at the beginning of a timestep is thus denoted by $\curTime$, the time at the end of a step is denoted by $\nextTime = \curTime + \Delta t$ with timestep size $\Delta t$.
 
 The Jacobian determinant of $\mapping$ is simply the volume $V$ of the cell
 \begin{equation}
@@ -460,7 +457,7 @@ The Jacobian determinant of $\mapping$ is simply the volume $V$ of the cell
 \end{equation}
 the Jacobian determinant of $\timeMapping$ is $\Delta t$.
 This is useful for evaluating derivatives by the chain rule and, similarly, integrals by substitution.
-For example, we can evaluate a volume integral by
+For example, we can evaluate a volume integral over a cell by
 \begin{equation}
   \label{eq:integration-by-substitution}
   \intdcell{
@@ -472,70 +469,86 @@ f(\bm{x})
   }
 \end{equation}
 \sidetitle{Basis Functions}
-The next step is the definition of basis functions for the reference cell.
+The next step is the definition of basis functions for our cells.
 We use Langrange polynomials that are defined in the one-dimensional case for the reference interval $(0,1)$ by
 \begin{align}
   \label{eq:lagrange-basis}
-    \lagrangeRef(x) = \prod_{i \neq n}^N \frac{x - {\quadNode{j}}}{x_i - \quadNode[j]},
+    \lagrangeRef(x) = \prod_{i >0, j>0, i \neq n}^N \frac{x - {\quadNode[j]}}{x_i - \quadNode[j]},
 \end{align}
 We can then approximate functions as a sum over the support points $\quadNode[j]$
 \begin{equation}
   \label{eq:langrange-expansion-1d}
   f(x) = \sum_{i = 0}^N f(x_i) \lagrangeRef[i](x) = f(x_i) \lagrangeRef[i](x),
 \end{equation}
-where we used the Einstein summation convention where summation over repeated indices is implied\todo{Remove this sentence, or sentence before introducing einstein summation!}.
-The support points $\quadNode[n]$ are chosen such that they coincide with the nodes of the Gauss-Legendre quadrature of order $N+1$ which we can use to evaluate integrals
+where we used the Einstein summation convention which implies summation over repeated free indices.
+This convention is used from here on.
+The support points $\quadNode[i]$ are chosen such that they coincide with the nodes of the Gauss-Legendre quadrature of order $N+1$ which we can use to evaluate integrals
 \begin{equation}
   \label{eq:quadrature-1d}
-  \int_0^1 f(x) \dd{x} = \sum_n^{N+1} \quadWeight[n] f(x_n),
+  \int_0^1 f(\hat{x}) \dd{\hat{x}} = \sum_{i=0}^{N} \quadWeight[i] f(\quadNode[i]),
 \end{equation}
-where $\quadNode[n]$ is a quadrature point with corresponding weight $\quadWeight[n]$.
+where $\quadWeight[i]$ is the quadrature weight corresponding to the node $\quadNode[i]$.
 
 The basis functions are similarly defined in $\dimensions$-dimensions by considering nodes that are the tensor-products of $d$ one-dimensional Gauss-Legendre quadrature.
-To simplify notation, we order the polynomials
+They are indexed by a multi-index $n = (n_1, \ldots, n_\dimensions)$
 \begin{equation}
   \label{eq:basis-space}
-  \sbasisRef[][n] (\bm{x}) = \prod_{i=0}^{\dimensions} \lagrangeRef[n] (x_i)
+  \sbasisRef[][n] (\bm{x}) = \prod_{i=0}^{\dimensions} \lagrangeRef[n_i] (x_i)
 \end{equation}
-by a linearised index, a $d$-dimensional function is then approximated by
+that is linearised such that $n = (0, \ldots, \sbasisSize)$.
+A $d$-dimensional function is then approximated by
 \begin{equation}
   \label{eq:lagrange-expansion}
-  f(\bm{x}) = \sum_{i = 0}^{\sbasisSize} f(\bm{x}_i) \lagrangeRef[i](\bm{x}) = f(\bm{x}_i) \lagrangeRef[i](\bm{x}).
+  f(\bm{x}) = \sum_{i = 0}^{\sbasisSize - 1} f(\bm{x}_i) \lagrangeRef[i](\bm{x}) = f(\bm{x}_i) \lagrangeRef[i](\bm{x}).
 \end{equation}
 Similarly to the one-dimensional case, we can evaluate integrals by
 \begin{align}
   \label{eq:quadrature}
-  \underbrace{\int_0^1 \cdots \int_0^1}_{\dimensions \text{ times}} f(\bm{x}) \dd{\bm{x}} &= \sum_n^{\sbasisSize} \quadWeight[n] f(\quadNode[n]) \\
+  \underbrace{\int_0^1 \cdots \int_0^1}_{\dimensions \text{ times}} f(\hat{\bm{x}}) \dd{\hat{\bm{x}}} &=
+ \sum_{n=0}^{\sbasisSize-1} \quadWeight[n] f(\quadNodeNd[n]) \\
   \intertext{with}
-  \quadWeight[n] &= \prod_{i}^{d} \quadWeight[i].
+  \quadWeight[n] &= \prod_{i}^{d} \quadWeight[n_i],
 \end{align}
-\todo{Fix notation, especially multi-dimensional integral.}
-% TODO: Quadrature
+where the quadrature weights $\quadWeight[n]$ are the product of all relevant one-dimensional quadrature weights, using the aforementioned (linearized) multi-index $n$.
+\todo{Should be correct. Is there a way to avoid this index hell, esp.\ multi-index?}
 
 Two important properties of this family of polynomials are
   \begin{alignat}{10}
     \label{eq:basis-interpolating}
-&& \text{Interpolating:} \qquad && \lagrangeRef[i] (\quadNode[i]) &= \delta_{ij}\\
+&& \text{Interpolating:} \qquad && \lagrangeRef[i] (\quadNode[j]) &= \delta_{ij},\\
+&& \qquad && \sbasisRef[][n] (\quadNodeNd[m]) &= \delta_{nm}, \notag\\
 \label{eq:basis-orthogonality}
-&& \text{Orthogonality:} \qquad &&
+&& \text{Orthogonality:} \qquad && \int_0^1 \lagrangeRef[i](x) \lagrangeRef[j](x) \dd{\hat{x}} &= \quadWeight[i] \delta_{ij},\\
+&& \qquad &&
 \underbrace{\int_0^1 \cdots \int_0^1}_{d \,\text{times}}
-\lagrangeRef[i] \left( \hat{\bm{x}} \right)
-\lagrangeRef[j] \left( \hat{\bm{x}} \right) \dd{\hat{\bm{x}}}
-&= \quadWeight[i] \delta_{ij}
+\sbasisRef[][n] \left( \hat{\bm{x}} \right)
+\sbasisRef[][m] \left( \hat{\bm{x}} \right) \dd{\hat{\bm{x}}}
+&= \quadWeight[n] \delta_{nm}, \notag
     \end{alignat}
+    where we make use of the Kronecker delta
+\begin{equation}
+      \label{eq:kronecker-delta}
+      \delta_{ij} =
+      \begin{cases}
+        1 & \text{if } i = j\\
+        0 & \text{otherwise}
+      \end{cases}.
+\end{equation}
 \todo{Fix this for multiple integrals!}
 
-We define the basis functions over a space-cell with an index $n = 0, \ldots, \sbasisSize$
+We define the basis functions over a space-cell with an index $n = 0, \ldots, \sbasisSize - 1$
 \begin{align}\label{eq:space-basis}
   \begin{split}
   \sbasis[][n] (\bm{x}) &= \sbasisRef[][n] \left( \mapping(\bm{x}) \right)
   \end{split}
 \end{align}
 where $\sbasisRef$ denotes the basis function on the reference cell.
-Similarly, we define a basis for a space-time reference element defined over $(0, 1)^D \times (0, 1)$
+
+In addition to the space cells, we also introduce space-time cells $\cell \times [\curTime, \nextTime]$ with reference cell $(0,1)^\dimensions \times  [0,1]$.
+A basis for these cells is given by
 \begin{align}\label{eq:space-time-basis}
   \begin{split}
-  \stbasisRef[][l,n](\hat{\bm{x}}, \hat{t}) &= \lagrange[l](t) \sbasis[][n] (x) = \lagrange[l](t) \lagrange[n](x)\\
+  \stbasisRef[][l,n](\hat{\bm{x}}, \hat{t}) &= \lagrange[l](t) \sbasis[][n] (x)\\
   \stbasis[][l,n] (\bm{x}, t) &= \stbasisRef \left( \mapping(\bm{x}), \timeMapping(t) \right)
   \end{split}
 \end{align}
@@ -545,91 +558,102 @@ Outside of elements, we define the basis functions to be equal to 0.
 We introduce an additional index $v = (0, \ldots, \NVar - 1)$ that corresponds to a variable.
 The complete basis functions are then defined by
 \begin{align}
-  \stbasis[][v,l,n] (\bm{x},t)= \bm{I} \otimes \stbasis[][l,n] (\bm{x}, t)
+  \stbasis[][v,n,l] (\bm{x},t)= \bm{I} \otimes \stbasis[][n,l] (\bm{x}, t)
 \end{align}
-with the identity matrix $\bm{I} \in \mathbb{R}^{\NVar}$\todo{Write out definition for space-time basis+both reference basis funcs}. 
+with the identity matrix $\bm{I} \in \mathbb{R}^{\NVar}$\todo{Write out definition for space-time basis+both reference basis funcs. Explain kronecker delta, maybe when first used in pde chapter}.
+
+\sidetitle{Expansion of quantities}
+All quantities can be expanded in the space-time basis.
+For example, the expansion of space-time predictor $\stpredictor[\cell]$ can be written as
+\begin{equation}
+  \label{eq:cell-approx-space-time}
+  \stpredictor[\cell] (\bm{x}, t) = \stpredictorCoeff[\cell][v',l',n'] \stbasis[\cell][v',l',n'](\bm{x}, t).
+\end{equation}
+We denote the space-time flux as $\stflux$ and the space-time source as $\stsource$ with coefficient vectors $\stfluxCoeff$ and $\stsourceCoeff$.
+Similarly, we define the space degrees of freedoms by an expansion in the space basis, for example for the space predictor
+\begin{equation}
+  \label{eq:cell-approx-space}
+  \spredictor[\cell] (\bm{x}) = \spredictorCoeff[\cell][v',n'] \sbasis[\cell][v',n'] (\bm{x}),
+\end{equation}
+where the basis, unlike in \cref{eq:cell-approx-space-time}, does not depend on the time.
+We need the space-expansion for the predictor $\spredictor$, the discrete solution $\ssol$, the source $\ssource$ and the flux $\sflux$,
+with coefficients $\spredictorCoeff, \ssolCoeff, \ssourceCoeff$ and $\sfluxCoeff$ respectively.
+The indices are in range of $v' = (0, \ldots, \NVar - 1)$, $n' = (0, \ldots, \sbasisSize - 1)$ and $l' = ( 0, \ldots, N)$.
+
+Here, the computational advantage of the nodal approach is evident:
+The coefficients correspond to the quantity evaluated at the basis node, due to the interpolation property~\pcref{eq:basis-interpolating}.
 
 \sidetitle{Predictor}
 We are now ready to derive the predictor.
-Let $t^n$ be the current simulation time and $t^{n+1} = t^n + \Delta t$ the time at the end of a timestep\todo{Explain in basis functions sec}.
-We first multiply the conservation law by a test function of the same function space as the basis, integrate over a space-time-element $\cell$ and replace the vector of conservative variables $\Q$ with the space-time predictor $\stpredictor[\cell]$
+We first multiply the conservation law by a test function of the same function space as the basis, integrate over a space-time-element $\cell$ and replace all terms with the discrete approximations.
+In particular, we replace the vector of conservative variables $\Q$ with the space-time predictor $\stpredictor[\cell]$.
 \begin{equation}\label{eq:weak-pde-space-time}
 \intdt{\intdcell{
-    \sttestfunction[\cell](\bm{x}, t)
+    \sttestfunction[\cell][v,l,n](\bm{x}, t)
     \pdv{\stpredictor}{t}
 }}
 +
 \intdt{\intdcell{
-    \sttestfunction[\cell](\bm{x}, t)
+    \sttestfunction[\cell][v,l,n](\bm{x}, t)
     \left(
-      \divergence{\flux(\stpredictor, \gradient{\stpredictor})}
+      \divergence{\stflux(\stpredictor, \gradient{\stpredictor})}
     \right)
 }}
 =
 \intdt{\intdcell{
-  \sttestfunction[\cell] \source(\stpredictor)
-}}.
+  \sttestfunction[\cell][v,l,n] \stsource(\bm{x}, t, \stpredictor)
+}},
 \end{equation}
+where the indices $v = (0, \ldots, \NVar-1)$, $n = (0, \ldots, \sbasisSize - 1)$ and $l = (0, \ldots, N)$ run over the variables, space and time.
 
-We integrate the first term by parts in time and the flux divergence in space.
-Here we do not use the Riemann solver for the flux boundary term but rather use the discrete solution at time $t$\todo{Insert in equation!}.
+Henceforth, we drop the cell index for all quantities and the spatial argument for the basis and test functions.
+We integrate the first term of \cref{eq:weak-pde-space-time} by parts in time and the flux divergence in space.
+Here we do not use the Riemann solver for the flux boundary term but rather use the known discrete solution at time $t$.
 This corresponds to upwinding in time~\cite{dumbser2008unified}.
 Note that this neglects the interaction with neighbouring cells.
-We account for this in the corrector step.
+The cell-local scheme is then
 \begin{align}\label{eq:space-time-predictor}
 \begin{split}
 \intdcell{
-  \sttestfunction[\cell][k] (\bm{x}, t^{n+1}) \stpredictor(\bm{x}, t^{n+1})
+  \sttestfunction[][v,l,n] (\nextTime) \stpredictor(\nextTime)
 }
 &-
 \intdt{\intdcell{
-    \pdv{}{t} \sttestfunction[\cell][k] (\bm{x}, t) \stpredictor(\bm{x}, t)
+    \pdv{}{t} \sttestfunction[][v,l,n] (t) \stpredictor(t)
 }}
 = \\
 \intdcell{
-  \sttestfunction[\cell][k] (\bm{x},t^n) \stpredictor(\bm{x}, t^n)
+  \sttestfunction[][v,l,n] (\curTime) \ssol (\curTime)
 }
 &+
 \intdt{\intdcell{
-    \sttestfunction[\cell][k] (\bm{x},t) \divergence{\flux(\stpredictor, \gradient{\stpredictor})}
+    \sttestfunction[][v,l,n] (t) \divergence{\stflux(\stpredictor, \gradient{\stpredictor})}
 }}
 +
 \intdt{\intdcell{
-    \sttestfunction[\cell][k] (\bm{x}, t) \source(\stpredictor)
-}}
+    \sttestfunction[][v,l,n] (t) \stsource(\stpredictor)
+}}.
 \end{split}
 \end{align}
-All quantities can be expanded in the space-time basis.
-For example, the expansion of space-time predictor can be written as
-\begin{equation}
-  \label{eq:cell-approx-space-time}
-  \stpredictor[\cell] (\bm{x}, t) = \stpredictorCoeff[\cell][v,l,n] \stbasis[\cell][v,l,n](\bm{x}, t).
-\end{equation}
-We denote the space-time flux as $\stflux$ and the space-time source as $\stsource$ with coefficient vectors $\stfluxCoeff$ and $\stsourceCoeff$.
-This is a part where we notice the computational advantage of the nodal approach:
-The coefficients correspond to the quantity evaluated at the basis node!
-Similarly, we define the space degrees of freedoms by an expansion in the space basis, for example for the space-predictor
-\begin{equation}
-  \label{eq:cell-approx-space}
-  \spredictor[\cell] (\bm{x}) = \spredictorCoeff[\cell][v,n] \sbasis[\cell][v,n] (\bm{x}),
-\end{equation}
-where the basis, unlike in \cref{eq:cell-approx-space-time}, does not depend on the time\todo{Maybe move to averaging in time?}.
 
-
-Inserting \cref{eq:cell-approx-space-time} results in a local systems of equations that can be by a fixed point iteration scheme.
-To show the computational efficiency of our scheme, we follow the approach of~\cite{dumbser2008unified} and collect our integrals into matrices\todo{Source is Dominics \aderdg-document.}.
-Henceforth, we drop the cell index for all quantities.
+Using the expansions in space and time~\pcref{eq:cell-approx-space,eq:cell-approx-space-time} results in a local systems of equations that can be solved by a fixed-point iteration scheme.
 For the space-time predictor, we introduce an iteration counter $i$.
 To close the iterative scheme, we set the initial value for the space-time predictor as
 \begin{equation}
   \label{eq:initial-guess}
 \forall l: \quad \stpredictorCoeff[i][v,l,n] = \ssolCoeff[v,n]
 \end{equation}
-which corresponds to a stationary guess\todo{This is an expansion only in space!}.
-\newcommand{\pleft}{\bm{L}}
-\newcommand{\prightsol}{\bm{r}}
-\newcommand{\prightpred}{\bm{w}}
-We arrive at the matrices
+which corresponds to a stationary initial guess~\cite{dumbser2008unified}.
+For an overview of possible initial guesses, see~\cite{dumbser2018efficient}.
+
+To show the computational efficiency of our scheme, we follow the approach of~\cite{dumbser2008unified} and collect our integrals into matrices\todo{Maybe mention that they are actually unrolled tensors?\\Source here is Dominics \aderdg{}-document.}.
+We arrive at the cell-local scheme
+\begin{align}
+  \label{eq:predictor-iterative}
+  \pleft \stpredictorCoeff[i+1] &= \prightsol (\ssol) - \prightpred(\stpredictorCoeff[i]) \\
+ \stpredictorCoeff[i+1] &= \pleft^{-1} \left( \prightsol (\ssol) - \prightpred(\stpredictorCoeff[i]) \right).
+\end{align}
+where we introduced the matrices
 \begin{equation}
   \label{eq:matrices}
   \pleft \in \mathbb{R}^{\NVar \stbasisSize \times \NVar \stbasisSize}, \quad
@@ -640,9 +664,9 @@ with entries
 \begin{align}
   \label{eq:predictor-matrices}
 \begin{split}
-  \pleft_{(n v l), (n' v l')} &=
+  \pleft_{(v l n), (v l' n')} &=
 \intdcell{
-  \sttestfunction[][v,l,n](\nextTime) \  \stbasis[][v,l', n'](\nextTime)
+  \sttestfunction[][v,l,n](\nextTime) \  \stbasis[][v,l',n'](\nextTime)
 }
 \\&-
 \intdt{\intdcell{
@@ -651,13 +675,13 @@ with entries
 \end{split}
 \\
 \begin{split}
-\prightsol_{v, l,n} (\ssol) =&
+\prightsol_{v,l,n} (\ssol) &=
 \intdcell{
   \sttestfunction[][v,l,n] (t) \sbasis[][v,n'] \ssolCoeff[][v,n']
 }
 \\&+
 \intdt{\intdcell{
-  \sttestfunction[][v,l,n] (t) \stbasis[][v,l',n'](t) S_{v,l',n'}(\stpredictor[i])
+  \sttestfunction[][v,l,n] (t) \stbasis[][v,l',n'](t) \stsourceCoeff[][v,l',n'](\stpredictor[i])
 }}                             
 \end{split}
   \\
@@ -668,32 +692,31 @@ with entries
 }}
 \end{align}
 Note here that $\prightpred$ is constant during a interation step.
-Using these matrices, we can solve for the space-time-predictor with the iterative scheme
-\begin{align}
-  \label{eq:predictor-iterative}
-  \pleft \stpredictorCoeff[i+1] &= \prightsol (\ssol) - \prightpred(\stpredictorCoeff[i]) \\
- \stpredictorCoeff[i+1] &= \pleft^{-1} \left( \prightsol (\ssol) - \prightpred(\stpredictorCoeff[i]) \right).
-\end{align}
+In practice, we precompute all integrals that contain only basis functions and their derivatives for the reference cell.
+The computation of the integrals for general space-tiem cells can then be done by \cref{eq:integration-by-substitution}.
 For details and proof of convergence for case of linear \pde{}s, see~\cite{dumbser2008unified}.
 
 \sidetitle{Preparing for corrector}
-We then prepare the space-time-predictor for use in the corrector step.
-Due to the linearity of the Riemann solver, we can exchange time and space integration and thus only need to consider the Riemann problem for time-averaged quantities.
-% We can compute this for the space-time-predictor by
-% \begin{align}
-%   \ldots = \ldots,
-% \end{align}
-% the procedure is similar for all other quantities (Q, gradQ, fluxes).
-We then extrapolate all quantities to the boundary.
-This is needed for the Riemann solver and for the reconstruction of boundary values.
-We accomplish this by evaluating the function at the degrees of freedom on the boundary.\todo{Details}
-Thanks to the interpolating property of the nodal basis~\pcref{eq:basis-interpolating}, this reduces to a change of basis which can be precomputed on the reference element.
-We compute time-averaged and boundary extrapolated versions of the space-time-predictor, the degrees of freedom and their gradient, and the fluxes. 
+It is useful to precompute time-averaged versions of our quantities.
+For example, this can be done for the space-time predictor by
+\begin{align}\label{eq:time-average}
+  \begin{split}
+  \spredictor (\bm{x}) &= \frac{1}{\Delta t} \intdt{
+\stpredictor(\bm{x}, t),
+  } \\
+\spredictor[][v,n] (\bm{x}) &= \stpredictorCoeff[][v,l,n] \quadWeight[l].
+  \end{split}
+\end{align}
+We then extrapolate the space predictor and its gradient, and the fluxes to the boundary.
+In our case we have a $\dimensions - 1$ dimensional basis for all $2 \dimensions$ faces.
+We accomplish this by evaluating the function at the degrees of freedom at the boundary.
+Due to the interpolating property of the nodal basis~\pcref{eq:basis-interpolating}, this reduces to a change of basis which can be precomputed on the reference element.
+We use the extrapolated values later for the Riemann solver and for the reconstruction of boundary values.
 
 \sidetitle{Corrector}
 The final step of the \aderdg{}-scheme is the corrector.
-We then multiply the system \cref{eq:conservation-law-gradient} by a test function $\stestfunction{i}$ and integrate over the space-time volume $(\cell \times [t^n, t^{n+1}])$.
-We arrive yet again at the weak formulation of the \pde\
+We multiply the system \cref{eq:conservation-law-gradient} by a space test function $\stestfunction$ and integrate over the space-time control volume.
+This results, yet again, at the weak formulation of the \pde{}
 \begin{equation}
   \label{eq:weak-pde}
 \intdt{\intdcell{
@@ -708,50 +731,44 @@ We arrive yet again at the weak formulation of the \pde\
     \stestfunction[][v,n] S(\Q, \bm{x}, t)
 }}.
 \end{equation}
-\todo{Include gradient everywhere!}
-\todo{Double check the following description}
-We now replace the solution $\bm{Q}$ with the spacetime-predictor $\stpredictor (\bm{x},t)$ and write it as a polynomial using the representation of \cref{eq:cell-approx-space,eq:cell-approx-space-time}\todo{Not all quantities are defined over time}.
+We now insert our discrete approximations and apply the basis expansions \cref{eq:cell-approx-space,eq:cell-approx-space-time} to the space-time predictor.
 The first part can be integrated by parts in time with the convenient result that only the boundary terms remain because the basis is constant in time.
 We then integrate the flux divergence by parts in space and insert the Riemann solver to connect with the neighbouring elements.
 Finally, we need to solve
 \newcommand{\massMatrixDef}{\intdcell{
   \stestfunction[][v,n] \sbasis[][v,n']
 }}
-\todo{Fix following equation, sum only needed due to expansion of dsol}
 \begin{align}
 \begin{split}
 \label{eq:corrector}
-% \sum_{n' = 0}^{\stbasisSize}
 \left(
 \massMatrixDef
 \right)
 (\ssolCoeff[t^{n+1}][v,n'] - \ssolCoeff[t^n][v,n'])
 &+
 \left(\intdt{\intdcellb{
-      \stestfunction[][v,n] \Riemann(\spredictor[-], \spredictor[+]) \cdot \normal
+      \stestfunction[][v,n] \Riemann(\stpredictor[-], \gradient{\stpredictor[-]}; \stpredictor[+], \gradient{\stpredictor[+]}) \cdot \normal
 }}\right)
 -\\
 \left(\intdt{\intdcell{
-    \gradient{\stestfunction[v,n][k]} \cdot  \flux(\spredictor, \gradient{\spredictor}) % todo correct gradient?
+    \gradient{\stestfunction[][v,n]} \cdot  \stflux(\spredictor, \gradient{\spredictor})
 }}\right)
 &=
 \left(\intdt{\intdcell{
-      \stestfunction[v,n][k] \source(\spredictor)
+      \stestfunction[][v,n] \stsource(\spredictor)
 }}\right)
 \end{split}
 \end{align}
 for the coefficients $\ssolCoeff[\nextTime][v,n]$ of the new solution.
-Here $\spredictor[\pm]$ are the boundary extrapolated space-predictors.
-Again, the computational effort can be vastly reduced, by collecting the integrals in matrices and precomputing as much as possible.
-The first term is thed mass matrix with entries
+Here the superscripts $\pm$ denotes values that are extrapolated to the boundaries.
+Again, the computational effort can be vastly reduced by collecting the integrals into matrices and precomputing as much as possible.
+The first term is the mass tensor with entries
 \newcommand{\massMatrix}[1][]{\bm{M}_{#1}}
 \begin{equation}
   \label{eq:mass-matrix}
-  \massMatrix[n n'] = \massMatrixDef = \volume \underbrace{\quadWeight[n] \delta_{n n'}}_{\text{diagonal}}
+  \massMatrix[v n n'] = \massMatrixDef = \volume \underbrace{\quadWeight[n] \delta_{n n'}}_{\text{diagonal}}
 \end{equation}
-which is, due to the orthogonal basis \pcref{eq:basis-orthogonality}, diagonal and thus trivial to invert.
-\newcommand{\basisSize}{(N+1)^d - 1}
-\newcommand{\sumbasis}{\sum_i^{\basisSize}}
+which is, due to the orthogonal basis \pcref{eq:basis-orthogonality}, diagonal for each variable $v$ and thus trivial to invert.
 We can then insert the definition of our basis function into our equation and arrive at
 \begin{align}
   \massMatrix \left( \ssolCoeff[t+1] - \ssolCoeff[t] \right) &=
@@ -763,21 +780,26 @@ a_{v,n} &= \sfluxCoeff[][n'] \intdcell{
 \\
 \label{eq:corrector-surface}
 b_{v,n} &= \intdcellb{
-    \stestfunction[][v,n] \Riemann(\spredictor[-], \spredictor[+]) \cdot \normal
+    \stestfunction[][v,n] \Riemann \left( \spredictor[-], \gradient{\spredictor[-]}, \gradient{\spredictor[+]} \right) \cdot \normal
 } \\
-s_n &=
+s_{v,n} &=
 \ssourceCoeff[][v,n'] \intdcell{
   \sbasis[][v,n] \sbasis[][v,n']
 }
 ,
 \end{align}
-where we evaluated the time-integrals by using the fact that our quantities are time-averaged.
+where we evaluated the time-integrals by \cref{eq:integration-by-substitution}.
+All quantities are now time-averaged~\pcref{eq:time-average} and are represented in the space basis~\pcref{eq:cell-approx-space}.
+Note that we evaluate the Riemann problem for the time-averaged space-predictor.
+This is justified by the linearity of our numerical flux~\cite{dumbser2008unified,dumbser2010arbitrary}.
 The surface integral \pcref{eq:corrector-surface} can be evaluated by summing over the contributions of the faces of each cell, which are computed by integrating the extrapolated space predictor with Gaussian quadrature.
-We can solve \cref{eq:corrector} for the new unknows $\bm{u}^{n+1}$
+Finally, we can solve \cref{eq:corrector} for the new unknows $\ssolCoeff[k+1]$
 \begin{align}\label{eq:update-predictor}
 \begin{split}
-  \bm{u}^{n+1} &= \bm{u}^{n} + \Delta t (\operatorname{update}) \\
-  \operatorname{update} &= \massMatrix^{-1} \left( \bm{a} - \bm{b} + \bm{s} \right)
+  %\bm{u}^{n+1}
+  \ssolCoeff[k+1][v]
+  &= \ssolCoeff[k][v] + \Delta t (\operatorname{update}) \\
+  \operatorname{update} &= \massMatrix[v]^{-1} \left( \bm{a}_v - \bm{b}_v + \bm{s}_v \right)
 \end{split}
 \end{align}
 which is clearly of the form of a one-step scheme.
@@ -807,7 +829,7 @@ and
 \begin{equation}
   \eta = \frac{2N+1}{h \sqrt{\frac{1}{2} \pi}}.
 \end{equation}
-In this equation, $N$ is the polynomial order and $h$ is the side-length of an element.
+In this equation $h$ is the side-length of an element.
 The penalty term depends on the maximal absolute eigenvalues of both the convective and viscous part of the equations
 \begin{align}
   \begin{split}
@@ -818,14 +840,13 @@ The penalty term depends on the maximal absolute eigenvalues of both the convect
 in direction of the normal vector $\normal$ to the cell face. 
 
 This Riemann solver was first published in~\cite{gassner2008discontinuous} and used for an \textsc{ader-dg} scheme in~\cite{dumbser2010arbitrary}.
+\todo{Paper only describe 1d}
 The timestep per dimension $d$ is restriced to a so-called \textsc{cfl}-type penalty
 \begin{equation}\label{eq:cfl-aderdg}
  %\Delta t \leq  \text{CFL} \, \frac{\alpha(N) \, h}{\maxConvEigen + 2 \maxViscEigen \frac{1}{\alpha(N) h}}
- \Delta t \leq  \text{CFL} \, \alpha(N) \, h \sum_{i=0}^{\dimensions-1} \frac{1}{\maxConvEigen + 2 \maxViscEigen \frac{1}{\alpha(N) h}}
+ \Delta t \leq  \text{CFL} \, \alpha(N) \, h \sum_{i=0}^{\dimensions-1} \frac{1}{\maxConvEigen + 2 \maxViscEigen \frac{1}{\alpha(N) h}},
 \end{equation}
-with $N$ polynomial order and $h$ side length of the cell~\cite{dumbser2010arbitrary,gassner2008discontinuous}.
-\todo{Paper only describe 1d, explain evaluation of eigenvalues in direction $i$}
-The eigenvalues are evaluated for the flux Jacobian in direction $i$.
+where the eigenvalues are evaluated for the flux Jacobian in direction $i$~\cite{dumbser2010arbitrary,gassner2008discontinuous}..
 The constant $\alpha(N) \leq {\left( 2N+1  \right)}^{-1}$ is obtained from von Neumann analysis on a simple model problem and depends on the approximation order~\cite{dumbser2008unified}.
 We use this constant for both hyperbolic and diffusive penalty terms to ensure stability.
 For a more detailed and rigoruous stability analysis of the Riemann solver, see~\cite{gassner2008discontinuous}\todo{Is this the correct paper, or is this in the other part of the series?}.
@@ -842,17 +863,17 @@ We use a value of $0.7$ for the constant $\text{CFL}$.
 We discussed a modern, high-order \dg{} method in the previous chapter.
 While this scheme is efficient, it can become unstable, especially in case of discontinuities.
 A simple alternative is a finite volume scheme.
-We use the \muscl{} method\todo{Cite original paper (van Leer)}, our discussion and notation follows the one in~\cite{toro2009riemann}.
+We use the \muscl{} method\todo{Cite original paper (van Leer)}.
+Our discussion and notation follows the one in~\cite{toro2009riemann}.
 Similar to~\cite{toro2009riemann} we only describe the two-dimensional case, an extension to three dimensions is straigthforward.
 \todo{Source term!}
 
-In contrast to the previous \dg{} scheme, we now only store cell averages instead of a full polynomial solution per cell.
-We achieve higher order then by a reconstruction of a linear function.
+In contrast to the previous \dg{} scheme, we now only store averages instead of a full polynomial solution for each cell.
+We achieve higher order then by reconstructing a linear function from a cell and its neighbours.
 Let $\cellAvg$ denote the averages per cell at spatial coordinates $i,j$.
 
 \sidetitle{Boundary Extrapolated Values}
 We first compute the slope of the linear function connecting the cells.
-This is done by assuming a linear function per cell.
 We use the minmod slope-limiter
 \begin{equation}
   \label{eq:minmod}
@@ -863,8 +884,8 @@ We use the minmod slope-limiter
       b & \text{otherwise}
   \end{cases}
 \end{equation}
-to avoid unphyiscally steep gradients and stabilize the system~\cite{leVeque2002finite}.
-This function then be used to compute the slopes
+to avoid unphyiscally steep gradients and to stabilize the system~\cite{leVeque2002finite}.
+This function can be used to compute the slopes
 \begin{align}\label{eq:slopes}
   \begin{split}
    \slope{x} &=  \Delta x \minmod \left( \cellAvg[i+1,j] - \cellAvg[i,j], \, \cellAvg[i,j] - \cellAvg[i-1, j] \right),\\ 
@@ -873,8 +894,8 @@ This function then be used to compute the slopes
 \end{align}
 where $\Delta x$ and $\Delta y$ are the inverse cell sizes in $x$ and $y$ direction respectively.
 
-We then use the slope to reconstruct the value of the boundary.
-In the following $\cellAvg^{\pm x}$ is the average of the left ($+$) or right ($-$) cell boundary.
+We use the slope to reconstruct the value at the boundary.
+In the following, $\cellAvg^{\pm x}$ is the average of the left ($+$) or right ($-$) cell boundary.
 Similar, $\cellAvg^{\pm y}$ is the value at the top/bottom cell boundary.
 These so called boundary extrapolated values are given by
 \newcommand{\extrapolatedCellAvg}[3][i,j]{\cellAvg[#1]^{#3 #2} = \cellAvg #3 \frac{1}{2} \slope{#2}}
@@ -891,7 +912,7 @@ We also use the slopes defined in \cref{eq:slopes} to estimate the gradient of $
 \end{equation}
 which is of course an abuse of notation insofar as it is not the gradient of the constant cell value but rather of the linear reconstruction \pcref{eq:slopes}.
 \sidetitle{Time Evolution}
-To achieve second order in time, we evolve the boundary extrapolated values in time by
+To achieve second order in time, we evolve the boundary extrapolated values
 \newcommand{\evolvedCellAvg}[2][i,j]{\hat{U}_{#1}^{#2}}
 \begin{equation}\label{eq:muscl-time-evolution}
   \begin{split}
@@ -933,6 +954,7 @@ Finally, the update can be described by\todo{Double check update}
     \right).
   \end{split}
 \end{align}
+This results in a scheme that has an order of convergence of two for both space and time.
 
 We again use the Rusanov-type Riemann solver~\cref{eq:rusanov-flux}.
 The timestep is subject to a penalty of the form
@@ -942,8 +964,7 @@ The timestep is subject to a penalty of the form
 with a constant value of CFL that is typically close to $0.7$.
 
 \section{Adaptive Mesh Refinement \textit{\&} Finite Volume Limiting}\label{sec:grid}
-\todo{Grid, spacefilling curve, and so on.}
-This section is concerned with two different but related concepts:%
+This section is concerned with two different but related concepts:
 finite volume limiting and adaptive mesh refinement (\amr{}).
 Both have in common that they change the structure of the grid.
 Instead of a regular grid where each cell has the same size, we now have different cell sizes.
@@ -954,12 +975,12 @@ Even worse, in the case of non-linear fluxes, discontinuities can appear even fr
 In addition, oscillations stemming from the high-order polynomical approximation can lead to wrong or unphyiscal data.
 This is called Gibbs phenomenon.
 A classical way of dealing with this problem is the usage of so called limiters.
-The idea is to smooth out steep gradients and thus eliminate discontinuities~\cite{hesthaven2008nodal}.\todo{It doesnt work like this exactly.}
+The idea is to smooth out steep gradients and thus lessen the effect of discontinuities~\cite{hesthaven2008nodal}.
 
 A relatively recent way of dealing with this problem is the finite volume subcell limiter.
 Our discussion follows the one in~\cite{dumbser2016simple}.
-This limiting is an a posteriori limiting, which means that we first evaluate a timestep with an unlimited \textsc{ader-dg} method and then check, whether our solution is \enquote{correct}.
-In our case, we check whether the solution is a valid floating point number.
+This limiting is an a posteriori limiting, which means that we first evaluate a timestep with an unlimited \aderdg{}-method and then check, whether our solution is \enquote{correct}.
+In our case, we check whether the solution is a finite floating point number.
 We also check whether it is physically admissible with the criterion\todo{Do I actually check for pos.\ of Z?}
 \begin{equation}
   \label{eq:limiting-physical}
@@ -975,7 +996,7 @@ The positivity of the pressure implies positivity of energy.
 If a solution violates our criterion, we recompute the last timestep for the offending cells with a limited finite volume method.
 In our case we use the \muscl{}-method (\cref{sec:muscl}).
 The recomputation starts by subdividing the infringing cell into $N_s = 2N + 1$ subcells.
-This number of subcells has the advantage that we do not loose spatial resolution and that we can use the same timestep size for both cell types.
+This number of subcells has the advantage that we do not lose spatial resolution and that we can use the same timestep size for both cell types.
 The reason for this is that the \textsc{cfl}-conditions for both schemes \pcref{eq:cfl-aderdg,eq:cfl-muscl} coincide for our choice of $N_s$.
 \begin{figure}[htb]
   \centering
