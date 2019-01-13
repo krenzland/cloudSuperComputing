@@ -780,7 +780,7 @@ a_{v,n} &= \sfluxCoeff[][n'] \intdcell{
 \\
 \label{eq:corrector-surface}
 b_{v,n} &= \intdcellb{
-    \stestfunction[][v,n] \Riemann \left( \spredictor[-], \gradient{\spredictor[-]}, \gradient{\spredictor[+]} \right) \cdot \normal
+    \stestfunction[][v,n] \Riemann \left( \spredictor[-], \gradient{\spredictor[-]}; \spredictor[+], \gradient{\spredictor[+]} \right) \cdot \normal
 } \\
 s_{v,n} &=
 \ssourceCoeff[][v,n'] \intdcell{
