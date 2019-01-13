@@ -1,4 +1,5 @@
 \chapter{Scenarios}\label{sec:scenarios}
+\todo{Write test here to introduce the chapter!}
 Unless otherwise noted, we use the constants
 \begin{align}
 \begin{split}
@@ -10,6 +11,24 @@ Unless otherwise noted, we use the constants
 The other constants follow from the definition of \cref{eq:fluid-constants}.
 
 We describe some scenarios in terms of the primitive variables $(\Qrho, \Qv, \pressure)$, these can be converted to the conservative variables by the definition of momentum and the definition of energy.   
+
+\begin{table}[htb]
+  \centering
+\caption{Overview of scenarios}%
+\label{tab:scenarios}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+{Name} & {Analytic Solution} & {Gravity} & {Coupling} & {Limiting}\\ \midrule
+Manufactured Solution & \cmark{} & \xmark{} & \xmark{} & \xmark{} \\
+Taylor-Green Vortex & \cmark{} & \xmark{} & \xmark{} & \xmark{} \\
+\textsc{ABC}-Flow & \cmark{} & \xmark{} & \xmark{} & \xmark{} \\
+\textsc{CJ}-Detonation & \xmark{} & \xmark{} & \cmark{} & \cmark{} \\
+Two Bubbles & \xmark{} & \cmark{} & \xmark{} & \xmark{} \\
+Cosine Bubble & \xmark{} & \cmark{} & \xmark{} & \xmark{} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{A Manufactured Solution}\label{sec:manufactured-solution}
 Following~\cite{dumbser2010arbitrary}, the scenario can be described in primitive variables by setting
 \begin{align}
@@ -28,12 +47,16 @@ This procedure is called method of manufactured solutions~\cite{salari2000code}.
 \section{Classical Scenarios}
 In addition to the convergence test, we use standard \textsc{cfd} scenarios to evaluate our simulations.
 
-
 % \subsection{The first Stokes Problem}
 % \todo{Do I actually want to include this? Bit boring scenario}
 % \cite{dumbser2010arbitrary}
 
-\subsection{Taylor-Green Vortex}
+\sidetitle{Taylor-Green Vortex}
+%\subsection{Taylor-Green Vortex}
+An interesting testing scenario is the Taylor-Green Vortex, which exhibits a complicated flow from a simple initial condition.
+It is an analytic solution for the incompressible Navier-Stokes equations which agree relatively well with our equation set at low Mach numbers.
+We can thus use it to evaluate the performance of our solver.
+The solution is
 \begin{align}
   \label{eq:taylor-green}
   \begin{split}
@@ -46,23 +69,33 @@ In addition to the convergence test, we use standard \textsc{cfd} scenarios to e
   \pressure(\bm{x}, t) &= \exp(-4 \mu t) \, \frac{1}{4} \left( \cos(2x) + \cos(2y) \right) + C
   \end{split}
 \end{align}
-\todo{Constants!}
-$C = 100/\gamma$ \cite{dumbser2016high}
+where $C = 100/\gamma$ is a constant that governs the speed of sound and thus the Mach number~\cite{dumbser2016high}.
 
 As initial conditions we use \cref{eq:taylor-green} at time $(t = 0)$ and as boundary conditions we impose the solution and the corresponding gradients.
-Note that this solution is not exactly correct, as it assumes an incompressible flow.
-Due to the low mach number a compressible flow approaches this solution.
 
-\subsection{Lid-Driven Cavity Flow}
-The lid-driven cavity flow is a very simple testing scenario for the Navier-Stokes equations.
-We use a constant pressure of (what exactly) and a constant density $(\Qrho = 1.0)$ for the entire domain.
-The flow is then driven entirely by the boundary conditions.
+\sidetitle{Lid-Driven Cavity Flow}
+%\subsection{Lid-Driven Cavity Flow}
+The lid-driven cavity flow is another very simple testing scenario for the Navier-Stokes equations.
+The flow is driven entirely by the boundary conditions.
 They consist in four no-slip walls where the upper wall has a constant velocity $\Qv = (1.0, 0)$.
-This scenario is surprisingly difficult for an \textsc{ader-dg} scheme as the boundary conditions lead to a discontinuity at the top left corner.
-There, the velocity of the wall is piece-wise constant.
-Therefore, this scenario is a good choice to test the stability of the finite volume limiter.
+We want to simulate a flow with a Mach number of $M = 0.1$ and a Reynolds number of $\text{Re} = 100$.
+This leads us to an initial conditions of
+\begin{align}
+  \label{eq:taylor-green}
+  \begin{split}
+  \Qrho(\bm{x}) &= 1\\
+  \Qv(\bm{x}) &=  \bm{0}\\
+  \pressure(\bm{x}) &= \frac{100}{\gamma}.
+  \end{split}
+\end{align}
+% Mach = u/speed of sound
+% c^2 = gamma p
+% p = (u/M)^2 / gamma
+This scenario is surprisingly difficult for an \textsc{ader-dg} scheme as the boundary conditions can lead to a discontinuity at the corners, because the wall speed is discontinuous.
+Therefore, this scenario is a good choice to test the stability of our limited scheme.
 
-\subsection{ABC-Flow}
+\sidetitle{ABC-Flow}
+%\subsection{ABC-Flow}
 We use the Arnold–Beltrami–Childress (\textsc{abc}) flow as a simple example of a three-dimensional scenario~\cite{tavelli2016staggered}.
 This scenario has, unlike the three-dimensional version of the Taylor-Green vortex, at least for the incompressible case an analytical solution
 \begin{align}
@@ -79,55 +112,57 @@ This scenario has, unlike the three-dimensional version of the Taylor-Green vort
   + C
   \end{split}
 \end{align}
-Thus, we can simulate this without periodic boundary conditions.
 \todo{Analytical solution!}
+\todo{What is $c = 100 / \gamma$? Smaller value should be possible.}
 
-\subsection{Radialsymmetric CJ Detonation Wave}
+\sidetitle{Radialsymmetric CJ Detonation Wave}
+%\subsection{Radialsymmetric CJ Detonation Wave}
 We investigate the radialsymmetric CJ detonation wave scenario from~\cite{helzel2000modified}.
-This scenario for the reactive Euler-equations is set up in a 2D box of size $[-1, 1] \times [-1, 1]$ surrounded by free-slip walls~\pcref{eq:free-slip}.
+This scenario for the reactive Euler-equations is set up in a 2D box of size $[-1, 1] \times [-1, 1]$ surrounded by no-slip walls~\pcref{eq:no-slip}.
 Inside a circle of radius $0.3$ we have totally unburnt gas, outside of this circle we have burned gas.
 Let $\alpha =  \operatorname{atan2}(y,x)$ be the angle in polar coordinates.
 We use the initial conditions
-\begin{align}
-  \begin{split}
-  \Qrho_u &= 0.887565\\
-  \Qv_u &= -0.577350
+\begin{equation}
+\begin{alignedat}{6}
+  & \Qrho_u &&= 0.887565 \qquad& \Qrho_b &= 1.4\\
+  & \Qv_u &&= -0.577350
   \begin{pmatrix}
      \cos (\alpha)\\
      \sin (\alpha)
-  \end{pmatrix} \\
-  \pressure_u &= 0.191709 \\
-  \QZZ_u &= 1
-  \end{split}
-\intertext{for the burnt gas and}
-\begin{split}
-  \Qrho_b &= 1.4\\
-  \Qv_b &= 0\\
-  \pressure_b &= 1 \\
-  \QZZ_b &= 0
-  \end{split}
-\end{align}
-for the unburnt gas.
+   \end{pmatrix}  \qquad& \Qv_b  &=
+   \begin{pmatrix}
+     0 \\
+     0
+   \end{pmatrix}\\
+   & \pressure_u &&=0.191709 \qquad& \pressure_b &= 1\\
+   & \QZZ_u &&= 1 \quad& \QZZ_b &= 0
+  \end{alignedat}
+\end{equation}
+where a subscript of $u$ and $b$ denotes the unburnt and burnt state respectively.
 
 Similar to~\cite{helzel2000modified}, we use the constants
 \begin{align}
   \begin{split}
   \gamma &= 1.4, \\
-  \Pr &= 0.7, \\
+  \Pr &= 0.75, \\
   c_v &= 2.5, \\
   c_p &= 3.5, \\
   R &= 1.0.
   \end{split}
 \end{align}
-\todo{We and dumbser use $\Pr = 0.75$, check!}
-\todo{What about viscous effects?}
+The Prandtl number is inspired from the viscous scenarios of~\cite{hidalgo2011ader}.
 
 \section{Atmospheric Scenarios}
-The scenario is described in terms of potential temperature $\potT$
+The following scenarios are all described in terms of a pertubation of a balanced atmosphere.
+This balanced atmosphere is called hydrostatic balance and is described by \cref{eq:hydrostatic-balance}.
+Before we are able to describe individual scenarios, we first need to describe how we can initialize the background atmosphere.
+
+For this, the potential temperature $\potT$
 \begin{equation}
   \potT = T \frac{p_0}{p}^{R/c_p},
 \end{equation}
-where $p_o = \SI{10e5}{\Pa}$ is the reference pressure.
+is useful.
+The constant $p_o = \SI{10e5}{\Pa}$ is the reference pressure,.
 Solving for $T$ leads to
 \begin{equation}
   \label{eq:potTToT}
@@ -182,16 +217,18 @@ Next, we compute the pertubated potential temperature $\potT$ and use \cref{eq:p
 The density $\Qrho(\bm{x})$ can now be evaluated with \cref{eq:temperature}.
 Finally, we compute the energy by inserting pressure and density into the equation of state~(\ref{eq:eos}).
 
+\sidetitle{Hydrostatic Wall}
 This leaves us with one problem:
-The adiabatic no-slip boundary conditions defined by~\vref{eq:no-slip} are no longer valid.
+The adiabatic free-slip boundary conditions defined by~\vref{eq:free-slip} are no longer valid.
 Concretely, we need to impose a viscous heat flux to ensure that the atmosphere stays in hydrostatic balance~\cite{giraldo2008study}
-\todo{Flux correct? Fix notation}
+\todo{Flux correct? Use viscFlux macro and energy subscript. Also only in z direction!}
 \begin{equation}
   \label{eq:atmosphere-bc}
   F^\text{visc} = \kappa \pdv{\overline{T}}{z} =
-\frac{R \overline{\theta} \left(\frac{\overline{p}{\left (z \right )}}{p_{0}}\right)^{\frac{R}{c_{p}}} \frac{d}{d z} \overline{p}{\left (z \right )}}{c_{p} \overline{p}{\left (z \right )}}.
+\kappa \frac{R \overline{\theta} \left(\frac{\overline{p}{\left (z \right )}}{p_{0}}\right)^{\frac{R}{c_{p}}} \frac{d}{d z} \overline{p}{\left (z \right )}}{c_{p} \overline{p}{\left (z \right )}}.
 \end{equation}
 The background pressure can be reconstructed by \cref{eq:hydrostatic-background-pressure}, its derivative is given by \cref{eq:hydrostatic-balance-potT}.
+We set the other parts of the viscous flux to zero.
 
 We use the following set of fluid dependent constants for these scenarios
 \begin{align}
@@ -204,7 +241,8 @@ We use the following set of fluid dependent constants for these scenarios
 \end{align}
 the other constants are evaluated following \cref{eq:fluid-constants}.
 
-\subsection{Two Bubbles}
+\sidetitle{Two Bubbles}
+%\subsection{Two Bubbles}
 As a simple test case we consider a scenario where we have one large warm air bubble in the middle, and a small cold bubble on the top.
 This scenario was first published by \citeauthor{robert1993bubble}~\cite{robert1993bubble}.
 We use a domain of $\SI{1}{\km} \times \SI{1}{\km}$.
@@ -238,7 +276,8 @@ We have two bubbles, with the values
 
 Similar to~\cite{muller2010adaptive}, we use a constant viscosity of $\mu = 0.1$ to regularize the solution.
 
-\subsection{Cosine Bubble}
+\sidetitle{Cosine Bubble}
+%\subsection{Cosine Bubble}
 A similar scenario is the cosine bubble as described in~\cite{giraldo2008study}.
 In this scenario the flow is driven by one warm bubble.
 We use the same procedure as before to compute the initial conditions, again with $\backgroundPotT = 300$ but with a pertubation of the form
