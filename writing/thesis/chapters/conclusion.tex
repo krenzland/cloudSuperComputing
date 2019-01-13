@@ -1,6 +1,23 @@
 \chapter{Conclusion}\label{chap:conclusion}
 Conclusion here.
 
+lkjl:
+\begin{itemize}
+\item We showed in \cref{sec:results-convergence} that our scheme converges for all considered orders for the Navier-Stokes equations.
+\item cfd-scenarios competitive results
+\item clouds accurate simulated
+\item The results of \cref{sec:results-tts-amr} showed, that our \amr{}-criterion is able to save a significant portion of the computational effort compared to a uniformly fine grid.
+  It is able to do this without degrading the quality of the solution, even for a scenario that contains small-scale details.
+\item Chemical reactions and limiter work for non-stiff detonations.
+\end{itemize}
+
+Future work:
+\begin{itemize}
+\item Improvement of boundary conditions for muscl
+\item Due to the \textsc{cfl}-condition,the timestep of our \aderdg{}-scheme scales quadratically with the number of grid cells.
+  Even though our \amr{}-criterion is able to reduce the number of needed cells drastically, we could get another large improvement by utilizing local, instead of global timestepping.
+\item Our implementation of the \textsc{cj}-detonation wave cannot handle realistic detonations because we do not have an implementation of stiff source terms.
+\end{itemize}
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"
