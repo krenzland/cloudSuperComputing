@@ -1,5 +1,5 @@
 \chapter{Results}\label{chap:results}
-\section{Convergence Test}
+\section{Convergence Test}\label{sec:results-convergence}
 \begin{table}[htb]
   \centering
 \caption{Numerical order of convergence of ADER-DG method}%
@@ -78,30 +78,62 @@ Some \textsc{dg}-methods of odd order only achieve a numerical convergence order
 Show:
 \begin{itemize}
 \item Taylor-Green High Order
+  LIC, Plot v/p ana vs.\ real
 \item ABC Medium Order
+  Plot p ana.\ vs real
+\item Lid-Driven Cavity
+  Show LIC, maybe plot over x?
 \end{itemize}
+
+\sidetitle{Taylor-Green Vortex}
+We use an \aderdg{}-scheme of order 5 with a mesh of size $27 \times 27$ cells to simulate the Taylor-Green Vortex.
+The simulation ran for \SI{10}{\s}.
+Our solution results in the expected streamlines (figure xx).
+Furthermore, we compare our results with the analytical solution for the incrompressible case.
+We achieve a small error (figure xx) for both pressure and velocity.
+The small errors are expected and not only stem from numerical inaccuracies but primarily from the fact that we simulate a compressible fluid.
+Note that the error is small over the entire domain, and not only close to the boundary, where we impose the analytical solution.
+Overall, we notice a very good agreement with the results of~\cite{dumbser2016high} and the analytical solution.
+
+\sidetitle{ABC Flow}
+We use an \aderdg{}-scheme of order 2 with a mesh consisting of $27 \times 27 \times 27$ cells to simulate the \textsc{abc}-flow.
+We run the simulation for \SI{1}{\s}.
+Figure xxx shows two slices of the simulation, figure xxx compares our numerical approximation of the pressure to the analytical solution.
+Again, our solution agrees with the analytical solution.
+
+\sidetitle{Lid-Driven Cavity}
+We use a \muscl{}-limited \aderdg{}-scheme of order 3 with a mesh of size $27 \times 27$ for the Lid-Driven Cavity.
+The streamlines agree with the expected solution but have two additional, smaller vortices in the bottom corners.
+They do not appear in DUMBER but do appear in OTHERSOLUTION.
+Additionally, we show a slice of the velocity in figure XXX, which also agrees with the solution of XXX.
+Surprisingly, the limiter was not activated at all.
+We noticed that we need the limiter when decreasing the speed of sound. 
+The results for this scenario also agree with comparable reference solutions~\cite{ghia1982high}.
+
 \section{Accurate Clouds}
 \begin{itemize}
 \item Cosine Bubble
 \item Two Bubbles
 \end{itemize}
-\section{Time-to-solution: AMR vs Static Mesh}
+Show bubbles, mention they look similar
+\section{Time-to-solution: AMR vs Static Mesh}\label{sec:results-tts-amr}
 To show the effectiveness of the \amr{}, we compare the time to solution of a simulation using \amr{} and another simulation with a fully refined mesh.
 In detail, we compare
 \begin{description}
-\item[AMR] We use a coarse mesh with just $9 \times 9$ cells.
+\item[AMR] We use a coarse mesh with just $27 \times 27$ cells.
   Each cell can be refined up to three times.
-  That is, the cells have sidelengths of roughly $\left( \SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.35}{\m} \right)$.
+  That is, the cells have sidelengths of roughly $\left(\SI{37.04}{\m}, \SI{12.35}{\m} \right)$.
   As refinement thresholds we use $T_\text{refine} = 2.5$ and $T_\text{delete} = -0.5$ in \cref{eq:refinement-criterion}.
 \item[Fine] We use a uniform grid where all cells have a sidelength corresponding to the finest mesh of the \amr{}-test case.
   In addition, we disable the reduction of global observables.
 \end{description}
-We use an \aderdg{}-method of order $4$ and thus have a minimal effective resolution of ca.\ $\SI{3.09}{\m}$.
+Note, that while our \amr{} criterion is able to cope with an additional, coarser level, the current implementation in \exahype{} is unstable for this scenario.
+This is why we only report an \amr{} run with one level of dynamic refinement.
 
-To ensure a fair comparison, we ran both configurations with the same optimisation option.
+For both settings, we use an \aderdg{}-method of order $4$ and thus have a minimal effective resolution of ca.\ $\SI{3.09}{\m}$.
 
 We use a single node of the Haswell-nodes of the Supermuc (Phase 2).
-The node has two xxx\todo{name cpus} \textsc{cpu}s with 28 cores each.
+The node has two Intel® Haswell Xeon Processor E5-2697 v3 \textsc{cpu}s with 14 cores each.
 Both \textsc{cpu}s currently run on $\SI{1.8}{\GHz}$.
 We use the \tbb{} parallelisation of \exahype{}.
 To find a reasonable parameter for the number of background threads, we ran a grid search.
@@ -109,97 +141,60 @@ We ran three \amr{} testcases for a simulation time of $\SI{1}{\min}$.
 \todo{Noisy, show results}
 The best median performance was achieved by using six background threads.
 
-Both methods show similar results.
+To ensure a fair comparison, we ran both configurations with the same optimisation options:
+\begin{verbatim}
+"architecture": "hsw",
+"shared_memory": {
+    "cores": 28,
+    "background_job_consumers": 6,
+    "properties_file": "sharedmemory.properties",
+    "autotuning_strategy": "dummy"
+},
+"optimisation": {
+    "fuse_algorithmic_steps": true,
+    "fuse_algorithmic_steps_factor": 0.99,
+    "spawn_predictor_as_background_thread": true,
+    "spawn_amr_background_threads": true,
+    "spawn_update_as_background_thread": true
+}
+\end{verbatim}
+for the time-to-solution test.
+For this we ran the simulation without plotters.
 The \amr{}-method took \SI{98654.1}{\s} (\SI{1}{\day} \SI{3}{\hour} \SI{24}{\minute} \SI{14}{\s})
 while the fully refined grid took \SI{169071}{\s} (\SI{1}{\day} \SI{22}{\hour} \SI{57}{\minute} \SI{51}{\s}).
-
-no \amr{}:
-\begin{verbatim}
- 169071       info         memoryUsage    =1390 MB
- 169071       info         number of mesh refinements      = 0
- 169071       info         number of local recomputations  = 0
- 169071       info         number of predictor reruns      = 1
- 169071       info         || adapter name       || iterations   || total CPU time [t]=s         || average CPU time/g
-rid sweep [t]=s    || total real time [t]=s        || average real time/grid sweep [t]=s  || CPU time properties  || r
-eal time properties 
- 169071       info         | MeshRefinement      |  5    |  12.58        |  2.516        |  0.593972     |  0.118794 
-    |  (2.516,#5,eps=0,max=10.48(value #1),min=0.05(value #0),+316.534%,-98.0127%,std-deviation=3.98956) [not a valid 
-averaged value yet]   |  (0.118794,#5,eps=0,max=0.420273(value #1),min=0.0371888(value #3),+253.782%,-68.6948%,std-dev
-iation=0.150842) [not a valid averaged value yet]
- 169071       info         | FinaliseMeshRefinement      |  1    |  0.52         |  0.52         |  0.0232477    |  0.
-0232477    |  (0.52,#1,eps=0,max=0.52(value #0),min=0.52(value #0),+0%,-0%,std-deviation=3.27826e-09) [not a valid ave
-raged value yet]     |  (0.0232477,#1,eps=0,max=0.0232477(value #0),min=0.0232477(value #0),+0%,-0%,std-deviation=1.82
-031e-10) [not a valid averaged value yet]
- 169071       info         | InitialPrediction   |  2    |  0.68         |  0.34         |  0.0334988    |  0.0167494 
-   |  (0.34,#2,eps=0,max=0.53(value #0),min=0.15(value #1),+55.8824%,-55.8824%,std-deviation=0.19) [not a valid averag
-ed value yet]        |  (0.0167494,#2,eps=0,max=0.0236651(value #0),min=0.0098337(value #1),+41.2893%,-41.2893%,std-de
-viation=0.00691571) [not a valid averaged value yet]
- 169071       info         | FusedTimeStep       |  1428594      |  4.50835e+06          |  3.15579      |  168823 
-      |  0.118174     |  (3.15579,#1.42859e+06,eps=0,max=9.74(value #1409698),min=0.25(value #1119695),+208.639%,-92.0
-781%,std-deviation=2.72931) [not a valid averaged value yet]    |  (0.118174,#1.42859e+06,eps=0,max=0.590513(value #12
-19442),min=0.011952(value #584763),+399.697%,-89.8861%,std-deviation=0.099553) [not a valid averaged value yet]
- 169071       info         | PredictionRerun     |  2    |  7.49         |  3.745        |  0.271615     |  0.135807 
-    |  (3.745,#2,eps=0,max=7.07(value #0),min=0.42(value #1),+88.785%,-88.785%,std-deviation=3.325) [not a valid avera
-ged value yet]        |  (0.135807,#2,eps=0,max=0.257506(value #0),min=0.0141086(value #1),+89.6113%,-89.6113%,std-dev
-iation=0.121699) [not a valid averaged value yet]
- 169071       info         | BroadcastAndDropNeighbourMessages   |  1    |  5.92         |  5.92         |  0.216065 
-    |  0.216065     |  (5.92,#1,eps=0,max=5.92(value #0),min=5.92(value #0),+0%,-0%,std-deviation=2.67624e-08) [not a 
-valid averaged value yet]     |  (0.216065,#1,eps=0,max=0.216065(value #0),min=0.216065(value #0),+0%,-0%,std-deviatio
-n=9.81246e-10) [not a valid averaged value yet]
-\end{verbatim}
-
-\amr{}:
-\begin{verbatim}
-98654.1      info         memoryUsage    =1543 MB
- 98654.2      info         number of mesh refinements      = 368
- 98654.2      info         number of local recomputations  = 0
- 98654.2      info         number of predictor reruns      = 151
- 98654.2      info         || adapter name       || iterations   || total CPU time [t]=s         || average CPU time/g
-rid sweep [t]=s    || total real time [t]=s        || average real time/grid sweep [t]=s  || CPU time properties  || r
-eal time properties 
- 98654.2      info         | MeshRefinement      |  5411         |  6546.45      |  1.20984      |  259.067      |  0.
-0478779    |  (1.20984,#5411,eps=0,max=2.1(value #5358),min=0.01(value #0),+73.5765%,-99.1734%,std-deviation=0.219178)
- [not a valid averaged value yet]    |  (0.0478779,#5411,eps=0,max=0.0876097(value #3782),min=0.00762901(value #5),+82
-.9857%,-84.0657%,std-deviation=0.00892198) [not a valid averaged value yet]
- 98654.2      info         | FinaliseMeshRefinement      |  1    |  0.13         |  0.13         |  0.00693282   |  0.
-00693282   |  (0.13,#1,eps=0,max=0.13(value #0),min=0.13(value #0),+0%,-0%,std-deviation=0) [not a valid averaged valu
-e yet]       |  (0.00693282,#1,eps=0,max=0.00693282(value #0),min=0.00693282(value #0),+0%,-0%,std-deviation=0) [not a
- valid averaged value yet]
- 98654.2      info         | FinaliseMeshRefinementOrLocalRollback       |  368          |  461.67       |  1.25454 
-     |  18.1743      |  0.0493866    |  (1.25454,#368,eps=0,max=1.83(value #341),min=0.67(value #0),+45.8704%,-46.5939
-%,std-deviation=0.171853) [not a valid averaged value yet]     |  (0.0493866,#368,eps=0,max=0.0706977(value #356),min=
-0.0267934(value #0),+43.1517%,-45.7475%,std-deviation=0.00629674) [not a valid averaged value yet]
- 98654.2      info         | InitialPrediction   |  2    |  0.13         |  0.065        |  0.00881638   |  0.00440819
-   |  (0.065,#2,eps=0,max=0.07(value #0),min=0.06(value #1),+7.69231%,-7.69231%,std-deviation=0.005) [not a valid aver
-aged value yet]      |  (0.00440819,#2,eps=0,max=0.00483773(value #0),min=0.00397865(value #1),+9.74412%,-9.74412%,std
--deviation=0.00042954) [not a valid averaged value yet]
- 98654.2      info         | FusedTimeStep       |  1427510      |  2.54517e+06          |  1.78294      |  98033.6 
-     |  0.0686745    |  (1.78294,#1.42751e+06,eps=0,max=5.73(value #1227908),min=0.12(value #1),+221.379%,-93.2696%,st
-d-deviation=1.05159) [not a valid averaged value yet]          |  (0.0686745,#1.42751e+06,eps=0,max=0.43664(value #141
-3800),min=0.00461528(value #1),+535.811%,-93.2795%,std-deviation=0.0435888) [not a valid averaged value yet]
- 98654.2      info         | PredictionRerun     |  302          |  403.06       |  1.33464      |  14.4881      |  0.
-0479739    |  (1.33464,#302,eps=0,max=3.26(value #240),min=0.44(value #91),+144.261%,-67.0322%,std-deviation=0.626498)
- [not a valid averaged value yet]    |  (0.0479739,#302,eps=0,max=0.120633(value #240),min=0.0160126(value #91),+151.4
-57%,-66.6222%,std-deviation=0.0225233) [not a valid averaged value yet]
- 98654.2      info         | BroadcastAndDropNeighbourMessages   |  369          |  518.67       |  1.40561      |  20
-.2393      |  0.0548491    |  (1.40561,#369,eps=0,max=2.56(value #349),min=0.01(value #44),+82.1274%,-99.2886%,std-dev
-iation=0.459906) [not a valid averaged value yet]    |  (0.0548491,#369,eps=0,max=0.0997589(value #349),min=0.0119344(
-value #2),+81.8789%,-78.2413%,std-deviation=0.0156193) [not a valid averaged value yet]
- 98654.2      info         | RefinementStatusSpreading   |  1104         |  827.71       |  0.749737     |  33.2389 
-     |  0.0301077    |  (0.749737,#1104,eps=0,max=1.2(value #876),min=0.08(value #0),+60.0561%,-89.3296%,std-deviation
-=0.140828) [not a valid averaged value yet]    |  (0.0301077,#1104,eps=0,max=0.0453832(value #876),min=0.00512179(valu
-e #2),+50.7362%,-82.9884%,std-deviation=0.00527307) [not a valid averaged value yet]
- 98654.2      info         | PredictionOrLocalRecomputation      |  736          |  498.68       |  0.677554     |  19
-.437       |  0.0264089    |  (0.677554,#736,eps=0,max=1.56(value #658),min=0.39(value #0),+130.24%,-42.44%,std-deviat
-ion=0.18267) [not a valid averaged value yet]        |  (0.0264089,#736,eps=0,max=0.112702(value #658),min=0.0157451(v
-alue #3),+326.758%,-40.3797%,std-deviation=0.00979503) [not a valid averaged value yet]
-\end{verbatim}
+In other words, the latter method took over 71\% longer.
 
 \section{Reactive Euler \textit{\&} Navier Stokes}
+As a final benchmark, we use the reactive Navier-Stokes equations.
+We use a limiting \aderdg{}-scheme with an order of 3 and a meshsize of $81 \times 81$.
+For some runs, we use the \textsc{cmp}\todo{Refer to dmp equation (and include it)} with the following settings:
+\begin{verbatim}
+"limiter": {
+    "dmp_observables": 3,
+    "dmp_relaxation_parameter": 0.05,
+    "dmp_difference_scaling": 1e-3,
+    "helper_layers": 1
+}
+\end{verbatim}
+We use $\Qrho, \pressure$ and $\QZZ$ as \textsc{dmp} variables.
+The results for runs with and without \textsc{dmp} can be seen in figure XXX.
+Note, that oscillations diminish the results but are healed by the \textsc{dmp}-criterion.
+This scenario shows the differences between the viscous Navier-Stokes equations and the Euler equations clearly:
+The viscous effects smooth out the otherwise sharp curves.
+
+It is difficult to compare these results with our references, because they both use different settings.
+In constrast to~\cite{helzel2000modified} we use a non-stiff source term and viscous effects, \cite{hidalgo2011ader} includes viscosity but is limited to one-dimensional scenarios.
+We can see that our simulation captures the overall behaviour of the reaction similar to~\cite{helzel2000modified} while the viscous effects show the same tendency as the results from~\cite{hidalgo2011ader}.
+
+Plots-TODO:
 \begin{itemize}
-\item With viscous effects
-\item Without viscous effects  
+\item 2D: Mass fraction
+\item 2D: Pressure + Limiter
+\item 1D: Line plot pressure
+\item 1D: Line plot mass fraction
 \end{itemize}
+
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"
