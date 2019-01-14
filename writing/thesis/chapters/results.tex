@@ -1,32 +1,12 @@
 \chapter{Results}\label{chap:results}
-\section{Convergence Test}\label{sec:results-convergence}
-\begin{table}[htb]
-  \centering
-\caption{Numerical order of convergence of ADER-DG method}%
-\label{tab:convergence-order}
-\begin{tabular}{@{}lS[table-format=1.2]S[table-format=1.2]S[table-format=1.2]@{}}
-\toprule
-{Order} & {$L_1$} & {$L_2$} & {$L_\infty$}\\ \midrule
-1 & 2.03 & 2.00 & 1.92\\
-2 & 2.56 & 2.55 & 2.55\\
-3 & 3.43 & 3.40 & 3.44\\
-4 & 4.27 & 4.27 & 4.36\\
-5 & 5.00 & 5.02 & 5.08\\
-6 & 4.46 & 4.50 & 4.65\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[htb]
-  \centering
-  \includegraphics[trim=0.2cm 0.3cm 0.2cm 1.0cm, clip]{thesis_convergence}
-  \caption{$L_2$-Error vs.\ Grid Size.
-    The dashed lines are the optimal order of convergence $N+1$.
-  The line is estimated by using the constant part of a linear regression fit and the ideal order as slope.}
-  \label{fig:convergence-l2-error}
-\end{figure}
+We discussed various scenarios in the previous chapter.
+In this chapter, we use them to gauge the quality of our numerical scheme.
+We start with a convergence test, followed by two standard testing scenarios.
+Next, we simulate two different cloud scenarios and check, whether our \amr{} criterion is useful.
 
 \newcommand{\error}{\operatorname{Total-Error}}
+\section{Convergence Test}\label{sec:results-convergence}
+For the convergence test, we run our manufactured solution scenario~(\cref{sec:manufactured-solution}) for all orders 1 to 6 and for number of cells $3^2, 9^2, 27^2$ and $81^2 $.
 
 Before computing the error we first need to define the $L_p$ norms for a $p > 0$ by
 % notation: https://en.wikipedia.org/wiki/Lp_space#Lp_spaces
@@ -41,38 +21,66 @@ The error at a time $t$ is thus defined as
   \error(t,p) = \Vert f(\bm{x}, t) - \hat{f}(\bm{x}, t) \Vert_p.
 \end{equation}
 
-We first observe that for our approximation space $\broken$ we can split up the error as a sum over all cells
-\begin{equation}
-  \label{eq:lp-norm-broken}
- %\Vert f(\bm{x}) \Vert = \sum_{\cell[] \in \broken} \Vert f_{\cell[]} (\bm{x}) \Vert_p,
-  \error(t,p) = \sum_{\cell[] \in \broken} \error_{\cell[]}(t,p)
-\end{equation}
-where $\error_{\cell[]}$ is the error in the cell $\cell[]$.
-
+We first observe that for our approximation space $\broken$ we can split up the error as a sum over all cells.
+% \begin{equation}
+%   \label{eq:lp-norm-broken}
+%  %\Vert f(\bm{x}) \Vert = \sum_{\cell[] \in \broken} \Vert f_{\cell[]} (\bm{x}) \Vert_p,
+%   \error(t,p) = \sum_{\cell[] \in \broken} \error_{\cell[]}(t,p)
+% \end{equation}
+% where $\error_{\cell[]}$ is the error in the cell $\cell[]$.
 \todo{Describe how to integrate the error for cells, and effect of volume}
 We evaluate the cell-wise error with Gaussian quadrature using \cref{eq:integration-by-substitution}
  \begin{equation}
-   \Vert f_K(x) \Vert_p = \left( V \sum_{\bm{i}} \vert f(\bm{x}_i, t) - \hat{f}(\bm{x}_i, t) \vert^p w_{{\bm{i}}}  \right)^{1/p},
+%   \Vert f(\bm{x}, t) - \hat{f}(\bm{x}, t) \Vert_p^p =
+   \error(t,p) = 
+   \left( \sum_{\cell[i] \in \broken}
+    \left( V \sum_{\bm{j}} \vert f^{\cell[i]}(\bm{x}_j, t) - \hat{f}^{\cell{i}}(\bm{x}_j, t) \vert^p w_{{\bm{j}}} \right) \right)^{1/p}.
  \end{equation}
-where $V = \Delta x \Delta y$ is the volume of each two-dimensional cell.
-\todo{Use quadNodes, quadWeights and volume macro}
-The sum runs over all quadrature nodes $x_i$ with weights $w_i$.
-We use ten nodes for all orders and evaluate our solution for all nodes.
-In this way we ensure a fair comparision.
+Here, a superscript of $\cell[j]$ denotes the restriction of the function to a grid cell.
+\todo{Use quad node macro here!}
+To increase the quality of the error computation, we evaluate both analytical and approximate solution at the quadrature nodes of a scheme with 10 quadrature nodes $x_j$ with weights $w_j$.
+We then use these nodes to compute the approximation error per cell.
 
-For the limiting case of $p \to \infty$ we use the maximum point-wise error.
+For the limiting case of $p \to \infty$ we use the maximum point-wise error over all nodal points.
 
+\begin{figure}[htb]
+  \centering
+  \includegraphics[trim=0.2cm 0.3cm 0.2cm 1.0cm, clip]{thesis_convergence}
+  \caption{$L_2$-Error vs.\ Grid Size.
+    The dashed lines are the optimal order of convergence $N+1$.
+  The line is estimated by using the constant part of a linear regression fit and the ideal order as slope.}
+  \label{fig:convergence-l2-error}
+\end{figure}
 
-We compute the error for the manufactured-solution scenario (\cref{sec:manufactured-solution}).
-Looking at the plot for the $L_2$ error (refer to plot here) shows that our method converges for all tested polynomial orders.
-\todo{Preliminary results used here!}
+\begin{table}[htb]
+  \centering
+\caption{Numerical order of convergence of ADER-DG method}%
+\label{tab:convergence-order}
+\begin{tabular}{@{}lS[table-format=1.2]S[table-format=1.2]S[table-format=1.2]@{}}
+\toprule
+{Polynomial Order $N$} & {$L_1$} & {$L_2$} & {$L_\infty$}\\ \midrule
+1 & 2.03 & 2.00 & 1.92\\
+2 & 2.56 & 2.55 & 2.55\\
+3 & 3.43 & 3.40 & 3.44\\
+4 & 4.27 & 4.27 & 4.36\\
+5 & 5.00 & 5.02 & 5.08\\
+6 & 4.46 & 4.50 & 4.65\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 To compute the numerical order of convergence, we perform a linear regression of the logarithm of the error vs.\ the logarithm of the meshsize.
 The size of the slope is then the convergence order.
-We can see (\cref{tab:convergence-order}) that our numerical convergence rate increases with the polynomial order.
-We do not achieve the optimal theoretical order of convergence of $N+1$.
+Looking at the plot for the $L_2$ error~(\cref{fig:convergence-l2-error}) shows that our method converges for all tested polynomial orders.
+Note that the error for the finest grid with order 6 is worse than the error for order 5.
+For all other meshsizes and orders, a higher order indicates a smaller error.
+If we compare our errors with the optimal order of convergence, we notice that while order 1 exhibits the theoretical order of convergence of 2, larger polynomial orders lead to diminishing returns.
+
+The same is true for other error norms (\cref{tab:convergence-order}).
+This means, that we in general do not achieve the optimal theoretical order of convergence.
 In~\cite{dumbser2010arbitrary}, which use a similar numerical method and the same scenario, but a different grid, \citeauthor{dumbser2010arbitrary} achieves the optimal order for most polynomial orders.
 Some \textsc{dg}-methods of odd order only achieve a numerical convergence order of $N+\nicefrac{1}{2}$.
+
 
 \section{Accurate CFD}
 Show:
@@ -88,34 +96,125 @@ Show:
 \sidetitle{Taylor-Green Vortex}
 We use an \aderdg{}-scheme of order 5 with a mesh of size $27 \times 27$ cells to simulate the Taylor-Green Vortex.
 The simulation ran for \SI{10}{\s}.
-Our solution results in the expected streamlines (figure xx).
+Our solution results in the expected streamlines (\cref{fig:taylor-green-streamlines}).
 Furthermore, we compare our results with the analytical solution for the incrompressible case.
-We achieve a small error (figure xx) for both pressure and velocity.
+We achieve a small error~(\cref{fig:taylor-green-result}) for both pressure and velocity.
 The small errors are expected and not only stem from numerical inaccuracies but primarily from the fact that we simulate a compressible fluid.
 Note that the error is small over the entire domain, and not only close to the boundary, where we impose the analytical solution.
-Overall, we notice a very good agreement with the results of~\cite{dumbser2016high} and the analytical solution.
+Overall, we notice a very good agreement with both the results of~\cite{dumbser2016high} and the analytical solution.
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=0.5\textwidth]{thesis_taylor_green_stream}
+  \caption{Streamlines for Taylor-Green vortex}
+  \label{fig:taylor-green-streamlines}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[t]{0.5\textwidth}
+    \centering
+    \includegraphics{thesis_taylor_green_vel}
+    \caption{Position vs.\ velocity}
+  \end{subfigure}~%
+  \begin{subfigure}[t]{0.5\textwidth}
+    \centering
+    \includegraphics{thesis_taylor_green_pressure}
+    \caption{Position vs.\ pressure}
+  \end{subfigure}
+  \caption{\label{fig:taylor-green-result}%
+    Comparison of Taylor-Green simulation with analytical solution.
+    The former is represented by the scatter plot, the latter by the gray line.
+    Note that we only show every 5th point.}
+\end{figure}
 
 \sidetitle{ABC Flow}
 We use an \aderdg{}-scheme of order 2 with a mesh consisting of $27 \times 27 \times 27$ cells to simulate the \textsc{abc}-flow.
 We run the simulation for \SI{1}{\s}.
 Figure xxx shows two slices of the simulation, figure xxx compares our numerical approximation of the pressure to the analytical solution.
 Again, our solution agrees with the analytical solution.
+\todo{Velocity?}
 
 \sidetitle{Lid-Driven Cavity}
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[t]{0.4\textwidth}
+    \centering
+    \includegraphics[width=1.2\textwidth]{thesis_lid_driven_cavity_stream}
+    \caption{\label{fig:lid-driven-cavity-streamlines}%
+      Streamlines of the cavity flow.}
+  \end{subfigure}~%
+  \begin{subfigure}[t]{0.7\textwidth}
+    \centering
+    \includegraphics{thesis_lid_driven_cavity}
+    \caption{\label{fig:lid-driven-cavity-result}%
+      Plot of velocity slices. Lines are our soulution, scatter plot shows reference solution~\cite{ghia1982high}.}
+  \end{subfigure}
+  
+  \caption{Lid-Driven Cavity solution at $t=\SI{30}{\s}$}
+  \label{fig:lid-driven-cavity}
+\end{figure}
+
 We use a \muscl{}-limited \aderdg{}-scheme of order 3 with a mesh of size $27 \times 27$ for the Lid-Driven Cavity.
-The streamlines agree with the expected solution but have two additional, smaller vortices in the bottom corners.
-They do not appear in DUMBER but do appear in OTHERSOLUTION.
-Additionally, we show a slice of the velocity in figure XXX, which also agrees with the solution of XXX.
+The streamlines~(\cref{fig:lid-driven-cavity-streamlines}) agree with the expected solution but have two additional, smaller vortices in the bottom corners.
+They do not appear in~\cite{dumbser2010arbitrary} but do appear in~\cite{ghia1982high}.
+Additionally, we show the velocity along both axes in \cref{fig:lid-driven-cavity-result}.
+They too agree with the reference solution of~\cite{ghia1982high}.
+
 Surprisingly, the limiter was not activated at all.
 We noticed that we need the limiter when decreasing the speed of sound. 
-The results for this scenario also agree with comparable reference solutions~\cite{ghia1982high}.
 
 \section{Accurate Clouds}
 \begin{itemize}
 \item Cosine Bubble
 \item Two Bubbles
 \end{itemize}
-Show bubbles, mention they look similar
+The cosine bubble scenario$\ldots$
+
+\sidetitle{Two Bubbles}
+We ran the second scenario with the same \amr{} settings as the first one.
+The results in (\cref{fig:results-two-bubbles}) are comparable to the reference solution~\cite{muller2010adaptive} for the first seven minutes\todo{Recreate contour plots with amr version!}.
+Note that the final plot at \SI{7}{\min} looks different in our simulation.
+A possible source for this is that we use a different equation set than~\cite{muller2010adaptive}.
+While we use a general purpose set with small modifications for atmospheric flows, they use a equation set that is fully focussed on this scenario.
+Furthermore, we use the full Navier-Stokes viscous fluxes instead of an approximation.
+
+\begin{figure}[p]
+  \vspace*{-4.5cm}
+  \thisfloatpagestyle{empty}
+  \centering
+  \begin{subfigure}{1\textwidth}
+    \centering
+    \includegraphics{thesis_two_bubbles_contour_collage.pdf}
+  \end{subfigure}
+  % \begin{subfigure}[t]{0.5\textwidth}
+  %   \centering
+  %   \includegraphics[trim=0.0cm 0.0cm 0.0cm 0.8cm, clip]{thesis_two_bubbles_contour_t0}
+  % \end{subfigure}~%
+  % \begin{subfigure}[t]{0.5\textwidth}
+  %   \centering
+  %   \includegraphics[trim=0.0cm 0.0cm 0.0cm 0.8cm, clip]{thesis_two_bubbles_contour_t240}
+  % \end{subfigure}
+  % \begin{subfigure}[t]{0.5\textwidth}
+  %   \centering
+  %   \includegraphics[trim=0.0cm 0.0cm 0.0cm 0.8cm, clip]{thesis_two_bubbles_contour_t420}
+  % \end{subfigure}~%
+  % \begin{subfigure}[t]{0.5\textwidth}
+  %   \centering
+  %   \includegraphics[trim=0.0cm 0.0cm 0.0cm 0.8cm, clip]{thesis_two_bubbles_contour_t600}
+  % \end{subfigure}
+  \vspace*{1cm}
+  \begin{subfigure}[t]{1\textwidth}
+    \centering
+    \includegraphics[trim=0.0cm 0.0cm 0.0cm 0.0cm, clip, scale=1.2]{giraldo_results_two_bubbles}
+  \end{subfigure}
+  \caption{\label{fig:results-two-bubbles}%
+    Results for two bubble scenario.
+    On the top is our, the bottom plots are taken from~\cite{muller2010adaptive}.
+  Contour values for potential temperature pertubation are $-0.05, 0.05, 0.1, \ldots 0.45$.
+}
+\end{figure}
+
 \section{Time-to-solution: AMR vs Static Mesh}\label{sec:results-tts-amr}
 To show the effectiveness of the \amr{}, we compare the time to solution of a simulation using \amr{} and another simulation with a fully refined mesh.
 In detail, we compare
@@ -194,6 +293,45 @@ Plots-TODO:
 \item 1D: Line plot mass fraction
 \end{itemize}
 
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[t]{0.3\textwidth}
+    \centering
+    \includegraphics{thesis_detonation_euler_nodmp_pressure}
+    \caption{Pressure, Euler, no \textsc{dmp}}
+  \end{subfigure}~%
+  \begin{subfigure}[t]{0.3\textwidth}
+    \centering
+    \includegraphics{thesis_detonation_euler_dmp_pressure}
+    \caption{Pressure, Euler, \textsc{dmp}}
+  \end{subfigure}~%
+  \begin{subfigure}[t]{0.3\textwidth}
+    \centering
+    \includegraphics{thesis_detonation_ns_pressure}
+    \caption{Pressure, \textsc{NS}, no \textsc{dmp}}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.3\textwidth}
+    \centering
+    \includegraphics{thesis_detonation_euler_nodmp_Z}
+    \caption{$Z$, Euler, no \textsc{dmp}}
+  \end{subfigure}~%
+  \begin{subfigure}[t]{0.3\textwidth}
+    \centering
+    \includegraphics{thesis_detonation_euler_dmp_Z}
+    \caption{$Z$, Euler, \textsc{dmp}}
+  \end{subfigure}~%
+  \begin{subfigure}[t]{0.3\textwidth}
+    \centering
+    \includegraphics{thesis_detonation_ns_Z}
+    \caption{$Z$, \textsc{NS}, no \textsc{dmp}}
+  \end{subfigure}
+  
+  \caption{\label{fig:detonation-line-plots}%
+    Slices along the $x$-axis for our three configurations.
+    We only show one half of the slice because the scenario is symmetric.
+  }
+\end{figure}
 
 %%% Local Variables:
 %%% mode: latex

@@ -991,7 +991,26 @@ We also check whether it is physically admissible with the criterion\todo{Do I a
   \end{cases}
 \end{equation}
 The positivity of the pressure implies positivity of energy.
-\todo{Mention dmp if I end up using it.}
+
+\todo{Reread dmp description, fix formulas.}
+To combat the Gibbs phenomenon, we can make use of the discrete maximum principle (\textsc{dmp}).
+This criterion marks cells as troubled that have a numerical solution that is significantly higher or lower than the solutions of its neighbours.
+\begin{align}
+\min (u(y, t^{\curTime})) - \delta &\leq u^*(y, t^{\nextTime}) \leq \max (u(y, t^{\curTime})) + \delta
+%
+%
+\intertext{with tolerance}
+\delta &= \max \left(
+  \varepsilon_0, \varepsilon \left(
+         \max(u(y,t^{\curTime})) -
+         \min(u(y,t^{\curTime}))
+  \right)
+  \right)
+\end{align}
+The parameters $\varepsilon$ and $\varepsilon_0$ can be set freely.
+The former is controls by which factor the local jump can differ from its neighbourhood, the latter is needed for zero jumps~\cite{dumbser2016simple}.
+Note that this criterion is suspectible for false positives, this is especially a problem in the presence of a source term.
+\todo{Mention problems with source term?}
 
 If a solution violates our criterion, we recompute the last timestep for the offending cells with a limited finite volume method.
 In our case we use the \muscl{}-method (\cref{sec:muscl}).
@@ -1001,7 +1020,7 @@ The reason for this is that the \textsc{cfl}-conditions for both schemes \pcref{
 \begin{figure}[htb]
   \centering
   \includegraphics[scale=0.7]{thesis_aderdg_subcell_grid}
-  \caption{\label{fig:limiting-subcells}Conversion from \dg{}-dofs to fv-dofs. Image taken from~\cite{dumbser2018conformal}. }
+  \caption{\label{fig:limiting-subcells}Conversion from \dg{} degrees of freedoms to finite volume degree of freedoms. Image taken from~\cite{dumbser2018conformal}. }
 \end{figure}
 \todo{Cite source for subcells~\pcref{fig:limiting-subcells}. See guidebook. NOTE THAT IT IS MODIFIED. Also: Fix size, currently font is too small}
 
