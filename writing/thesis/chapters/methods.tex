@@ -1,122 +1,11 @@
 % TODO: Extract to settings.tex
 
-% Variables and other equation stuff
-\newcommand{\Q}{\bm{Q}}
-\newcommand{\gradQ}{\gradient{\Q}}
-\newcommand{\Qrho}{\rho}
-\newcommand{\Qj}{\rho \bm{v}}
-\newcommand{\Qv}{\bm{v}}
-\newcommand{\QE}{\rho E}
-\newcommand{\QZZ}{Z} % TODO: Name?
-\newcommand{\QZ}{\rho \QZZ}
-\newcommand{\potT}{\theta}
-\newcommand{\backgroundPotT}{\overline{\theta}}
-\newcommand{\pertubationPotT}{\theta'}
-\newcommand{\stressT}{\bm{\sigma}}
-\newcommand{\pressure}{p}
-\newcommand{\maxConvEigen}[1][]{
-  \vert%
-  \lambda_c^{\text{max}}
-  \notblank{#1}{\left(#1\right)}{}
-  \vert%
-}
-\newcommand{\maxViscEigen}[1][]{
-  \vert%
-  \lambda_v^{\text{max}}
-  \notblank{#1}{\left(#1\right)}{}
-  \vert%
-}
-\newcommand{\Riemann}{\operatorname{Riemann}}
-
-% Domain
-\newcommand{\domain}{\Omega}
-\newcommand{\boundary}{\partial \domain}
-\newcommand{\broken}{\domain}
-
-% Cells
-\newcommand{\cell}[1][]{C_{#1}}
-\newcommand{\refCell}[1][]{\hat{C}_{#1}}
-\newcommand{\cellb}{\partial{} \cell}
-\newcommand{\refCellb}{\partial{} \refCell}
-
-% Basis functions
-\newcommand{\lagrange}[1][i]{\varphi_{#1}}
-\newcommand{\lagrangeRef}[1][i]{\hat{\varphi}_{#1}}
-\NewDocumentCommand{\sbasis}{ O{} O{} }{\phi^{#1}_{#2}}
-\NewDocumentCommand{\sbasisRef}{ O{} O{} }{\hat{\phi}^{#1}_{#2}} %{\hat{\sbasis[#1][#2]}}
-\NewDocumentCommand{\stbasis}{ O{} O{} }{ \psi^{#1}_{#2}}
-\NewDocumentCommand{\stbasisRef}{ O{} O{} }{\hat{\psi}^{#1}_{#2}} %{\hat{\stbasis[#1][#2]}}
-%\newcommand{\stestfunction}[1]{\sbasis[#1]}
-\NewDocumentCommand{\stestfunction}{ O{} O{} }{\sbasis[#1][#2]}
-\NewDocumentCommand{\sttestfunction}{ O{} O{} }{\stbasis[#1][#2]}
-
-% Space-time dofs
-\NewDocumentCommand{\stpredictor}{ O{} O{} }{\overline{\bm{q}}^{#1}_{#2}}
-\NewDocumentCommand{\stpredictorCoeff}{ O{} O{} }{\underline{\overline{q}}^{#1}_{#2}}
-
-\NewDocumentCommand{\stflux}{ O{} O{} }{\overline{F}^{#1}_{#2}}
-\NewDocumentCommand{\stfluxCoeff}{ O{} O{} }{\underline{\overline{F}}^{#1}_{#2}}
-
-% \NewDocumentCommand{\stsol}{ O{} O{} }{\overline{u}^{#1}_{#2}}
-% \NewDocumentCommand{\stsol}{ O{} O{} }{\underline{\overline{u}}^{#1}_{#2}}
-
-\NewDocumentCommand{\stsource}{ O{} O{} }{\overline{S}^{#1}_{#2}}
-\NewDocumentCommand{\stsourceCoeff}{ O{} O{} }{\underline{\overline{S}}^{#1}_{#2}}
-
-% Space dofs
-\NewDocumentCommand{\spredictor}{ O{} O{} }{\bm{q}^{#1}_{#2}}
-\NewDocumentCommand{\spredictorCoeff}{ O{} O{} }{\underline{q}^{#1}_{#2}}
-
-\NewDocumentCommand{\ssource}{ O{} O{} }{S^{#1}_{#2}}
-\NewDocumentCommand{\ssourceCoeff}{ O{} O{} }{\underline{S}^{#1}_{#2}}
-
-\NewDocumentCommand{\ssol}{ O{} O{} }{u^{#1}_{#2}}
-\NewDocumentCommand{\ssolCoeff}{ O{} O{} }{\underline{u}^{#1}_{#2}}
-
-\NewDocumentCommand{\sflux}{ O{} O{} }{F^{#1}_{#2}}
-\NewDocumentCommand{\sfluxCoeff}{ O{} O{} }{\underline{F}^{#1}_{#2}}
-
-% Equation parts
-\newcommand{\flux}{F}
-\newcommand{\viscFlux}{\flux^{v}}
-\newcommand{\hyperFlux}{\flux^{h}}
-%\newcommand{\source}{\bm{S}}
-\newcommand{\source}[1][]{
-  \notblank{#1}{
-S_{#1}
-}{
-\bm{S}
-}
-}
-
-% Integrals
-\newcommand{\curTime}{t^k}
-\newcommand{\nextTime}{t^{k+1}}
-\newcommand{\intdt}[1]{\int_{\curTime}^{\nextTime} #1 \dd{t}}
-\newcommand{\intdcell}[1]{\int_{\cell} #1 \dd{\bm{x}}}
-\newcommand{\intdrefcell}[1]{\int_{\refCell} #1 \dd{\hat{\bm{x}}}}
-\newcommand{\intdcellb}[1]{\int_{\cellb} #1 \dd{S}} % TODO: define boundary of cell
-\newcommand{\intdrefcellb}[1]{\int_{\refCellb} #1 \hat{\dd{S}}} % TODO: define boundary of cell
-
-% Yet to be sorted
-\newcommand{\quadWeight}[1][i]{w_{#1}}
-\newcommand{\quadNode}[1][i]{\hat{x}_{#1}}
-\newcommand{\quadNodeNd}[1][i]{\hat{\bm{x}}_{#1}}
-\newcommand{\sbasisSize}{(N+1)^\dimensions}
-\newcommand{\stbasisSize}{(N+1)^{\dimensions+1}}
-\newcommand{\normal}{\bm{n}}
-
-\newcommand{\pleft}{\bm{L}}
-\newcommand{\prightsol}{\bm{r}}
-\newcommand{\prightpred}{\bm{w}}
-
-
 \chapter{An ADER-DG scheme for the Navier-Stokes Equations}\label{chap:methods}
 This chapter describes the numerical and physical background that is needed to simulate reacting fluids with good accuracy.
 We start with a description of the arbitrary high order derivatives (\ader{}) discontinuous Galerkin (\dg{}) method with a focus on equations that contain both advective and diffusive terms.
 We then seque into a short description of the \muscl{} scheme which is a second order finite volume scheme.
 
-We conclude this chapter by a description of finite volume limiting and adaptive mesh refinement (\amr{}).
+e conclude this chapter by a description of finite volume limiting and adaptive mesh refinement (\amr{}).
 The limiting combines both numerical methods to achieve a stable, high-order method and the \amr{} allows us to perform high quality simulations with a smaller computational cost.
 
 \section{Reactive Compressible Navier Stokes Equations}\label{sec:navier-stokes}
@@ -137,6 +26,7 @@ The limiting combines both numerical methods to achieve a stable, high-order met
      -\diffCoeff \gradient{\QZ}
    \end{pmatrix}
 }
+
 Fluid motion can be described by the compressible Navier Stokes equations.
 We follow the description in~\cite{dumbser2010arbitrary} for the Navier Stokes part.
 The coupling with the advection-diffusion-reaction equation follows~\cite{hidalgo2011ader} which describes this equation set for the one-dimensional case.
@@ -316,8 +206,6 @@ This form of the equation is inspired by equation set 3 of~\cite{giraldo2008stud
 They additionally use a splitting of the energy and use the pertubations directly as conservative variables.
 %We do not use this to simplify the implementation of gradients.
 
-\newcommand{\reactionTimescale}{\tau}
-\newcommand{\reactionTemperature}{T_{\text{ign}}}
 The chemical reactive source term is
 \begin{equation}\label{eq:source-reaction}
   \source[\QZ] = - K(T) \QZ.
@@ -330,7 +218,6 @@ We use the simple reaction model
 \end{cases}  
 \end{equation}
 where $\reactionTimescale$ is the timescale of the reaction and $\reactionTemperature$ is the activation temperature~\cite{hidalgo2011ader,helzel2000modified}.
-
 \subsection{Boundary conditions}
 To close the system we need to impose boundary conditions.\todo{Adapt this chapter to implementation!}
 
@@ -353,7 +240,7 @@ We enfore this by setting
   \Qrho^o &= \Qrho^i, \\
   \Qj^o &= -\Qj^i, \\
   \QE^0 &= \QE^i,\\
-  {(\nabla Q)}^o &= {(\nabla Q)}^i,
+  {(\nabla Q)}^o &= {(\nabla Q^o)},
   \end{split}
 \end{align}
 where a superscript of $o$ and $i$ denotes the values outside and inside of the boundary respectively.
@@ -734,7 +621,7 @@ This results, yet again, at the weak formulation of the \pde{}
 We now insert our discrete approximations and apply the basis expansions \cref{eq:cell-approx-space,eq:cell-approx-space-time} to the space-time predictor.
 The first part can be integrated by parts in time with the convenient result that only the boundary terms remain because the basis is constant in time.
 We then integrate the flux divergence by parts in space and insert the Riemann solver to connect with the neighbouring elements.
-Finally, we need to solve
+Finally, we need to solve\todo{Fix notation, is tensor not matrix}
 \newcommand{\massMatrixDef}{\intdcell{
   \stestfunction[][v,n] \sbasis[][v,n']
 }}
@@ -853,6 +740,7 @@ For a more detailed and rigoruous stability analysis of the Riemann solver, see~
 We use a value of $0.7$ for the constant $\text{CFL}$.
 
 \section{MUSCL-Hancock Finite Volume Scheme}\label{sec:muscl}
+\todo{Mention dubious treatment of viscous boundary terms. Or later in exahype chapter.}
 \newcommand{\cellAvg}[1][i,j]{U_{#1}}
 \newcommand{\sign}{\operatorname{sign}}
 \newcommand{\minmod}{\operatorname{minmod}}
@@ -995,7 +883,7 @@ The positivity of the pressure implies positivity of energy.
 \todo{Reread dmp description, fix formulas.}
 To combat the Gibbs phenomenon, we can make use of the discrete maximum principle (\textsc{dmp}).
 This criterion marks cells as troubled that have a numerical solution that is significantly higher or lower than the solutions of its neighbours.
-\begin{align}
+\begin{align}\label{eq:limiting-dmp}
 \min (u(y, t^{\curTime})) - \delta &\leq u^*(y, t^{\nextTime}) \leq \max (u(y, t^{\curTime})) + \delta
 %
 %

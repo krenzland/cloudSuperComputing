@@ -72,6 +72,7 @@ The solution is
 where $C = 100/\gamma$ is a constant that governs the speed of sound and thus the Mach number~\cite{dumbser2016high}.
 
 As initial conditions we use \cref{eq:taylor-green} at time $(t = 0)$ and as boundary conditions we impose the solution and the corresponding gradients.
+We use a viscosity of $\mu = 0.1$.
 
 \sidetitle{Lid-Driven Cavity Flow}
 %\subsection{Lid-Driven Cavity Flow}
@@ -97,7 +98,8 @@ Therefore, this scenario is a good choice to test the stability of our limited s
 \sidetitle{ABC-Flow}
 %\subsection{ABC-Flow}
 We use the Arnold–Beltrami–Childress (\textsc{abc}) flow as a simple example of a three-dimensional scenario~\cite{tavelli2016staggered}.
-This scenario has, unlike the three-dimensional version of the Taylor-Green vortex, at least for the incompressible case an analytical solution
+This scenario has, unlike the three-dimensional version of the Taylor-Green vortex, an analytical solution at least for the incompressible case.
+Unlike the three-dimensional Taylor-Green vortex, the \textsc{abc}-flow has the analytical solution
 \begin{align}
   \label{eq:abc-flow}
   \begin{split}
@@ -112,13 +114,14 @@ This scenario has, unlike the three-dimensional version of the Taylor-Green vort
   + C
   \end{split}
 \end{align}
-\todo{Analytical solution!}
-\todo{What is $c = 100 / \gamma$? Smaller value should be possible.}
+in the incompressible limit.
+Here, $C = \nicefrac{100}{\gamma}$ is an arbitrary constant.
+We use a viscosity of $\mu = 0.01$.
 
 \sidetitle{Radialsymmetric CJ Detonation Wave}
-%\subsection{Radialsymmetric CJ Detonation Wave}
 We investigate the radialsymmetric CJ detonation wave scenario from~\cite{helzel2000modified}.
-This scenario for the reactive Euler-equations is set up in a 2D box of size $[-1, 1] \times [-1, 1]$ surrounded by no-slip walls~\pcref{eq:no-slip}.
+This scenario for the reactive Navier Stokes equations is set up in a 2D box of size $[-1, 1] \times [-1, 1]$ surrounded by no-slip walls~\pcref{eq:no-slip}.
+We use the reactive source term~\pcref{eq:source-reaction,eq:reaction-model} and set the characteristic timescale to the non-stiff case $\reactionTimescale = 0.1$ and the threshold temperature to $\reactionTemperature = 0.26$.
 Inside a circle of radius $0.3$ we have totally unburnt gas, outside of this circle we have burned gas.
 Let $\alpha =  \operatorname{atan2}(y,x)$ be the angle in polar coordinates.
 We use the initial conditions
@@ -139,6 +142,7 @@ We use the initial conditions
   \end{alignedat}
 \end{equation}
 where a subscript of $u$ and $b$ denotes the unburnt and burnt state respectively.
+Note that this scenario is radialsymmetric.
 
 Similar to~\cite{helzel2000modified}, we use the constants
 \begin{align}
@@ -151,6 +155,8 @@ Similar to~\cite{helzel2000modified}, we use the constants
   \end{split}
 \end{align}
 The Prandtl number is inspired from the viscous scenarios of~\cite{hidalgo2011ader}.
+We consider this scenario inviscid case and for a viscosity of $\mu = 0.01$.
+
 
 \section{Atmospheric Scenarios}
 The following scenarios are all described in terms of a pertubation of a balanced atmosphere.
@@ -202,8 +208,8 @@ Inserting this assumption in the momentum equation in $z$-direction and using \c
   \end{split}
 \end{align}
 where we use the reference pressure $p_0$ as the pressure on ground level\todo{Refer to hydrostatic balance eq.\ in methods chapter!\cref{eq:hydrostatic-balance}}.
-This \textsc{ode} can be now simply solved by separation of variables.
-We then obtain after simplifying the solution
+This \textsc{ode} can be solved by separation of variables.
+After simplifying, we obtain
 \begin{align}
   \label{eq:hydrostatic-background-pressure}
 p(z) &= \left(\left(1 - \frac{1}{\gamma}\right) \left(C - \frac{g p_{0}^{\frac{R}{c_{p}}} z}{R \backgroundPotT}\right)\right)^{\frac{c_{p}}{R}},\\
@@ -216,6 +222,13 @@ We first compute the background pressure with background potential temperature $
 Next, we compute the pertubated potential temperature $\potT$ and use \cref{eq:potTToT} to convert it to temperature.
 The density $\Qrho(\bm{x})$ can now be evaluated with \cref{eq:temperature}.
 Finally, we compute the energy by inserting pressure and density into the equation of state~(\ref{eq:eos}).
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics{thesis_hydrostatic_equilibrium}
+  \caption{\label{fig:hydrostatic-p}%
+    Hydrostatic background pressure for constants \cref{eq:atmosphere-constants}}
+\end{figure}
 
 \sidetitle{Hydrostatic Wall}
 This leaves us with one problem:
@@ -231,15 +244,17 @@ The background pressure can be reconstructed by \cref{eq:hydrostatic-background-
 We set the other parts of the viscous flux to zero.
 
 We use the following set of fluid dependent constants for these scenarios
-\begin{align}
+\begin{align}\label{eq:atmosphere-constants}
   \begin{split}
-    \gamma &= 1, \\
+    \gamma &= 1.4, \\
     \Pr &=  0.71, \\
     R &= 287.058, \\
     p_0 &= 10000,
   \end{split}
 \end{align}
 the other constants are evaluated following \cref{eq:fluid-constants}.
+The background pressure for these constants is depicted in \cref{fig:hydrostatic-p}.
+
 
 \sidetitle{Two Bubbles}
 %\subsection{Two Bubbles}
@@ -284,15 +299,15 @@ We use the same procedure as before to compute the initial conditions, again wit
 \begin{align}
   \label{eq:cos-pertubation}
   \pertubationPotT &= \begin{cases}
-    \nicefrac{A}{2} \left[ 1 + \cos(\pi r) \right] & r \leq a \\
-    0 & r > a
+    \nicefrac{A}{2} \left[ 1 + \cos(\pi r) \right] & r \leq a, \\
+    0 & r > a,
     \end{cases}
-\end{align},
+\end{align}
 where $r$ again is the radius to the center~\pcref{eq:radius} and constants
 \begin{equation}\label{eq:density-bubble}
   A = 0.5 \quad a = \SI{250}{\m} \quad x_c = \SI{500}{\m} \quad z_c = \SI{350}{\m}.
 \end{equation}
-Similar to the previous scenario, we use a constant viscosity of $\mu = 0.1$\todo{Are we? Check~\cite{giraldo2008study}!}.
+Similar to the previous scenario, we use a constant viscosity of $\mu = 0.1$.
 
 %%% Local Variables:
 %%% mode: latex

@@ -1,18 +1,20 @@
 \chapter{Introduction}\label{chap:introduction}
+\todo{General boilerplate introduction (short), mention exahype}
+
 We make the following contributions:
 \begin{itemize}
 \item In \cref{sec:navier-stokes}, we describe a coupling of the compressible Navier-Stokes equations with an advection-diffusion-reaction term for two dimensional problems.
-\item We describe an \textsc{ader-dg} (\cref{sec:ader-dg}) and \textsc{muscl}-scheme (\cref{sec:muscl}) for problems with diffusive terms.
-  In addition, we describe a combination of both methods in \cref{sec:limiting}, where we use the \textsc{muscl}-scheme in cases where the \textsc{ader-dg}-method is unstable.
+\item We describe an \aderdg{} (\cref{sec:ader-dg}) and \muscl{}-scheme (\cref{sec:muscl}) for problems with diffusive terms.
+  In addition, we describe a combination of both methods in \cref{sec:limiting}, where we use the \muscl{}-scheme in cases where the \aderdg{}-method is unstable.
 \item In \cref{sec:amr}, we introduce a mesh refinement methods that checks, whether the local cell is an outlier.
   As indicator function we use the total variation of the discrete solution and as outlier detection we use the mean and standard variance of this function.
   We evaluate the performance of this method using a time-to-solution test.
 \item We investigate the ability of our scheme to simulate classical fluid mechanics test scenarios correctly.
-  For this we use a convergence test with a manufactured solution, the Taylor-Green vortex (2d) and the ABC-Flow (3d).
+  For this we use a convergence test with a manufactured solution, the Taylor-Green vortex ($2D$) and the \textsc{abc}-Flow ($3D$).
 \item We describe the simulation of flows with a background state that is in hydrostatic equilibrium.
   This is useful for problems in atmospheric flow and for problems in meterology.
   Furthermore, we evaluate our discretization for these scenarios using two scenarios that simulate rising bubbles.
-\item We show that our method is capable of simulating CJ-detonation waves that are a shock which originates from a chemical reaction.
+\item We evaluate the simulation of a \textsc{cj}-detonation wave that are a shock which originates from a chemical reaction.
 \end{itemize}
 
 %%% Local Variables:
