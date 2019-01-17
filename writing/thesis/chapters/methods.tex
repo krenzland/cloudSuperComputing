@@ -35,13 +35,13 @@ The variable $t$ corresponds to the current physical time.
 We solve the \pde{} in the conservative form% \pcref{eq:conservation-law-gradient}
 \begin{equation}
  \label{eq:equation-set} 
- \begin{array}{l}
- \text{mass cons.} \\
- \text{momentum cons.} \\
- \text{energy cons.} \\
- \text{cont.\ gas} 
-\end{array}
-:
+%  \begin{array}{l}
+%  \text{mass cons.} \\
+%  \text{momentum cons.} \\
+%  \text{energy cons.} \\
+%  \text{cont.\ gas} 
+% \end{array}
+% :
 \quad
   \pdv{}{t}
   \underbrace{
@@ -75,7 +75,8 @@ The vector of conserved quantities is given by
  \Q = \left( \Qrho, \Qj, \QE, \QZ \right),
 \end{equation}
 where $\Qrho$ is the density, $\Qj$ is the two or three-dimensional momentum, $\QE$ the energy density and $\QZ$ is the mass fraction of the chemical reactant.
-The chemical reactant in our case is unburnt gas.
+In our case, the chemical reactant is unburnt gas.
+The first row is the conservation of mass, the second is the conservation of momentum, the third is the conservation of energy and the fourth is the continuity of the gas.
 
 The rows of the equation are the conservation of mass, the conservation of momentum, the conservation of energy and the continuity equation of the reactant.
 We split the flux into a hyperbolic $\hyperFlux(\Q)$ and a viscous part $\viscFlux(\Q, \gradQ)$
@@ -218,10 +219,11 @@ We use the simple reaction model
 \end{cases}  
 \end{equation}
 where $\reactionTimescale$ is the timescale of the reaction and $\reactionTemperature$ is the activation temperature~\cite{hidalgo2011ader,helzel2000modified}.
-\subsection{Boundary conditions}
+
+\sidetitle{Boundary conditions}
 To close the system we need to impose boundary conditions.\todo{Adapt this chapter to implementation!}
 
-\sidetitle{Cauchy}
+%\sidetitle{Cauchy}
 For some scenarios we use Cauchy boundary conditions, i.e.\ we prescribe both $\Q$ and $\gradQ$ at the boundary.
 In most cases, we would like to impose periodic boundary conditions, due to the inner workings of \exahype{} this is not possible.
 Instead we use the analytical solution of our problems at the boundary, imposing both value and gradients of the conservative variables.
@@ -230,7 +232,7 @@ This is the case for test cases that are analytical solutions to the incompressi
 
 As a physical boundary condition we limit ourselves to wall boundary condition
 
-\sidetitle{No-Slip}
+%\sidetitle{No-Slip}
 A standard wall boundary condition for viscous fluid is the no-slip condition, where we assume that the fluid has a velocity of zero near the wall.
 \todo{Check if this is the correct physical description!}
 We enfore this by setting
@@ -245,7 +247,7 @@ We enfore this by setting
 \end{align}
 where a superscript of $o$ and $i$ denotes the values outside and inside of the boundary respectively.
 
-\sidetitle{Free-Slip}
+%\sidetitle{Free-Slip}
 Similarly to the no-slip condition, we define the free-slip condition
 \begin{equation}
   \label{eq:free-slip}
@@ -502,11 +504,11 @@ The cell-local scheme is then
 \begin{align}\label{eq:space-time-predictor}
 \begin{split}
 \intdcell{
-  \sttestfunction[][v,l,n] (\nextTime) \stpredictor(\nextTime)
+  \sttestfunction[][v,l,n] (\nextTime) \stpredictor[i+1](\nextTime)
 }
 &-
 \intdt{\intdcell{
-    \pdv{}{t} \sttestfunction[][v,l,n] (t) \stpredictor(t)
+    \pdv{}{t} \sttestfunction[][v,l,n] (t) \stpredictor[i+1](t)
 }}
 = \\
 \intdcell{
@@ -514,77 +516,76 @@ The cell-local scheme is then
 }
 &+
 \intdt{\intdcell{
-    \sttestfunction[][v,l,n] (t) \divergence{\stflux(\stpredictor, \gradient{\stpredictor})}
+    \sttestfunction[][v,l,n] (t) \divergence{\stflux(\stpredictor[i], \gradient{\stpredictor[i]})}
 }}
 +
 \intdt{\intdcell{
-    \sttestfunction[][v,l,n] (t) \stsource(\stpredictor)
+    \sttestfunction[][v,l,n] (t) \stsource(\stpredictor[i])
 }}.
 \end{split}
 \end{align}
-
+Here, we introduced the iteration counter $i$ as a subscript for the space-time predictor.
 Using the expansions in space and time~\pcref{eq:cell-approx-space,eq:cell-approx-space-time} results in a local systems of equations that can be solved by a fixed-point iteration scheme.
-For the space-time predictor, we introduce an iteration counter $i$.
 To close the iterative scheme, we set the initial value for the space-time predictor as
 \begin{equation}
   \label{eq:initial-guess}
-\forall l: \quad \stpredictorCoeff[i][v,l,n] = \ssolCoeff[v,n]
+\quad \stpredictorCoeff[0][v,l,n] = \ssolCoeff[][v,n]
 \end{equation}
 which corresponds to a stationary initial guess~\cite{dumbser2008unified}.
 For an overview of possible initial guesses, see~\cite{dumbser2018efficient}.
 
-To show the computational efficiency of our scheme, we follow the approach of~\cite{dumbser2008unified} and collect our integrals into matrices\todo{Maybe mention that they are actually unrolled tensors?\\Source here is Dominics \aderdg{}-document.}.
-We arrive at the cell-local scheme
-\begin{align}
-  \label{eq:predictor-iterative}
-  \pleft \stpredictorCoeff[i+1] &= \prightsol (\ssol) - \prightpred(\stpredictorCoeff[i]) \\
- \stpredictorCoeff[i+1] &= \pleft^{-1} \left( \prightsol (\ssol) - \prightpred(\stpredictorCoeff[i]) \right).
-\end{align}
-where we introduced the matrices
-\begin{equation}
-  \label{eq:matrices}
-  \pleft \in \mathbb{R}^{\NVar \stbasisSize \times \NVar \stbasisSize}, \quad
-  \prightsol \in \mathbb{R}^{\NVar \stbasisSize}, \quad
-  \prightpred \in \mathbb{R}^{\NVar \stbasisSize}
-\end{equation}
-with entries
-\begin{align}
-  \label{eq:predictor-matrices}
-\begin{split}
-  \pleft_{(v l n), (v l' n')} &=
-\intdcell{
-  \sttestfunction[][v,l,n](\nextTime) \  \stbasis[][v,l',n'](\nextTime)
-}
-\\&-
-\intdt{\intdcell{
-  \left( \pdv{}{t} \sttestfunction[][v,l,n] (t) \right) \stbasis[][v,l',n'] (t)
-}}
-\end{split}
-\\
-\begin{split}
-\prightsol_{v,l,n} (\ssol) &=
-\intdcell{
-  \sttestfunction[][v,l,n] (t) \sbasis[][v,n'] \ssolCoeff[][v,n']
-}
-\\&+
-\intdt{\intdcell{
-  \sttestfunction[][v,l,n] (t) \stbasis[][v,l',n'](t) \stsourceCoeff[][v,l',n'](\stpredictor[i])
-}}                             
-\end{split}
-  \\
-\prightpred_{v,l,n} (\stpredictor) &=
-\stfluxCoeff[][v,l',n'] (\stpredictor)
-\intdt{\intdcell{
-  \left( \gradient{\sttestfunction[][v,l,n]} \right) \stbasis[][v,l',n'](t)
-}}
-\end{align}
-Note here that $\prightpred$ is constant during a interation step.
+% To show the computational efficiency of our scheme, we follow the approach of~\cite{dumbser2008unified} and collect our integrals into matrices\todo{Maybe mention that they are actually unrolled tensors?\\Source here is Dominics \aderdg{}-document.}.
+% We arrive at the cell-local scheme
+% \begin{align}
+%    \label{eq:predictor-iterative}
+%    \pleft \stpredictorCoeff[i+1] &= \prightsol (\ssol) - \prightpred(\stpredictorCoeff[i]) \\
+%   \stpredictorCoeff[i+1] &= \pleft^{-1} \left( \prightsol (\ssol) - \prightpred(\stpredictorCoeff[i]) \right).
+%  \end{align}
+% where we introduced the matrices
+% \begin{equation}
+%   \label{eq:matrices}
+%   \pleft \in \mathbb{R}^{\NVar \stbasisSize \times \NVar \stbasisSize}, \quad
+%   \prightsol \in \mathbb{R}^{\NVar \stbasisSize}, \quad
+%   \prightpred \in \mathbb{R}^{\NVar \stbasisSize}
+% \end{equation}
+% with entries
+% \begin{align}
+%   \label{eq:predictor-matrices}
+% \begin{split}
+%   \pleft_{(v l n), (v l' n')} &=
+% \intdcell{
+%   \sttestfunction[][v,l,n](\nextTime) \  \stbasis[][v,l',n'](\nextTime)
+% }
+% \\&-
+% \intdt{\intdcell{
+%   \left( \pdv{}{t} \sttestfunction[][v,l,n] (t) \right) \stbasis[][v,l',n'] (t)
+% }}
+% \end{split}
+% \\
+% \begin{split}
+% \prightsol_{v,l,n} (\ssol) &=
+% \intdcell{
+%   \sttestfunction[][v,l,n] (t) \sbasis[][v,n'] \ssolCoeff[][v,n']
+% }
+% \\&+
+% \intdt{\intdcell{
+%   \sttestfunction[][v,l,n] (t) \stbasis[][v,l',n'](t) \stsourceCoeff[][v,l',n'](\stpredictor[i])
+% }}                             
+% \end{split}
+%   \\
+% \prightpred_{v,l,n} (\stpredictor) &=
+% \stfluxCoeff[][v,l',n'] (\stpredictor)
+% \intdt{\intdcell{
+%   \left( \gradient{\sttestfunction[][v,l,n]} \right) \stbasis[][v,l',n'](t)
+% }}
+% \end{align}
+% Note here that $\prightpred$ is constant during a interation step.
 In practice, we precompute all integrals that contain only basis functions and their derivatives for the reference cell.
 The computation of the integrals for general space-tiem cells can then be done by \cref{eq:integration-by-substitution}.
 For details and proof of convergence for case of linear \pde{}s, see~\cite{dumbser2008unified}.
 
 \sidetitle{Preparing for corrector}
-It is useful to precompute time-averaged versions of our quantities.
+It is useful to compute time-averaged versions of our quantities directly after the predictor.
 For example, this can be done for the space-time predictor by
 \begin{align}\label{eq:time-average}
   \begin{split}
@@ -603,7 +604,7 @@ We use the extrapolated values later for the Riemann solver and for the reconstr
 \sidetitle{Corrector}
 The final step of the \aderdg{}-scheme is the corrector.
 We multiply the system \cref{eq:conservation-law-gradient} by a space test function $\stestfunction$ and integrate over the space-time control volume.
-This results, yet again, at the weak formulation of the \pde{}
+This results, yet again, in the weak formulation of the \pde{}
 \begin{equation}
   \label{eq:weak-pde}
 \intdt{\intdcell{
@@ -618,7 +619,7 @@ This results, yet again, at the weak formulation of the \pde{}
     \stestfunction[][v,n] S(\Q, \bm{x}, t)
 }}.
 \end{equation}
-We now insert our discrete approximations and apply the basis expansions \cref{eq:cell-approx-space,eq:cell-approx-space-time} to the space-time predictor.
+We now insert our discrete approximations and apply the basis expansions~\pcref{eq:cell-approx-space,eq:cell-approx-space-time} to the space-time predictor.
 The first part can be integrated by parts in time with the convenient result that only the boundary terms remain because the basis is constant in time.
 We then integrate the flux divergence by parts in space and insert the Riemann solver to connect with the neighbouring elements.
 Finally, we need to solve\todo{Fix notation, is tensor not matrix}
@@ -631,7 +632,7 @@ Finally, we need to solve\todo{Fix notation, is tensor not matrix}
 \left(
 \massMatrixDef
 \right)
-(\ssolCoeff[t^{n+1}][v,n'] - \ssolCoeff[t^n][v,n'])
+(\ssolCoeff[\nextTime][v,n'] - \ssolCoeff[\curTime][v,n'])
 &+
 \left(\intdt{\intdcellb{
       \stestfunction[][v,n] \Riemann(\stpredictor[-], \gradient{\stpredictor[-]}; \stpredictor[+], \gradient{\stpredictor[+]}) \cdot \normal
@@ -649,47 +650,48 @@ Finally, we need to solve\todo{Fix notation, is tensor not matrix}
 for the coefficients $\ssolCoeff[\nextTime][v,n]$ of the new solution.
 Here the superscripts $\pm$ denotes values that are extrapolated to the boundaries.
 Again, the computational effort can be vastly reduced by collecting the integrals into matrices and precomputing as much as possible.
-The first term is the mass tensor with entries
-\newcommand{\massMatrix}[1][]{\bm{M}_{#1}}
-\begin{equation}
-  \label{eq:mass-matrix}
-  \massMatrix[v n n'] = \massMatrixDef = \volume \underbrace{\quadWeight[n] \delta_{n n'}}_{\text{diagonal}}
-\end{equation}
-which is, due to the orthogonal basis \pcref{eq:basis-orthogonality}, diagonal for each variable $v$ and thus trivial to invert.
-We can then insert the definition of our basis function into our equation and arrive at
-\begin{align}
-  \massMatrix \left( \ssolCoeff[t+1] - \ssolCoeff[t] \right) &=
-  \Delta t \left( \bm{a} - \bm{b} + \bm{s} \right) 
-  \intertext{with}
-a_{v,n} &= \sfluxCoeff[][n'] \intdcell{
-  \sbasis[][v,n'] \gradient{\sbasis[][v,n]}(t)
-}
-\\
-\label{eq:corrector-surface}
-b_{v,n} &= \intdcellb{
-    \stestfunction[][v,n] \Riemann \left( \spredictor[-], \gradient{\spredictor[-]}; \spredictor[+], \gradient{\spredictor[+]} \right) \cdot \normal
-} \\
-s_{v,n} &=
-\ssourceCoeff[][v,n'] \intdcell{
-  \sbasis[][v,n] \sbasis[][v,n']
-}
-,
-\end{align}
-where we evaluated the time-integrals by \cref{eq:integration-by-substitution}.
-All quantities are now time-averaged~\pcref{eq:time-average} and are represented in the space basis~\pcref{eq:cell-approx-space}.
-Note that we evaluate the Riemann problem for the time-averaged space-predictor.
+Using the orthogonality of the basis functions~\pcref{eq:basis-orthogonality} on the first term, it becomes clear that the correction is a simple, explicit computation.
+% The first term is the mass tensor with entries
+% \newcommand{\massMatrix}[1][]{\bm{M}_{#1}}
+% \begin{equation}
+%   \label{eq:mass-matrix}
+%   \massMatrix[v n n'] = \massMatrixDef = \volume \underbrace{\quadWeight[n] \delta_{n n'}}_{\text{diagonal}}
+% \end{equation}
+% which is, due to the orthogonal basis \pcref{eq:basis-orthogonality}, diagonal for each variable $v$ and thus trivial to invert.
+% We can then insert the definition of our basis function into our equation and arrive at
+% \begin{align}
+%   \massMatrix \left( \ssolCoeff[t+1] - \ssolCoeff[t] \right) &=
+%   \Delta t \left( \bm{a} - \bm{b} + \bm{s} \right) 
+%   \intertext{with}
+% a_{v,n} &= \sfluxCoeff[][n'] \intdcell{
+%   \sbasis[][v,n'] \gradient{\sbasis[][v,n]}(t)
+% }
+% \\
+% \label{eq:corrector-surface}
+% b_{v,n} &= \intdcellb{
+%     \stestfunction[][v,n] \Riemann \left( \spredictor[-], \gradient{\spredictor[-]}; \spredictor[+], \gradient{\spredictor[+]} \right) \cdot \normal
+% } \\
+% s_{v,n} &=
+% \ssourceCoeff[][v,n'] \intdcell{
+%   \sbasis[][v,n] \sbasis[][v,n']
+% }
+% ,
+% \end{align}
+% where we evaluated the time-integrals by \cref{eq:integration-by-substitution}.
+% All quantities are now time-averaged~\pcref{eq:time-average} and are represented in the space basis~\pcref{eq:cell-approx-space}.
+Note that we evaluate the Riemann problem for the time-averaged space-predictor in our implementation.
 This is justified by the linearity of our numerical flux~\cite{dumbser2008unified,dumbser2010arbitrary}.
-The surface integral \pcref{eq:corrector-surface} can be evaluated by summing over the contributions of the faces of each cell, which are computed by integrating the extrapolated space predictor with Gaussian quadrature.
-Finally, we can solve \cref{eq:corrector} for the new unknows $\ssolCoeff[k+1]$
-\begin{align}\label{eq:update-predictor}
-\begin{split}
-  %\bm{u}^{n+1}
-  \ssolCoeff[k+1][v]
-  &= \ssolCoeff[k][v] + \Delta t (\operatorname{update}) \\
-  \operatorname{update} &= \massMatrix[v]^{-1} \left( \bm{a}_v - \bm{b}_v + \bm{s}_v \right)
-\end{split}
-\end{align}
-which is clearly of the form of a one-step scheme.
+% The surface integral \pcref{eq:corrector-surface} can be evaluated by summing over the contributions of the faces of each cell, which are computed by integrating the extrapolated space predictor with Gaussian quadrature.
+% Finally, we can solve \cref{eq:corrector} for the new unknows $\ssolCoeff[k+1]$
+% \begin{align}\label{eq:update-predictor}
+% \begin{split}
+%   %\bm{u}^{n+1}
+%   \ssolCoeff[k+1][v]
+%   &= \ssolCoeff[k][v] + \Delta t (\operatorname{update}) \\
+%   \operatorname{update} &= \massMatrix[v]^{-1} \left( \bm{a}_v - \bm{b}_v + \bm{s}_v \right)
+% \end{split}
+% \end{align}
+% which is clearly of the form of a one-step scheme.
 
 \sidetitle{Riemann solver \textit{\&} timestep}
 As a Riemann solver we use a simple Rusanov-flux that is adapted for diffusive problems
@@ -751,7 +753,7 @@ We use a value of $0.7$ for the constant $\text{CFL}$.
 We discussed a modern, high-order \dg{} method in the previous chapter.
 While this scheme is efficient, it can become unstable, especially in case of discontinuities.
 A simple alternative is a finite volume scheme.
-We use the \muscl{} method\todo{Cite original paper (van Leer)}.
+We use the \muscl{} method\cite{vanLeer1979towards}.
 Our discussion and notation follows the one in~\cite{toro2009riemann}.
 Similar to~\cite{toro2009riemann} we only describe the two-dimensional case, an extension to three dimensions is straigthforward.
 \todo{Source term!}
@@ -924,7 +926,7 @@ We first describe the computation of our indicator variable and then describe a 
 
 Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a function that maps the discrete solution of a cell to an arbitrary indicator variable.
 Furthermore, we assume that $\bm{f}$ is expanded in the space-basis \pcref{eq:cell-approx-space}.
-Then the total variation (\textsc{tv}) of this function is defined by\todo{Cite sth for this?}
+The total variation (\textsc{tv}) of this function is defined by
 \newcommand{\tv}{\operatorname{TV}}
 \begin{equation}
   \label{eq:tv}
@@ -932,7 +934,6 @@ Then the total variation (\textsc{tv}) of this function is defined by\todo{Cite 
   \Vert
 \intdcell{ \vert \gradient{f \left( \bm{x} \right)} \vert }
 \Vert_1
-,
 \end{equation}
 for each cell.
 The operator $\Vert \cdot \Vert_1$ denotes the discrete $l_1$ norm in this equation.
