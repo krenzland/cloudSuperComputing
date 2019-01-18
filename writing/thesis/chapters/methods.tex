@@ -1,4 +1,11 @@
-% TODO: Extract to settings.tex
+% TODO: Extract to settings
+\newcommand{\cellAvg}[1][i,j]{U_{#1}}
+\newcommand{\sign}{\operatorname{sign}}
+\newcommand{\minmod}{\operatorname{minmod}}
+\newcommand{\slope}[2][i,j]{s^{#2}_{#1}}
+\newcommand{\gradCellAvg}[1][i,j]{\gradient{\cellAvg[#1]}}
+\newcommand{\fluxX}{\flux_x}
+\newcommand{\fluxY}{\flux_y}
 
 \chapter{An ADER-DG scheme for the Navier-Stokes Equations}\label{chap:methods}
 This chapter describes the numerical and physical background that is needed to simulate reacting fluids with good accuracy.
@@ -20,10 +27,10 @@ The limiting combines both numerical methods to achieve a stable, high-order met
 }
 \newcommand{\viscFluxDef}{
   \begin{pmatrix}
-     -\diffCoeff \gradient{\Qrho}\\
+    0\\
      \stressT (\Q, \gradQ)  \\
      \Qv \cdot \stressT (\Q, \gradQ) - \kappa \gradient{T}\\
-     -\diffCoeff \gradient{\QZ}
+     0\\
    \end{pmatrix}
 }
 
@@ -78,7 +85,7 @@ where $\Qrho$ is the density, $\Qj$ is the two or three-dimensional momentum, $\
 In our case, the chemical reactant is unburnt gas.
 The first row is the conservation of mass, the second is the conservation of momentum, the third is the conservation of energy and the fourth is the continuity of the gas.
 
-The rows of the equation are the conservation of mass, the conservation of momentum, the conservation of energy and the continuity equation of the reactant.
+The rows of \cref{eq:equation-set} are the conservation of mass, the conservation of momentum, the conservation of energy and the continuity equation of the reactant.
 We split the flux into a hyperbolic $\hyperFlux(\Q)$ and a viscous part $\viscFlux(\Q, \gradQ)$
 \begin{equation}
   \label{eq:flux}
@@ -100,7 +107,7 @@ The term $q_0 \QZ$ is the chemical energy with the heat release $q_0$, the term 
 The pressure is related to the temperature $T$ by the thermic ideal gas law
 \begin{equation}
   \label{eq:temperature}
- \frac{\pressure}{\Qrho} = RT,
+  \pressure = \Qrho R T
 \end{equation}
 where $R$ is the specific gas constant of a fluid.
 
@@ -122,7 +129,7 @@ The viscous effects of the fluid are modeled by the stress tensor
 \end{equation}
 
 We further introduce the ratio of specific heats $\gamma$ and the heat fraction for constant volume $c_v$ and constant volume $c_r$.
-These constants are all fluid dependent and relate to each other and the gas constant by
+These constants are all fluid dependent and relate to each other~\cite{dumbser2010arbitrary} and the gas constant by
 \begin{align}
   \label{eq:fluid-constants}
   \begin{split}
@@ -132,37 +139,24 @@ These constants are all fluid dependent and relate to each other and the gas con
   \gamma &= \frac{c_p}{c_v}.
   \end{split}
 \end{align}
-\todo{Cite sth for this!}
 We can then compute the heat conduction coefficient
 \begin{equation}
   \label{eq:heat-conduction-coeff}
   \kappa = \frac{\mu \gamma}{\Pr} \frac{1}{\gamma - 1} R = \frac{\mu \gamma}{\Pr} c_v,
 \end{equation}
 where the Prandtl number $\Pr$ depends on the fluid.
-% Sutherland's viscosity law:
-% \begin{equation}
-%   \label{eq:sutherland}
-%  \mu(T)  = \mu_0 {\left(\frac{T}{T_0}  \right)}^{\beta} \frac{T_0 + C}{T + C}
-% \end{equation}
-% with \(\beta = 1.5\), \(C = \text{const.}\), reference temperature $T_0$ and reference viscosity $\mu_=$.
-% Equal to
-% \begin{align}
-%   \lambda &= \frac{\mu_0 (T_0 + C)}{T_0^\beta} \\
-%   \mu(T) &= \lambda \frac{T^\beta}{T + C},
-% \end{align}
-% where $\lambda$ is constant for a given fluid.
+The temperature gradient $\gradient{T}$ in terms of the conservative variables can be found in \cref{chap:appendix-pde}.
 
-The maximal absolute eigenvalues for convective and viscous part in direction of a normal vector $\normal$ are
+The maximal absolute eigenvalues for the normal Jacobians of both convective and viscous part in direction of a normal vector $\normal$ are
 \begin{align}
   \begin{split}
-    \maxConvEigen &= \left( \partial \bm{F}/\partial \bm{Q}\right) \cdot \normal = \vert \Qv_{\normal} \vert + c,\\
-    \maxViscEigen &= \left( \partial \bm{F}/\partial \left( \nabla \bm{Q} \cdot \normal \right)\right) \cdot \normal =
-    \max \left( \frac{4}{3} \frac{\mu}{\Qrho},
-                        \frac{\gamma \mu}{\Pr \Qrho},
-                        \diffCoeff \right)
+    \maxConvEigen &=  \vert \Qv_{\normal} \vert + c,\\
+    \maxViscEigen &= \max \left( \frac{4}{3} \frac{\mu}{\Qrho},
+                        \frac{\gamma \mu}{\Pr \Qrho}\right)
   \end{split}
 \end{align}
 with velocity in direction of the normal $\Qv_{\normal}$ and speed of sound $c = \sqrt{\gamma R T }$.
+The Jacobians of both fluxes can be found in \cref{chap:appendix-pde}.
 
 We also support two different kind of optional source terms.
 The first source term is gravity, given by
@@ -233,8 +227,7 @@ This is the case for test cases that are analytical solutions to the incompressi
 As a physical boundary condition we limit ourselves to wall boundary condition
 
 %\sidetitle{No-Slip}
-A standard wall boundary condition for viscous fluid is the no-slip condition, where we assume that the fluid has a velocity of zero near the wall.
-\todo{Check if this is the correct physical description!}
+A standard wall boundary condition for viscous fluid is the no-slip condition, where we assume that when the fluid is close to a wall, it has a velocity of zero relative to the wall.
 We enfore this by setting
 \begin{align}
   \label{eq:no-slip}
@@ -399,7 +392,6 @@ Similarly to the one-dimensional case, we can evaluate integrals by
   \quadWeight[n] &= \prod_{i}^{d} \quadWeight[n_i],
 \end{align}
 where the quadrature weights $\quadWeight[n]$ are the product of all relevant one-dimensional quadrature weights, using the aforementioned (linearized) multi-index $n$.
-\todo{Should be correct. Is there a way to avoid this index hell, esp.\ multi-index?}
 
 Two important properties of this family of polynomials are
   \begin{alignat}{10}
@@ -407,7 +399,7 @@ Two important properties of this family of polynomials are
 && \text{Interpolating:} \qquad && \lagrangeRef[i] (\quadNode[j]) &= \delta_{ij},\\
 && \qquad && \sbasisRef[][n] (\quadNodeNd[m]) &= \delta_{nm}, \notag\\
 \label{eq:basis-orthogonality}
-&& \text{Orthogonality:} \qquad && \int_0^1 \lagrangeRef[i](x) \lagrangeRef[j](x) \dd{\hat{x}} &= \quadWeight[i] \delta_{ij},\\
+&& \text{Orthogonality:} \qquad && \int_0^1 \lagrangeRef[i](\quadNode[i]) \lagrangeRef[j](\quadNode[j]) \dd{\quadNode[j]} &= \quadWeight[i] \delta_{ij},\\
 && \qquad &&
 \underbrace{\int_0^1 \cdots \int_0^1}_{d \,\text{times}}
 \sbasisRef[][n] \left( \hat{\bm{x}} \right)
@@ -423,7 +415,6 @@ Two important properties of this family of polynomials are
         0 & \text{otherwise}
       \end{cases}.
 \end{equation}
-\todo{Fix this for multiple integrals!}
 
 We define the basis functions over a space-cell with an index $n = 0, \ldots, \sbasisSize - 1$
 \begin{align}\label{eq:space-basis}
@@ -622,7 +613,7 @@ This results, yet again, in the weak formulation of the \pde{}
 We now insert our discrete approximations and apply the basis expansions~\pcref{eq:cell-approx-space,eq:cell-approx-space-time} to the space-time predictor.
 The first part can be integrated by parts in time with the convenient result that only the boundary terms remain because the basis is constant in time.
 We then integrate the flux divergence by parts in space and insert the Riemann solver to connect with the neighbouring elements.
-Finally, we need to solve\todo{Fix notation, is tensor not matrix}
+Finally, we need to solve
 \newcommand{\massMatrixDef}{\intdcell{
   \stestfunction[][v,n] \sbasis[][v,n']
 }}
@@ -697,66 +688,57 @@ This is justified by the linearity of our numerical flux~\cite{dumbser2008unifie
 As a Riemann solver we use a simple Rusanov-flux that is adapted for diffusive problems
 \begin{equation}
   \label{eq:rusanov-flux}
-  \Riemann(q_h^-, \nabla q_h^-; g_h^+, \nabla q_h^+) \cdot \bm{n} =
+  \Riemann(\Q^-, \gradQ^-; \Q^+, \gradQ^+) \cdot \normal =
   \frac{1}{2} \left(
-    F(q_h^+, \nabla q_h^+) +
-    F(q_h^-, \nabla q_h^-)
+    \flux(\Q^+, \gradQ^+) +
+    \flux(\Q^-, \gradQ^-)
   \right) -
-  \frac{1}{2} s_\text{max} (q_h^+ - q_h^-),
+  \frac{1}{2} s_\text{max} (\Q^+ - \Q^-),
 \end{equation}
 with a penalty term
 \begin{equation}
   \label{eq:parabolic-penalty}
   s_\text{max}  = \max \left(
-\maxConvEigen[q_h^-], \, \maxConvEigen[q_h^+]
+\maxConvEigen[\Q^-], \, \maxConvEigen[\Q^+]
 \right) +
 2 \eta \max \left(
-\maxViscEigen[q_h^-], \, \maxViscEigen[q_h^+]
+\maxViscEigen[\Q^-], \, \maxViscEigen[\Q^+]
 \right)
 \end{equation}
 and
 \begin{equation}
   \eta = \frac{2N+1}{h \sqrt{\frac{1}{2} \pi}}.
 \end{equation}
-In this equation $h$ is the side-length of an element.
-The penalty term depends on the maximal absolute eigenvalues of both the convective and viscous part of the equations
+In this equation $h$ is the side-length of an element and a superscript of $\pm$ denotes the state of the right or left side.
+The penalty term depends on the maximal absolute eigenvalues of the Jacobian matrices in normal direction of both convective and viscous fluxes
 \begin{align}
   \begin{split}
-    \maxConvEigen &= \left( \partial \bm{F}/\partial \bm{Q}\right) \cdot \normal,\\
-    \maxViscEigen &= \left( \partial \bm{F}/\partial \left( \nabla \bm{Q} \cdot \normal \right)\right) \cdot \normal,
+    \maxConvEigen &= \max \quad \operatorname{eigenvalues} \left( \pdv{\flux}{\Q} \cdot \normal  \right),\\
+    \maxViscEigen &= \max \quad \operatorname{eigenvalues} \left( \pdv{\flux}{\left( \gradQ \cdot \normal \right)} \cdot \normal \right),
   \end{split}
 \end{align}
 in direction of the normal vector $\normal$ to the cell face. 
 
 This Riemann solver was first published in~\cite{gassner2008discontinuous} and used for an \textsc{ader-dg} scheme in~\cite{dumbser2010arbitrary}.
-\todo{Paper only describe 1d}
+\todo{Should i mention paper only describe for 1D?}
 The timestep per dimension $d$ is restriced to a so-called \textsc{cfl}-type penalty
 \begin{equation}\label{eq:cfl-aderdg}
  %\Delta t \leq  \text{CFL} \, \frac{\alpha(N) \, h}{\maxConvEigen + 2 \maxViscEigen \frac{1}{\alpha(N) h}}
- \Delta t \leq  \text{CFL} \, \alpha(N) \, h \sum_{i=0}^{\dimensions-1} \frac{1}{\maxConvEigen + 2 \maxViscEigen \frac{1}{\alpha(N) h}},
+ \Delta t \leq  \text{CFL} \, \alpha(N) \, h \sum_{i=1}^{\dimensions} \frac{1}{\maxConvEigen + 2 \maxViscEigen \frac{1}{\alpha(N) h}},
 \end{equation}
-where the eigenvalues are evaluated for the flux Jacobian in direction $i$~\cite{dumbser2010arbitrary,gassner2008discontinuous}..
+where the eigenvalues are evaluated for the flux Jacobian in direction $i$~\cite{dumbser2010arbitrary,gassner2008discontinuous}.
 The constant $\alpha(N) \leq {\left( 2N+1  \right)}^{-1}$ is obtained from von Neumann analysis on a simple model problem and depends on the approximation order~\cite{dumbser2008unified}.
 We use this constant for both hyperbolic and diffusive penalty terms to ensure stability.
-For a more detailed and rigoruous stability analysis of the Riemann solver, see~\cite{gassner2008discontinuous}\todo{Is this the correct paper, or is this in the other part of the series?}.
+For a more detailed and rigoruous stability analysis of the Riemann solver, see~\cite{gassner2008discontinuous}.
 We use a value of $0.7$ for the constant $\text{CFL}$.
 
 \section{MUSCL-Hancock Finite Volume Scheme}\label{sec:muscl}
-\todo{Mention dubious treatment of viscous boundary terms. Or later in exahype chapter.}
-\newcommand{\cellAvg}[1][i,j]{U_{#1}}
-\newcommand{\sign}{\operatorname{sign}}
-\newcommand{\minmod}{\operatorname{minmod}}
-\newcommand{\slope}[2][i,j]{s^{#2}_{#1}}
-\newcommand{\gradCellAvg}[1][i,j]{\gradient{\cellAvg[#1]}}
-\newcommand{\fluxX}{\flux_x}
-\newcommand{\fluxY}{\flux_y}
 We discussed a modern, high-order \dg{} method in the previous chapter.
 While this scheme is efficient, it can become unstable, especially in case of discontinuities.
 A simple alternative is a finite volume scheme.
 We use the \muscl{} method\cite{vanLeer1979towards}.
 Our discussion and notation follows the one in~\cite{toro2009riemann}.
-Similar to~\cite{toro2009riemann} we only describe the two-dimensional case, an extension to three dimensions is straigthforward.
-\todo{Source term!}
+Similar to~\cite{toro2009riemann} we only describe the two-dimensional case without source terms, an extension to three dimensions is straigthforward.
 
 In contrast to the previous \dg{} scheme, we now only store averages instead of a full polynomial solution for each cell.
 We achieve higher order then by reconstructing a linear function from a cell and its neighbours.
@@ -814,7 +796,7 @@ To achieve second order in time, we evolve the boundary extrapolated values
 where $\fluxX$ and $\fluxY$ denote the $x$ and $y$ part of the flux respectively.
 Note that we do not need to consider neighboring cells for this step.
 
-Finally, the update can be described by\todo{Double check update}
+Finally, the update can be described by
 \begin{align}
   \begin{split}
     \cellAvg (t^{n+1}) &= \cellAvg (t^n)
@@ -845,13 +827,19 @@ Finally, the update can be described by\todo{Double check update}
   \end{split}
 \end{align}
 This results in a scheme that has an order of convergence of two for both space and time.
+\todo{Is this enough detail?}
+We tread the source term by a simple splitting scheme.
+The interested reader is referred to the discussions in~\cite{leVeque2002finite,toro2009riemann}.
 
-We again use the Rusanov-type Riemann solver~\cref{eq:rusanov-flux}.
+We again use the Rusanov-type Riemann solver~\pcref{eq:rusanov-flux}.
 The timestep is subject to a penalty of the form
 \begin{equation}\label{eq:cfl-muscl}
  \Delta t \leq  \text{CFL} \, \frac{h}{\maxConvEigen + 2 \maxViscEigen \frac{1}{h}},
 \end{equation}
-with a constant value of CFL that is typically close to $0.7$.
+with a constant value of $\text{CFL} = 0.9$.
+
+For reasons of simplicity, we only prescribe the solution at the boundary and then estimate the gradient with \cref{eq:muscl-gradient}.
+This has the effect that the scheme becomes unstable in the case of strong viscous effect next to the boundaries.
 
 \section{Adaptive Mesh Refinement \textit{\&} Finite Volume Limiting}\label{sec:grid}
 This section is concerned with two different but related concepts:
@@ -871,38 +859,38 @@ A relatively recent way of dealing with this problem is the finite volume subcel
 Our discussion follows the one in~\cite{dumbser2016simple}.
 This limiting is an a posteriori limiting, which means that we first evaluate a timestep with an unlimited \aderdg{}-method and then check, whether our solution is \enquote{correct}.
 In our case, we check whether the solution is a finite floating point number.
-We also check whether it is physically admissible with the criterion\todo{Do I actually check for pos.\ of Z?}
+We also check whether it is physically admissible with the criterion
 \begin{equation}
   \label{eq:limiting-physical}
   \operatorname{is-admissible}(\Q) =
   \begin{cases}
-    \text{true} & \Qrho > 0 \land \pressure > 0 \land \QZZ > 0 \\
+    \text{true} & \Qrho > 0 \land \pressure > 0 \land \QZZ \geq 0 \\
     \text{false} & \text{otherwise}.
   \end{cases}
 \end{equation}
 The positivity of the pressure implies positivity of energy.
 
-\todo{Reread dmp description, fix formulas.}
-To combat the Gibbs phenomenon, we can make use of the discrete maximum principle (\textsc{dmp}).
-This criterion marks cells as troubled that have a numerical solution that is significantly higher or lower than the solutions of its neighbours.
+To combat the Gibbs phenomenon, we can make use of the discrete maximum principle (\textsc{dmp})~\cite{dumbser2016simple}.
+This criterion marks cells as troubled that have a numerical solution that is significantly higher or lower than the solutions of its neighbors, which are denoted by the set $\mathcal{N}$.
+Here, a cell is defined to be its own neighbor.
+We check for each cell $\cell[i]$ whether
 \begin{align}\label{eq:limiting-dmp}
-\min (u(y, t^{\curTime})) - \delta &\leq u^*(y, t^{\nextTime}) \leq \max (u(y, t^{\curTime})) + \delta
-%
-%
+\forall \bm{x} \in \cell[i]:  &\min_{\bm{y} \in \mathcal{N}_i} \left( \ssol[\curTime](\bm{y}, \curTime) \right) - \delta \leq \ssol[\nextTime](\bm{x}, \nextTime)
+  \leq \max_{\bm{y} \in \mathcal{N}_i} \left( \ssol(\bm{y}, \curTime) \right) + \delta
 \intertext{with tolerance}
 \delta &= \max \left(
   \varepsilon_0, \varepsilon \left(
-         \max(u(y,t^{\curTime})) -
-         \min(u(y,t^{\curTime}))
+         \max_{\bm{y} \in \mathcal{N}} \left( \ssol[\curTime](\bm{x},\curTime) \right) -
+         \min_{\bm{y} \in \mathcal{N}}\left( \ssol[\curTime](\bm{x},\curTime) \right)
   \right)
   \right)
 \end{align}
+holds.
 The parameters $\varepsilon$ and $\varepsilon_0$ can be set freely.
-The former is controls by which factor the local jump can differ from its neighbourhood, the latter is needed for zero jumps~\cite{dumbser2016simple}.
-Note that this criterion is suspectible for false positives, this is especially a problem in the presence of a source term.
-\todo{Mention problems with source term?}
+The former controls by which factor the local jump can differ from its neighbourhood, the latter is needed for zero jumps~\cite{dumbser2016simple}.
+Note that this criterion is only a heuristic and is suspectible to false positives.
 
-If a solution violates our criterion, we recompute the last timestep for the offending cells with a limited finite volume method.
+If a solution violates any of our criterions, we recompute the last timestep for the offending cells with a limited finite volume method.
 In our case we use the \muscl{}-method (\cref{sec:muscl}).
 The recomputation starts by subdividing the infringing cell into $N_s = 2N + 1$ subcells.
 This number of subcells has the advantage that we do not lose spatial resolution and that we can use the same timestep size for both cell types.
@@ -912,7 +900,7 @@ The reason for this is that the \textsc{cfl}-conditions for both schemes \pcref{
   \includegraphics[scale=0.7]{thesis_aderdg_subcell_grid}
   \caption{\label{fig:limiting-subcells}Conversion from \dg{} degrees of freedoms to finite volume degree of freedoms. Image taken from~\cite{dumbser2018conformal}. }
 \end{figure}
-\todo{Cite source for subcells~\pcref{fig:limiting-subcells}. See guidebook. NOTE THAT IT IS MODIFIED. Also: Fix size, currently font is too small}
+\todo{Cite source for subcells~\pcref{fig:limiting-subcells}. See guidebook. NOTE THAT IT IS MODIFIED. Also: Fix size, currently font is a ziny bit too small}
 
 \Cref{fig:limiting-subcells} depicts the mapping from \dg{}-cells to finite volume subcells.
 For the sake of brevity, we omit technical details and refer the interested reader to~\cite{dumbser2016simple}.
@@ -927,7 +915,6 @@ We first describe the computation of our indicator variable and then describe a 
 Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a function that maps the discrete solution of a cell to an arbitrary indicator variable.
 Furthermore, we assume that $\bm{f}$ is expanded in the space-basis \pcref{eq:cell-approx-space}.
 The total variation (\textsc{tv}) of this function is defined by
-\newcommand{\tv}{\operatorname{TV}}
 \begin{equation}
   \label{eq:tv}
   \tv \left[ f(\bm{x}) \right] =
@@ -939,7 +926,6 @@ for each cell.
 The operator $\Vert \cdot \Vert_1$ denotes the discrete $l_1$ norm in this equation.
 This integral can be evaluated efficiently on the reference cell \pcref{eq:space-mapping,eq:cell-approx-space} with Gaussian quadrature \pcref{eq:quadrature}.
 
-\todo{Definition for FV schemes (maybe just mapping to DG-Cells)}
 \newcommand{\gobs}{\operatorname{G}}
 \newcommand{\mean}{\mu}
 \newcommand{\std}{\sigma}
@@ -973,7 +959,6 @@ This is why we compute the population standard deviation by
 \end{equation}
 \begin{algorithm}[ht]
   \begin{algorithmic}
-% TODO: Special cases 
 \Function{reduce-variance}{$\gobs_0, \gobs_1$}
 \If{$\gobsCount_0 = 0$}
   \State\Return{$\mean_1, \variance_1, \gobsCount_1$}

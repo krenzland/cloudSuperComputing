@@ -3,8 +3,8 @@ We implemented a \muscl{}-limited \aderdg{}-scheme with \amr{} for the reactive 
 We showed that the scheme works and is capable of simulation different scenarios:\todo{Reference sections of results. Reference theory chapter. Reference implementation.}
 \begin{itemize}
 \item We showed in \cref{sec:results-convergence} that our scheme converges for all considered orders for the Navier-Stokes equations.
-\item We evaluated our method for standard \textsc{cfd} scenarios and achieved competitive results for all considered scenarios.
-  This is true for two-dimensional scenarios (Taylor-Green, Lid-Driven Cavity) and for the three-dimensional \textsc{abc}-flow.
+\item We evaluated our method for standard \textsc{cfd} scenarios and achieved competitive results for all used scenarios.
+  This is true for both two-dimensional scenarios (Taylor-Green, Lid-Driven Cavity) and for the three-dimensional \textsc{abc}-flow.
 \item Furthermore, our method allows us to simulate flows in hydrostatic equilibrium correctly.
 \item The results of \cref{sec:results-tts-amr} showed that our \amr{}-criterion is able to save a significant portion of the computational effort compared to a uniform fine grid.
   It is able to do this without degrading the quality of the solution, even for a scenario that contains small-scale details.
@@ -15,7 +15,7 @@ Of course, there are some things than can be improved and which need further wor
 \begin{itemize}
 \item The current treatment of the boundary conditions is not stable for every scenarios.
   Especially the viscous walls for the \muscl{}-method are not correct, due to limitations of \exahype{}.
-\item Due to the \textsc{cfl}-condition~\pcref{eq:cfl-aderdg,eq:cfl-muscl}, the timestep of our \aderdg{}-scheme scales quadratically with the number of grid cells.
+\item Due to the \textsc{cfl}-condition~\pcref{eq:cfl-aderdg,eq:cfl-muscl}, the number of timesteps of our \aderdg{}-scheme scales quadratically with the number of grid cells.
   Even though our \amr{}-criterion is able to reduce the number of needed cells drastically, we could get another large improvement by utilizing local timestepping.
 \item Our implementation of the \textsc{cj}-detonation wave cannot handle realistic detonations because we do not have an implementation of stiff source terms.
   An implementation of this is straight-forward but includes changes to the space-time predictor and its initial guess, and also to the \muscl{}-scheme.

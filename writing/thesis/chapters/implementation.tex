@@ -11,7 +11,7 @@ The goal of our implementation is that all new features should be accesible to u
 \exahype\ is based on the space-filling-curves library \peano~\cite{weinzierl2011}.
 The workflow from the perspective of a user is
 \begin{itemize}
-\item Generate glue-code using a \softwareName{Python}-based Toolkit that inserts parameters into templates.\todo{Jinja? Or sth else?}
+\item Generate glue-code using a \softwareName{Python}-based Toolkit that inserts parameters into templates.
   The parameters are configured in a setting file.
   The user can configure the number of dimensions, numerical order and type of solver (\aderdg{}, \muscl, or limiting-\aderdg).
   Depending on the solver type, a different implementation is generated.
@@ -61,7 +61,7 @@ These changes are:
 \begin{itemize}
 \item Modifying the space-time-predictor (defined in file \fileName{spaceTimePredictorNonlinear.cpph}).
   \begin{itemize}
-  \item The function \funName{aderPicardLoopNonlinear} implements the space-time-predictor loop \pcref{eq:predictor-iterative}.
+  \item The function \funName{aderPicardLoopNonlinear} implements the space-time-predictor loop \pcref{eq:space-time-predictor}.
     We pass the gradient of the conserved variables to the \funName{flux} method of the \className{Solver}.
     Because we need the time-average of the gradient later, we return it.
    \item In the function \funName{aderExtrapolatorNonlinear}, which implements the boundary extrapolation, we also compute the extrapolated gradient.
@@ -93,7 +93,7 @@ We then compute the observables by \cref{alg:reduce-gobs}
   \begin{algorithmic}
     \Let{observables}{\Call{resetGlobalObservables}{}}
     \For{$\text{cell} \in \text{cells}$}
-    \Let{curObservables}{\Call{mapGlobalObservables}{$Q_\text{cell}, \Delta \bm{x}_\text{cell}$}}
+    \Let{curObservables}{\Call{mapGlobalObservables}{$\Q_\text{cell}, \Delta \bm{x}_\text{cell}$}}
     \Let{observables}{\Call{reduceGlobalObservables}{observables, curObservables}}
     \EndFor{}
     \State\Return{observables}
@@ -104,9 +104,8 @@ This results in a simple, yet powerful interface, which can be used to implement
 Examples are computing the minimum, maximum, sum, mean and variance.
 
 For the variance of the total variation, we store the partial mean, sample variance, and count as global observables.
-\todo{Use Q, TV macro here! Same for algorithm for cell.}
 The vector $(-1, -1, 0)$ is then the base-case for the iteration~\pcref{alg:reduce-gobs} and is thus returned by the function \funName{resetGlobalObservables}.
-The method \funName{mapGlobalObservables} is defined to return $\left( \operatorname{TV} \left[ f(\bm{Q}) \right], 0, 1 \right)$, where $f(\bm{Q})$ returns an arbitary indicator value per cell.
+The method \funName{mapGlobalObservables} is defined to return $\left( \tv \left[ f(\Q) \right], 0, 1 \right)$, where $f(\Q)$ returns an arbitary indicator value per cell.
 Finally, \funName{reduceGlobalObservables} is implemented exactly as described in \cref{alg:merge-variance}.
 
 For the actual implementation, we follow \cref{alg:reduce-gobs} but include distributed and shared memory parallelization in the following way:
@@ -133,7 +132,7 @@ For the actual implementation, we follow \cref{alg:reduce-gobs} but include dist
   \end{itemize}
 \item If we use \mpi{}, we also need to reduce the observables over all ranks.
   \exahype{} already reduces the timestep size, we extend these already existing \mpi{} messages to also include the global observables \varName{\_globalObservables}.
-  For this, we changed the following methods\todo{Next and current?!} of the \dg{}-solver:
+  For this, we changed the following methods of the \dg{}-solver:
   \begin{itemize}
   \item \funName{compileMessageForMaster} and \funName{sendDataToMaster} to send data from the workers to the master rank.
   \item \funName{mergeWithWorkerData} to merge the received worker data with the current master data. 

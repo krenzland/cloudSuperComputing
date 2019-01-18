@@ -1,17 +1,4 @@
-\chapter{Scenarios}\label{sec:scenarios}
-\todo{Write text here to introduce the chapter!}
-Unless otherwise noted, we use the constants
-\begin{align}
-\begin{split}
-  \gamma &= 1.4, \\
-  \Pr &= 0.7, \\
-  c_v &= 1.0
-\end{split}
-\end{align}
-The other constants follow from the definition of \cref{eq:fluid-constants}.
-
-We describe some scenarios in terms of the primitive variables $(\Qrho, \Qv, \pressure)$, these can be converted to the conservative variables by the definition of momentum and the definition of energy.   
-
+\chapter{Scenarios}\label{chap:scenarios}
 \begin{table}[htb]
   \centering
 \caption{Overview of scenarios}%
@@ -19,42 +6,76 @@ We describe some scenarios in terms of the primitive variables $(\Qrho, \Qv, \pr
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
 {Name} & {Analytic Solution} & {Gravity} & {Coupling} & {Limiting}\\ \midrule
-Manufactured Solution & \cmark{} & \xmark{} & \xmark{} & \xmark{} \\
-Taylor-Green Vortex & \cmark{} & \xmark{} & \xmark{} & \xmark{} \\
-\textsc{ABC}-Flow & \cmark{} & \xmark{} & \xmark{} & \xmark{} \\
-\textsc{CJ}-Detonation & \xmark{} & \xmark{} & \cmark{} & \cmark{} \\
-Two Bubbles & \xmark{} & \cmark{} & \xmark{} & \xmark{} \\
-Cosine Bubble & \xmark{} & \cmark{} & \xmark{} & \xmark{} \\
+Manufactured Solution~\cite{dumbser2010arbitrary} & \cmark{} & \xmark{} & \xmark{} & \xmark{} \\
+Taylor-Green Vortex~\cite{dumbser2016high} & \cmark{} & \xmark{} & \xmark{} & \xmark{} \\
+Lid Driven Cavity~\cite{fambri2017space} & \cmark{} & \xmark{} & \xmark{} & \cmark{} \\
+\textsc{ABC}-Flow~\cite{tavelli2016staggered} & \cmark{} & \xmark{} & \xmark{} & \xmark{} \\
+Two Bubbles~\cite{robert1993bubble,muller2010adaptive} & \xmark{} & \cmark{} & \xmark{} & \xmark{} \\
+Cosine Bubble~\cite{giraldo2008study} & \xmark{} & \cmark{} & \xmark{} & \xmark{} \\
+\textsc{CJ}-Detonation~\cite{helzel2000modified,hidalgo2011ader} & \xmark{} & \xmark{} & \cmark{} & \cmark{} \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table}%
+In this chapter, we introduce various scenarios that we will later use to to evalute the performance of our method.
+\Cref{tab:scenarios} shows an overview of our scenarios.
+They all have a different focus:
+\begin{itemize}
+\item The manufactured solution is an exact solution for our equation set and can be thus used to reliably evaluate the quality of our implementation.
+\item The Taylor-Green vortex, the \textsc{abc}-flow and the lid-driven cavity flow are standard \textsc{cfd} testing scenarios for which we have a reference result.
+\item The bubble scenarios are simple examples for flows over a realistic background atmosphere.  
+\item The \textsc{cj}-detonation wave uses the reactive advection term to model a detonation.
+\end{itemize}
+
+Unless otherwise noted, we use the constants
+\begin{equation}
+  \gamma = 1.4, \quad \Pr = 0.7, \quad c_v = 1.0.
+\end{equation}
+The other constants follow from the definition of \cref{eq:fluid-constants}.
+
+We describe some scenarios in terms of the primitive variables $(\Qrho, \Qv, \pressure)$, these can be converted to the conservative variables by the definition of momentum and the definition of energy.   
 
 \section{A Manufactured Solution}\label{sec:manufactured-solution}
-Following~\cite{dumbser2010arbitrary}, the scenario can be described in primitive variables by setting
-\begin{align}
+The compressible Navier Stokes equations have no interesting exact solution.
+This is why we follow the method of manufactured solutions~\cite{salari2000code} and create our own.
+Following~\cite{dumbser2010arbitrary}, we assume the solution in primitive variables
+\begin{align}\label{eq:manufactured-solution}
 \begin{split}
   \pressure(\bm{x}, t) &= \pressure_0 \cos( \bm{k} \bm{x} - \omega t ) + \pressure_b, \\
   \Qrho(\bm{x}, t) &= \Qrho_0 \sin (\bm{k} \bm{x} - \omega t) + \Qrho_b, \\
   \Qv(\bm{x}, t) &= \bm{v_0} \sin(\bm{k} \bm{x} - \omega t).
 \end{split}
 \end{align}
-We set the constants to \( \left(  \pressure_0 = 0.1, \pressure_b = \gamma^{-1}, \Qrho_0 = 0.5, \Qrho_b = 1, 
-\bm{v_0} = 0.25 {(1,1)}^\intercal, \bm{k} = \pi/5 {(1,1)}^\intercal \right) \).
+We set the constants
+\begin{equation}
+\begin{alignedat}{6}
+  & \pressure_u &&= \nicefrac{1}{10}, \qquad& \pressure_b &= \nicefrac{1}{\gamma}, \\
+  & \Qrho_0 &&= \nicefrac{1}{2}, \qquad& \Qrho_b &= 1, \\
+  & \bm{v_0} &&= \nicefrac{1}{4},
+  \begin{pmatrix}
+    1 \\
+    1
+  \end{pmatrix},
+  \qquad& \bm{k} &= \nicefrac{\pi}{5}
+  \begin{pmatrix}
+    1\\
+    1
+  \end{pmatrix},\\
+  & \omega &&= 2 \pi.
+  \end{alignedat}
+\end{equation}
+We derive a source term by inserting this solution into the \textsc{pde}~\pcref{eq:equation-set} by using the symbolic math toolkit \textit{Sage}~\cite{sagemath}.
+Our computation of the source term can be found at XXX\todo{Cite github repository with notebook!}.
+\Cref{eq:manufactured-solution} then solves our \pde{} combined with the derived source exactly.
 
-We derive a source term by inserting this solution into the \textsc{pde} by using the symbolic math toolkit \textit{Sage}~\cite{sagemath}.
-This procedure is called method of manufactured solutions~\cite{salari2000code}.
+Note that we only consider the compressible Navier Stokes equations here, without the reactive advection equation.
 
 \section{Classical Scenarios}
 In addition to the convergence test, we use standard \textsc{cfd} scenarios to evaluate our simulations.
 
-% \subsection{The first Stokes Problem}
-% \todo{Do I actually want to include this? Bit boring scenario}
-% \cite{dumbser2010arbitrary}
-
 \sidetitle{Taylor-Green Vortex}
 %\subsection{Taylor-Green Vortex}
 An interesting testing scenario is the Taylor-Green Vortex, which exhibits a complicated flow from a simple initial condition.
-It is an analytic solution for the incompressible Navier-Stokes equations which agree relatively well with our equation set at low Mach numbers.
+It is an analytic solution for the incompressible Navier-Stokes equations which agrees relatively well with our equation set at low Mach numbers.
 We can thus use it to evaluate the performance of our solver.
 The solution is
 \begin{align}
@@ -63,10 +84,10 @@ The solution is
   \Qrho(\bm{x}, t) &= 1\\
   \Qv(\bm{x}, t) &= \exp(-2 \mu t)
   \begin{pmatrix}
-    \phantom{-}\sin(x) cos(y) \\
-- \cos(x) sin(y) 
+    \phantom{-}\sin(x) \cos(y) \\
+- \cos(x) \sin(y) 
     \end{pmatrix} \\
-  \pressure(\bm{x}, t) &= \exp(-4 \mu t) \, \frac{1}{4} \left( \cos(2x) + \cos(2y) \right) + C
+  \pressure(\bm{x}, t) &= \exp(-4 \mu t) \, \nicefrac{1}{4} \left( \cos(2x) + \cos(2y) \right) + C
   \end{split}
 \end{align}
 where $C = 100/\gamma$ is a constant that governs the speed of sound and thus the Mach number~\cite{dumbser2016high}.
@@ -76,13 +97,13 @@ We use a viscosity of $\mu = 0.1$.
 
 \sidetitle{Lid-Driven Cavity Flow}
 %\subsection{Lid-Driven Cavity Flow}
-The lid-driven cavity flow is another very simple testing scenario for the Navier-Stokes equations.
+The lid-driven cavity flow is another simple testing scenario for the Navier-Stokes equations.
 The flow is driven entirely by the boundary conditions.
 They consist in four no-slip walls where the upper wall has a constant velocity $\Qv = (1.0, 0)$.
-We want to simulate a flow with a Mach number of $M = 0.1$ and a Reynolds number of $\text{Re} = 100$.
-This leads us to an initial conditions of
+We want to simulate a flow with a Mach number of $M = 0.1$ and a Reynolds number of $\text{Re} = 100$~\cite{fambri2017space}.
+This leads us to the constant initial conditions of
 \begin{align}
-  \label{eq:taylor-green}
+  \label{eq:lid-driven-cavity}
   \begin{split}
   \Qrho(\bm{x}) &= 1\\
   \Qv(\bm{x}) &=  \bm{0}\\
@@ -118,7 +139,7 @@ in the incompressible limit.
 Here, $C = \nicefrac{100}{\gamma}$ is an arbitrary constant.
 We use a viscosity of $\mu = 0.01$.
 
-\sidetitle{Radialsymmetric CJ Detonation Wave}
+\sidetitle{CJ Detonation Wave}
 We investigate the radialsymmetric CJ detonation wave scenario from~\cite{helzel2000modified}.
 This scenario for the reactive Navier Stokes equations is set up in a 2D box of size $[-1, 1] \times [-1, 1]$ surrounded by no-slip walls~\pcref{eq:no-slip}.
 We use the reactive source term~\pcref{eq:source-reaction,eq:reaction-model} and set the characteristic timescale to the non-stiff case $\reactionTimescale = 0.1$ and the threshold temperature to $\reactionTemperature = 0.26$.
@@ -145,18 +166,11 @@ where a subscript of $u$ and $b$ denotes the unburnt and burnt state respectivel
 Note that this scenario is radialsymmetric.
 
 Similar to~\cite{helzel2000modified}, we use the constants
-\begin{align}
-  \begin{split}
-  \gamma &= 1.4, \\
-  \Pr &= 0.75, \\
-  c_v &= 2.5, \\
-  c_p &= 3.5, \\
-  R &= 1.0.
-  \end{split}
-\end{align}
+\begin{equation}
+  \gamma = 1.4 ,\qquad \Pr = 0.75, \qquad c_v = 2.5 ,\qquad c_p = 3.5 ,\qquad R = 1.0.
+\end{equation}
 The Prandtl number is inspired from the viscous scenarios of~\cite{hidalgo2011ader}.
-We consider this scenario inviscid case and for a viscosity of $\mu = 0.01$.
-
+We consider this scenario for the inviscid case and also for a viscosity of $\mu = 0.01$.
 
 \section{Atmospheric Scenarios}
 The following scenarios are all described in terms of a pertubation of a balanced atmosphere.
@@ -182,7 +196,7 @@ To allow for an easier description of the initial conditions we split the $\potT
 
 The initial conditions for pressure and density can be computed directly from the \textsc{pde} once few assumptions have been given.
 We assume that $\backgroundPotT$ is constant over the entire domain.
-Inserting the definition of potential temperature, given by \cref{eq:potTToT}, into the equation of state (see \cref{eq:eos}) leads us to
+Inserting the definition of potential temperature, given by \cref{eq:potTToT}, into the equation of state~\pcref{eq:eos} leads us to
 \begin{equation}
   \pressure(z) = \Qrho(z) R {\left( \backgroundPotT \frac{p}{p_0}\right)}^{R/c_p},
 \end{equation}
@@ -207,8 +221,8 @@ Inserting this assumption in the momentum equation in $z$-direction and using \c
   p{\left (0 \right )} &= p_0
   \end{split}
 \end{align}
-where we use the reference pressure $p_0$ as the pressure on ground level\todo{Refer to hydrostatic balance eq.\ in methods chapter!\cref{eq:hydrostatic-balance}}.
-This \textsc{ode} can be solved by separation of variables.
+where we use the reference pressure $p_0$ as the pressure on ground level.
+This \textsc{ode} is the hydrostatic equilibrium (similar to \cref{eq:hydrostatic-balance}) in terms of the potential temperature and can be solved by seperation of variables.
 After simplifying, we obtain
 \begin{align}
   \label{eq:hydrostatic-background-pressure}
@@ -234,25 +248,20 @@ Finally, we compute the energy by inserting pressure and density into the equati
 This leaves us with one problem:
 The adiabatic free-slip boundary conditions defined by~\vref{eq:free-slip} are no longer valid.
 Concretely, we need to impose a viscous heat flux to ensure that the atmosphere stays in hydrostatic balance~\cite{giraldo2008study}
-\todo{Flux correct? Use viscFlux macro and energy subscript. Also only in z direction!}
 \begin{equation}
   \label{eq:atmosphere-bc}
-  F^\text{visc} = \kappa \pdv{\overline{T}}{z} =
+  \viscFlux_{\QE} = \kappa \pdv{\overline{T}}{z} =
 \kappa \frac{R \overline{\theta} \left(\frac{\overline{p}{\left (z \right )}}{p_{0}}\right)^{\frac{R}{c_{p}}} \frac{d}{d z} \overline{p}{\left (z \right )}}{c_{p} \overline{p}{\left (z \right )}}.
 \end{equation}
 The background pressure can be reconstructed by \cref{eq:hydrostatic-background-pressure}, its derivative is given by \cref{eq:hydrostatic-balance-potT}.
 We set the other parts of the viscous flux to zero.
 
+All scenarios use the gravitational source term~\pcref{eq:source-gravity} and the splitting of density and pressure~\pcref{eq:momentum-equation-split}.
 We use the following set of fluid dependent constants for these scenarios
-\begin{align}\label{eq:atmosphere-constants}
-  \begin{split}
-    \gamma &= 1.4, \\
-    \Pr &=  0.71, \\
-    R &= 287.058, \\
-    p_0 &= 10000,
-  \end{split}
-\end{align}
-the other constants are evaluated following \cref{eq:fluid-constants}.
+\begin{equation}\label{eq:atmosphere-constants}
+    \gamma = 1.4 ,\qquad \Pr =  0.71 ,\qquad R = 287.058 ,\qquad p_0 = 10000,
+\end{equation}
+the other constants are evaluated according to \cref{eq:fluid-constants}.
 The background pressure for these constants is depicted in \cref{fig:hydrostatic-p}.
 
 

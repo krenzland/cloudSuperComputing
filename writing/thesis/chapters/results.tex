@@ -1,8 +1,8 @@
 \chapter{Results}\label{chap:results}
 We discussed various scenarios in the previous chapter.
 In this chapter, we use them to gauge the quality of our numerical scheme.
-We start with a convergence test, followed by two standard testing scenarios.
-Next, we simulate two different cloud scenarios and check, whether our \amr{} criterion is useful.
+We start with a convergence test, followed by three standard testing scenarios.
+Next, we simulate two different cloud scenarios and check whether our \amr{} criterion is useful.
 
 \newcommand{\error}{\operatorname{Total-Error}}
 \section{Convergence Test}\label{sec:results-convergence}
@@ -73,7 +73,7 @@ This means, that we do not achieve the optimal theoretical order of convergence 
 In~\cite{dumbser2010arbitrary}, which use a similar numerical method and the same scenario, but a different grid, \citeauthor{dumbser2010arbitrary} achieves the optimal order for most polynomial orders.
 Some \textsc{dg}-methods of odd order only achieve a numerical convergence order of $N+\nicefrac{1}{2}$\todo{Odd polynomial order or convergence order?}.
 
-\section{Accurate CFD}
+\section{Accurate CFD}\label{sec:cfd}
 After we established that our scheme converges, we evaluate it using standard \textsc{cfd} testing scenarios that either have an analytical solution or for which we have a reference solution.
 % Show:
 % \begin{itemize}
@@ -163,7 +163,7 @@ They too agree with the reference solution of~\cite{ghia1982high}.
 Surprisingly, the limiter was not activated at all.
 We noticed that we need the limiter when we use a lower speed of sound and thus a flow with larger Mach number.
 
-\section{Accurate Clouds}
+\section{Accurate Clouds}\label{sec:results-cloud}
 We discussed the capabilities of our scheme regarding standard \textsc{cfd} testing scenario.
 In this section, we consider our bubble scenarios.
 \sidetitle{Cosine Bubble}
@@ -226,24 +226,45 @@ A possible source for this is that we use a different equation set than~\cite{mu
 While we use a general purpose set with small modifications for atmospheric flows, they use a equation set that is fully focussed on this scenario.
 Furthermore, we use the full Navier-Stokes viscous fluxes instead of an approximation.
 
+% \begin{figure}[p]
+%   \vspace*{-4.5cm}
+%   \thisfloatpagestyle{empty}
+%   \centering
+%   \begin{subfigure}{1\textwidth}
+%     \centering
+%     \includegraphics{thesis_two_bubbles_contour_collage.pdf}
+%   \end{subfigure}
+%   \vspace*{1cm}
+%   \begin{subfigure}[t]{1\textwidth}
+%     \centering
+%     \includegraphics[trim=0.0cm 0.0cm 0.0cm 0.0cm, clip, scale=1.2]{giraldo_results_two_bubbles}
+%   \end{subfigure}
+%   \caption{\label{fig:two-bubbles-contour}%
+%     Results for two bubble scenario.
+%     On the top is our, the bottom plots are taken from~\cite{muller2010adaptive}.
+%   Contour values for potential temperature pertubation are $-0.05, 0.05, 0.1, \ldots 0.45$.
+% }
+% \end{figure}
 \begin{figure}[p]
-  \vspace*{-4.5cm}
   \thisfloatpagestyle{empty}
   \centering
-  \begin{subfigure}{1\textwidth}
+  \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics{thesis_two_bubbles_contour_collage.pdf}
-  \end{subfigure}
-  \vspace*{1cm}
-  \begin{subfigure}[t]{1\textwidth}
+  \includegraphics[trim={0cm 0cm 6cm 0cm},clip]{thesis_two_bubbles_contour_collage_comparison} 
+  \caption{Our \amr{} solution.}
+  \end{subfigure}~%
+  \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics[trim=0.0cm 0.0cm 0.0cm 0.0cm, clip, scale=1.2]{giraldo_results_two_bubbles}
+  % Without z axis on right \includegraphics[trim={8.16cm 0cm 0cm 0cm},clip]{thesis_two_bubbles_contour_collage_comparison} 
+  \includegraphics[trim={7.4cm 0cm 0cm 0cm},clip]{thesis_two_bubbles_contour_collage_comparison} 
+  \caption{Reference solution from~\cite{muller2010adaptive}.}
   \end{subfigure}
   \caption{\label{fig:two-bubbles-contour}%
-    Results for two bubble scenario.
-    On the top is our, the bottom plots are taken from~\cite{muller2010adaptive}.
-  Contour values for potential temperature pertubation are $-0.05, 0.05, 0.1, \ldots 0.45$.
-}
+     Contours of the potential temperature for two bubble scenario.
+     On the left is our solution, the right plots are taken from~\cite{muller2010adaptive}.
+     We modified the arrangement of the reference plots and the placement of its axes. 
+   Contour values for potential temperature pertubation are $-0.05, 0.05, 0.1, \ldots 0.45$.
+  }
 \end{figure}
 
 \section{AMR vs Static Mesh}\label{sec:results-tts-amr}
@@ -269,13 +290,34 @@ This is why we only report an \amr{} run with one level of dynamic refinement.
 \end{figure}
 For both settings, we used an \aderdg{}-method of order $4$ and thus have a minimal effective resolution of ca.\ $\SI{3.09}{\m}$.
 The final result for the run with the fully refined mesh (\cref{fig:two-bubbles-noamr-contour}) looks identical to the \amr{} results (\cref{fig:two-bubbles-contour}) shown in the previous section.
+Note that the \amr{} criterion manages to track the bubble correctly~(\cref{fig:two-bubbles-amr-grid}) and is introduces only small errors~(\cref{fig:two-bubbles-amr-error})\todo{Increase font size a bit more}.
+
+\begin{figure}[htb]
+\centering
+\begin{subfigure}[t]{0.45\textwidth}
+    \centering
+    \includegraphics[width=1.0\textwidth]{thesis_two_bubbles_amr_grid} 
+    \caption{\label{fig:two-bubbles-amr-grid}%
+      Potential temperature of \amr{} solution.}
+\end{subfigure}\qquad%
+\begin{subfigure}[t]{0.45\textwidth}
+    \centering
+    \includegraphics[width=1.0\textwidth]{thesis_two_bubbles_amr_error} 
+    \caption{\label{fig:two-bubbles-amr-error}%
+      Potential temperature of fully refined solution minus \amr{} solution.}
+\end{subfigure}
+
+  \caption{%
+    \amr{}-grid at $t = \SI{700}{\s}$ for the two bubbles scenario.}
+\end{figure}
 
 \sidetitle{Time to solution test}
 We now want to compare the time to solution for both settings.
 To ensure a fair comparison, we ran both configurations with the same optimisation options:
 \begin{verbatim}
 "architecture": "hsw",
-"shared_memory": {
+"shared_memory": 
+
     "cores": 28,
     "background_job_consumers": 6,
     "properties_file": "sharedmemory.properties",
@@ -299,7 +341,6 @@ We solely used the \tbb{} parallelisation of \exahype{}.
 To find a reasonable parameter for the number of background job consumers, we ran a grid search.
 We ran three \amr{} testcases for a simulation time of $\SI{1}{\min}$.
 The testcases were identical in setting to the aforementioned \amr{} run, but with two levels of refinement.
-\todo{Is a plot necessary here?}
 The best median performance was achieved by using six background threads.
 Note that the results were noisy and it is unclear whether the chosen number of background threads is optimal.
 
@@ -307,8 +348,8 @@ The \amr{}-method took \SI{98654.1}{\s} (\SI{1}{\day} \SI{3}{\hour} \SI{24}{\min
 while the fully refined grid took \SI{169071}{\s} (\SI{1}{\day} \SI{22}{\hour} \SI{57}{\minute} \SI{51}{\s}).
 In other words, the latter method took over 71\% longer.
 
-To summarise, our \amr{} criterion saves a significant amount of computational effort while preserving the fine details of a fully refined grid.
-\section{Reactive Euler \textit{\&} Navier Stokes}
+To summarise, our \amr{} criterion saved a significant amount of computational effort while preserving the fine details of a fully refined grid.
+\section{Reactive Euler \textit{\&} Navier Stokes}\label{sec:results-reactive}
 As a final benchmark, we used the reactive Navier-Stokes equations.
 We used a limiting \aderdg{}-scheme with an order of 3.
 For runs without viscosity we used a meshsize of $81 \times 81$, for the runs with a viscosity of $\mu = 0.01$ we used a coarser mesh consisting in $27 \times 27$ cells.
@@ -359,7 +400,6 @@ We use $\Qrho, \pressure$ and $\QZZ$ as \textsc{dmp} variables.
     \includegraphics{thesis_detonation_ns_Z}
     \caption{$Z$, \textsc{NS}, no \textsc{dmp}}
   \end{subfigure}
-  
   \caption{\label{fig:detonation-line-plots}%
     Slices along the $x$-axis for our three configurations.
     We only show one half of the slice because the scenario is symmetric.
@@ -371,13 +411,14 @@ This is not the case for the Navier Stokes equations.
 This scenario shows the differences between the viscous Navier-Stokes equations and the Euler equations clearly:
 The viscous effects smooth out the otherwise sharp curves.
 
-Furthermore, they have the effect that fewer cells are limited~(\cref{fig:detonation-pressure-contour}).\todo{This is limiter status $\geq$ 3!}
+Furthermore, they have the effect that fewer cells are limited~(\cref{fig:detonation-pressure-contour}).
 Note that the limiter activation are not symmetric which is unexpected for a radial-symmetric scenario.
 The contours for pressure and mass fraction look similar for all considered settings.
 
 It is difficult to compare these results with our references, because they both use different settings.
 In constrast to~\cite{helzel2000modified} we use a non-stiff source term and viscous effects,~\cite{hidalgo2011ader} includes viscosity but is limited to one-dimensional scenarios.
-We can see that our simulation captures the overall behaviour of the reaction similar to~\cite{helzel2000modified} while the viscous effects have a similar smoothing effect as in~\cite{hidalgo2011ader}.
+Comparing with \cref{fig:detonation-contour-reference} we can see that our simulation captures the overall behaviour of the reaction similar to the stiff simulations of~\cite{helzel2000modified}.
+The viscous effects have a similar smoothing effect as in~\cite{hidalgo2011ader}.
 
 \begin{figure}[htb]
   \centering
@@ -397,6 +438,14 @@ We can see that our simulation captures the overall behaviour of the reaction si
     Red color indicates that a cell is limited.
   }
 \end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.33\textwidth]{leveque_detonation_mass_fraction}
+    \caption{\label{fig:detonation-contour-reference}Reference solution for mass fraction with stiff source.
+      Image taken from~\cite{helzel2000modified}.}
+\end{figure}
+
 
 %%% Local Variables:
 %%% mode: latex

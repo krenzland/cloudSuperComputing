@@ -1,20 +1,47 @@
 \chapter{Introduction}\label{chap:introduction}
-\todo{General boilerplate introduction (short), mention exahype}
+\sidetitle{Climate modeling}
+Simulations are an important part of weather and climate forecasts.
+Both types of forecasts are difficult problems that are not only limited by poor conditioning but also by lack of computational power.
+Especially in a time, where the realization of exascale supercomputers is imminent, scalable numericals model become more and more important.
+Current climate and weather models are not ready for the exascale era~\cite{schulthess2018reflecting}.
+While~\cite{schulthess2018reflecting} proposes the goal of a spatial resolution of $\SI{1}{\kilo\meter}$, simulations with resolution that is an order of magnitude coarser is the current state of the art.
+
+Of course, a finer grid is not useful, if the computational effort is too large.
+Thus, they also propose a compute rate of one simulated years per wall-clock day.
+An example of a recent supercomputing effort in this domain~\cite{fuhrer2018near} achieved a performance of 0.043 simulated years per wall-clock day with a resolution of $\SI{930}{\m}$ for a near-global simulation on the Piz Daint supercomputer.
+They used a \textsc{cosmo}-model which is based on a finite-difference approach.
+
+\sidetitle{Discontinuous Galerkin}
+The discontinuous Galerkin methods are an exciting numerical method as they are relatively easy to scale.
+In addition, they can be of high order and can perform local grid refinement~\cite{hesthaven2008nodal}.
+These advantages are only some reasons why they have been investigated for weather and climate modeling~\cite{muller2010adaptive,giraldo2008study}.
+Recently, the \ader{} discontinuous Galerkin method has been proposed by~\cite{dumbser2008unified}.
+This method is scalable and of arbitrary order in both time and space.
+With an appropiate limiter, it is also stable, even in the vicinity of discontinuities~\cite{dumbser2016simple}.
+It is thus a promising candidate for a numerical scheme for the exascale era.
+
+The goal of this thesis is to evaluate the \aderdg{} method for testing scenarios, which have been devised as benchmark examples for weather prediction~\cite{robert1993bubble,giraldo2008study}.
+We implement this with the \exahype{}-engine, which is \enquote{An Exascale Hyperbolic \pde{} Engine}.
 
 We make the following contributions:
 \begin{itemize}
-\item In \cref{sec:navier-stokes}, we describe a coupling of the compressible Navier-Stokes equations with an advection-diffusion-reaction term for two dimensional problems.
+\item In \cref{sec:navier-stokes}, we describe a coupling of the compressible Navier-Stokes equations for two and three dimensional problems.
+Furthermore, we adapt the equation set for scenarios with gravity.
+In addition, we present a coupling with an advection-reaction term.
 \item We describe an \aderdg{} (\cref{sec:ader-dg}) and \muscl{}-scheme (\cref{sec:muscl}) for problems with diffusive terms.
-  In addition, we describe a combination of both methods in \cref{sec:limiting}, where we use the \muscl{}-scheme in cases where the \aderdg{}-method is unstable.
-\item In \cref{sec:amr}, we introduce a mesh refinement methods that checks, whether the local cell is an outlier.
+  Moreover, we describe a combination of both methods in \cref{sec:limiting}, where we use the \muscl{}-scheme in cases where the \aderdg{}-method is unstable.
+\item In \cref{sec:amr}, we introduce an adaptive mesh refinement (\amr{}) method that checks, whether the local cell is an outlier.
   As indicator function we use the total variation of the discrete solution and as outlier detection we use the mean and standard variance of this function.
-  We evaluate the performance of this method using a time-to-solution test.
-\item We investigate the ability of our scheme to simulate classical fluid mechanics test scenarios correctly.
-  For this we use a convergence test with a manufactured solution, the Taylor-Green vortex ($2D$) and the \textsc{abc}-Flow ($3D$).
-\item We describe the simulation of flows with a background state that is in hydrostatic equilibrium.
-  This is useful for problems in atmospheric flow and for problems in meterology.
-  Furthermore, we evaluate our discretization for these scenarios using two scenarios that simulate rising bubbles.
-\item We evaluate the simulation of a \textsc{cj}-detonation wave that are a shock which originates from a chemical reaction.
+\item In \cref{chap:implementation} we show how we implemented our proposed method using the \exahype{}-engine.
+\item We present seven different scenarios in \cref{chap:scenarios}.
+\item We check the performance of our method in~\cref{chap:results}.
+  \begin{itemize}
+  \item In \cref{sec:results-convergence}, we perform a convergence test.
+  \item In~\cref{sec:cfd} we investigate the ability of our scheme to simulate classical fluid mechanics (\textsc{cfd}) test scenarios correctly.
+  \item We evaluate the simulation quality of atmospheric flows in \cref{sec:results-cloud}.
+  \item For these scenarios, we perform a time-to-solution test for our \amr{} strategy (\cref{sec:results-tts-amr}).
+  \item Finally, we evaluate the implementation of the reactive terms in \cref{sec:results-reactive}.
+\end{itemize}
 \end{itemize}
 
 %%% Local Variables:
