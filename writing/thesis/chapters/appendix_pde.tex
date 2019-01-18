@@ -1,95 +1,80 @@
-\chapter{PDE: Eigenvalues \textit{\&} Stuff}
-\todo{Make sure to reference this from the methods chapter!}
-In this appendix we collect the derivation of the two-dimensional eigenvalues and spatial derivatives of variables.
+\chapter{Details for Navier-Stokes Equations}\label{chap:appendix-pde}
+This appendix contains the Jacobians of the flux and the gradient of the temperature.
 We only present results for two-dimensions, the results for three-dimensions follow trivially.
-To simplify notation, we denote the unit vector pointing in $x$-direction by $e_x$ and the vector in $y$-direction by $e_y$.
+To simplify notation, we denote the unit vector pointing in $x$-direction by $\bm{e}_x$ and the vector in $z$-direction by $\bm{e}_z$.
 
-In $x$-direction:
-\begin{equation}
-\left( \partial \bm{F}/\partial \bm{Q}\right) \cdot e_x = \left(\begin{array}{rrrrr}
+The Jacobian of the hyperbolic flux~\cref{eq:hyper-flux} are in $x$ and $y$ direction:
+\begin{align}
+\begin{split}
+&\pdv{\flux}{\Q} \cdot \bm{e}_x = \\
+&\qquad \left(\begin{array}{rrrrr}
 0 & 1 & 0 & 0 & 0 \\
--\frac{1}{2} \, {\left(2 \, g y - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{y}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} - \frac{j_{x}^{2}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x}}{\rho} + \frac{2 \, j_{x}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{y}}{\rho} & \gamma - 1 & -{\left(\gamma - 1\right)} q_{0} \\
--\frac{j_{x} j_{y}}{\rho^{2}} & \frac{j_{y}}{\rho} & \frac{j_{x}}{\rho} & 0 & 0 \\
--\frac{{\left(2 \, g y - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{y}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} j_{x}}{2 \, \rho} - \frac{{\left(E + {\pressure}\right)} j_{x}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x}^{2}}{\rho^{2}} + \frac{E + {\pressure}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{x} j_{y}}{\rho^{2}} & \frac{\gamma j_{x}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{x} q_{0}}{\rho} \\
+-\frac{1}{2} \, {\left(2 \, g y - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{z}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} - \frac{j_{x}^{2}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x}}{\rho} + \frac{2 \, j_{x}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{z}}{\rho} & \gamma - 1 & -{\left(\gamma - 1\right)} q_{0} \\
+-\frac{j_{x} j_{z}}{\rho^{2}} & \frac{j_{z}}{\rho} & \frac{j_{x}}{\rho} & 0 & 0 \\
+-\frac{{\left(2 \, g y - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{z}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} j_{x}}{2 \, \rho} - \frac{{\left(E + {\pressure}\right)} j_{x}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x}^{2}}{\rho^{2}} + \frac{E + {\pressure}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{x} j_{z}}{\rho^{2}} & \frac{\gamma j_{x}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{x} q_{0}}{\rho} \\
 -\frac{Z j_{x}}{\rho^{2}} & \frac{Z}{\rho} & 0 & 0 & \frac{j_{x}}{\rho}
 \end{array}\right)
-\end{equation}
-In y-direction
-\begin{equation}
-\left( \partial \bm{F}/\partial \bm{Q}\right) \cdot e_y = \left(\begin{array}{rrrrr}
+\end{split},\\
+\begin{split}
+&\pdv{\flux}{\Q} \cdot \bm{e}_z = \\
+&\qquad \left(\begin{array}{rrrrr}
 0 & 0 & 1 & 0 & 0 \\
--\frac{j_{x} j_{y}}{\rho^{2}} & \frac{j_{y}}{\rho} & \frac{j_{x}}{\rho} & 0 & 0 \\
--\frac{1}{2} \, {\left(2 \, g y - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{y}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} - \frac{j_{y}^{2}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{y}}{\rho} + \frac{2 \, j_{y}}{\rho} & \gamma - 1 & -{\left(\gamma - 1\right)} q_{0} \\
--\frac{{\left(2 \, g y - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{y}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} j_{y}}{2 \, \rho} - \frac{{\left(E + {\pressure}\right)} j_{y}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x} j_{y}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{y}^{2}}{\rho^{2}} + \frac{E + {\pressure}}{\rho} & \frac{\gamma j_{y}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{y} q_{0}}{\rho} \\
--\frac{Z j_{y}}{\rho^{2}} & 0 & \frac{Z}{\rho} & 0 & \frac{j_{y}}{\rho}
+-\frac{j_{x} j_{z}}{\rho^{2}} & \frac{j_{z}}{\rho} & \frac{j_{x}}{\rho} & 0 & 0 \\
+-\frac{1}{2} \, {\left(2 \, g y - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{z}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} - \frac{j_{z}^{2}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{z}}{\rho} + \frac{2 \, j_{z}}{\rho} & \gamma - 1 & -{\left(\gamma - 1\right)} q_{0} \\
+-\frac{{\left(2 \, g y - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{z}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} j_{z}}{2 \, \rho} - \frac{{\left(E + {\pressure}\right)} j_{z}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x} j_{z}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{z}^{2}}{\rho^{2}} + \frac{E + {\pressure}}{\rho} & \frac{\gamma j_{z}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{z} q_{0}}{\rho} \\
+-\frac{Z j_{z}}{\rho^{2}} & 0 & \frac{Z}{\rho} & 0 & \frac{j_{z}}{\rho}
 \end{array}\right)
-\end{equation}
-
-
-% Viscous flux Jacobian
-% \newcommand{\bigelem}[1]{\text{\huge #1}}
-% \newcommand{\viscfluxjac}[5]{
-%   \left(
-%     \begin{array}{ccccc}
-%     #1                                    \\
-%       & #2            &   & \bigelem{0}\\
-%       &               & #3                \\
-%       & \bigelem{?} &   & #4            \\
-%       &               &   &   & #5
-%     \end{array}
-% \right)
-% }
-% \begin{equation}
-%   \left( \partial \bm{F}/\partial \left( \nabla \bm{Q} \cdot \normal \right)\right) \cdot \normal =
-% \viscfluxjac{-\frac{\gamma \mu}{\Pr \Qrho}}{2}{3}{4}{5}
-% \end{equation}
-% is a triangular matrix.
-% Hence eigenvalues can be read directly from the diagonal.
-The viscous flux jacobians are\todo{Maybe apply kappa def?}
-\begin{equation}
-\left( \partial \bm{F}/\partial \left( \nabla \bm{Q} \cdot \normal \right)\right) \cdot e_x =  \left(\begin{array}{rrrrr}
--\epsilon & 0 & 0 & 0 & 0 \\
+\end{split}
+\end{align}
+The Jacobians for the viscous flux are
+\begin{align}\label{eq:viscous-flux-jacobian}
+  \begin{split}
+  &\pdv{\flux}{\left( \gradQ \cdot \bm{e}_x \right)} \cdot \bm{e}_x  = \\
+  &\qquad
+\left(\begin{array}{rrrrr}
+0 & 0 & 0 & 0 & 0 \\
 \frac{4 \, \mu j_{x}}{3 \, \rho^{2}} & -\frac{4 \, \mu}{3 \, \rho} & 0 & 0 & 0 \\
-\frac{\mu j_{y}}{\rho^{2}} & 0 & -\frac{\mu}{\rho} & 0 & 0 \\
-l + \frac{4 \, \mu j_{x}^{2}}{3 \, \rho^{3}} + \frac{\mu j_{y}^{2}}{\rho^{3}} & \frac{{\left(\gamma - 1\right)} \kappa j_{x}}{R \rho^{2}} - \frac{4 \, \mu j_{x}}{3 \, \rho^{2}} & \frac{{\left(\gamma - 1\right)} \kappa j_{y}}{R \rho^{2}} - \frac{\mu j_{y}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} \kappa}{R \rho} & \frac{{\left(\gamma - 1\right)} \kappa q_{0}}{R \rho} \\
-0 & 0 & 0 & 0 & -\epsilon
+\frac{\mu j_{z}}{\rho^{2}} & 0 & -\frac{\mu}{\rho} & 0 & 0 \\
+l + \frac{4 \, \mu j_{x}^{2}}{3 \, \rho^{3}} + \frac{\mu j_{z}^{2}}{\rho^{3}} & \frac{{\left(\gamma - 1\right)} \kappa j_{x}}{R \rho^{2}} - \frac{4 \, \mu j_{x}}{3 \, \rho^{2}} & \frac{{\left(\gamma - 1\right)} \kappa j_{z}}{R \rho^{2}} - \frac{\mu j_{z}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} \kappa}{R \rho} & \frac{{\left(\gamma - 1\right)} \kappa q_{0}}{R \rho} \\
+0 & 0 & 0 & 0 & 0
 \end{array}\right)
-\end{equation}
-and
-\begin{equation}
-  \left(\begin{array}{rrrrr}
--\epsilon & 0 & 0 & 0 & 0 \\
+\end{split},\\
+\begin{split}
+  &\pdv{\flux}{\left( \gradQ \cdot \bm{e}_z \right)} \cdot \bm{e}_z  = \\
+  &\qquad
+\left(\begin{array}{rrrrr}
+0 & 0 & 0 & 0 & 0 \\
 \frac{\mu j_{x}}{\rho^{2}} & -\frac{\mu}{\rho} & 0 & 0 & 0 \\
-\frac{4 \, \mu j_{y}}{3 \, \rho^{2}} & 0 & -\frac{4 \, \mu}{3 \, \rho} & 0 & 0 \\
-l + \frac{\mu j_{x}^{2}}{\rho^{3}} + \frac{4 \, \mu j_{y}^{2}}{3 \, \rho^{3}} & \frac{{\left(\gamma - 1\right)} \kappa j_{x}}{R \rho^{2}} - \frac{\mu j_{x}}{\rho^{2}} & \frac{{\left(\gamma - 1\right)} \kappa j_{y}}{R \rho^{2}} - \frac{4 \, \mu j_{y}}{3 \, \rho^{2}} & -\frac{{\left(\gamma - 1\right)} \kappa}{R \rho} & \frac{{\left(\gamma - 1\right)} \kappa q_{0}}{R \rho} \\
-0 & 0 & 0 & 0 & -\epsilon
-\end{array}\right)
-\end{equation}
-where
-\begin{equation}
-l = \kappa {\left(\frac{{\left(2 \, g y \rho + q_{0} Z - E\right)} {\left(\gamma - 1\right)}}{R \rho^{2}} - \frac{{\left(2 \, g y \rho^{2} + 2 \, q_{0} Z \rho + j_{x}^{2} + j_{y}^{2} - 2 \, E \rho\right)} {\left(\gamma - 1\right)}}{R \rho^{3}}\right)}  
-\end{equation}
-.
+\frac{4 \, \mu j_{z}}{3 \, \rho^{2}} & 0 & -\frac{4 \, \mu}{3 \, \rho} & 0 & 0 \\
+l + \frac{\mu j_{x}^{2}}{\rho^{3}} + \frac{4 \, \mu j_{z}^{2}}{3 \, \rho^{3}} & \frac{{\left(\gamma - 1\right)} \kappa j_{x}}{R \rho^{2}} - \frac{\mu j_{x}}{\rho^{2}} & \frac{{\left(\gamma - 1\right)} \kappa j_{z}}{R \rho^{2}} - \frac{4 \, \mu j_{z}}{3 \, \rho^{2}} & -\frac{{\left(\gamma - 1\right)} \kappa}{R \rho} & \frac{{\left(\gamma - 1\right)} \kappa q_{0}}{R \rho} \\
+0 & 0 & 0 & 0 & 0        
+\end{array}\right),
+\end{split}\intertext{with}
+&l =
+\kappa {\left(\frac{{\left(2 \, g z \rho + q_{0} Z - E\right)} {\left(\gamma - 1\right)}}{R \rho^{2}} - \frac{{\left(2 \, g z \rho^{2} + 2 \, q_{0} Z \rho + j_{x}^{2} + j_{z}^{2} - 2 \, E \rho\right)} {\left(\gamma - 1\right)}}{R \rho^{3}}\right)}.
+\end{align}
 
-Heat flux\footnote{$a,b,c$ terms from personal communication with Michael Dumbser.}:
+The gradient of the temperature in conservative variables is\footnote{The form of terms $a,b,c$ are from personal communication with Michael Dumbser.}
 \newcommand{\Td}[1]{
   \frac{1}{c_v} \left(
   a \pdv{\rho}{#1} +
   b \pdv{j_x}{#1} +
-  c \pdv{j_y}{#1}
+  c \pdv{j_z}{#1}
  - q_0 \frac{{\rho \frac{\partial}{\partial #1}Z - Z \frac{\partial}{\partial #1}\rho}}{\rho^{2}} 
-\IfSubStr{#1}{y}{-g}{}
+\IfSubStr{#1}{z}{-g}{}
   \right)
-}
-
+}%
 \begin{align}
-  \begin{split}
-  a &=  -\frac{E}{\rho^{2}} + \frac{j_{x}^{2} + j_{y}^{2}}{\rho^{3}} \\
-  b &= -\frac{j_{x}}{\rho^{2}}\\
-  c &=-\frac{j_{y}}{\rho^{2}}\\
-  \pdv{T}{x} &= \Td{x}\\
-  \pdv{T}{y} &= \Td{y}
-  \end{split}
+\begin{split}
+  \pdv{T}{x} &= \Td{x},\\
+  \pdv{T}{z} &= \Td{z},
+\end{split}
+  \intertext{with}
+\begin{split}
+  a &=  -\frac{E}{\rho^{2}} + \frac{j_{x}^{2} + j_{z}^{2}}{\rho^{3}}, \\
+  b &= -\frac{j_{x}}{\rho^{2}},\\
+  c &=-\frac{j_{z}}{\rho^{2}}.\\
+\end{split}
 \end{align}
 %%% Local Variables:
 %%% mode: latex
