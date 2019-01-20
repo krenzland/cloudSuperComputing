@@ -271,6 +271,7 @@ S_{#1}
 \newcommand{\intdrefcell}[1]{\int_{\refCell} #1 \dd{\hat{\bm{x}}}}
 \newcommand{\intdcellb}[1]{\int_{\cellb} #1 \dd{S}} % TODO: define boundary of cell
 \newcommand{\intdrefcellb}[1]{\int_{\refCellb} #1 \hat{\dd{S}}} % TODO: define boundary of cell
+\newcommand{\intddomain}[1]{\int_{\domain} #1 \dd{\bm{x}}}
 
 % Yet to be sorted
 \newcommand{\quadWeight}[1][i]{w_{#1}}
@@ -288,6 +289,22 @@ S_{#1}
 \newcommand{\reactionTemperature}{T_{\text{ign}}}
 
 \newcommand{\tv}{\operatorname{TV}}
+
+\newcommand{\NVar}{N^{\text{var}}}
+\newcommand{\dimensions}{d}
+\newcommand{\mapping}{\mathcal{M}}
+\newcommand{\volume}{V}
+\newcommand{\cellCenter}{\operatorname{cell-center}}
+
+% MUSCL
+\newcommand{\cellAvg}[1][i,j]{\bm{U}_{#1}}
+\newcommand{\sign}{\operatorname{sign}}
+\newcommand{\minmod}{\operatorname{minmod}}
+\newcommand{\slope}[2][i,j]{\bm{s}^{#2}_{#1}}
+\newcommand{\gradCellAvg}[1][i,j]{\gradient{\cellAvg[#1]}}
+\newcommand{\fluxX}{\flux_x}
+\newcommand{\fluxY}{\flux_y}%
+
 
 %%% Local Variables:
 %%% mode: latex

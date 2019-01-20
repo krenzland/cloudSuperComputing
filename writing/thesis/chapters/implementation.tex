@@ -8,8 +8,8 @@ This is in contrast with a \enquote{developer} whose scope is the entirety of th
 The goal of our implementation is that all new features should be accesible to users as well.
 
 \section{ExaHyPE}
-\exahype\ is based on the space-filling-curves library \peano~\cite{weinzierl2011}.
-The workflow from the perspective of a user is
+\exahype{} is based on the space-filling-curves library \peano~\cite{weinzierl2011}.
+The workflow from the perspective of a user is:
 \begin{itemize}
 \item Generate glue-code using a \softwareName{Python}-based Toolkit that inserts parameters into templates.
   The parameters are configured in a setting file.
@@ -70,7 +70,7 @@ These changes are:
 \item Storing the extrapolated and time-averaged gradient for each cell for use in the boundary conditions and the corrector step.
 \item Using the gradient for the computation of the boundary conditions.
   They are defined in the file \fileName{boundaryConditions.cpph}.
-\item Adding the diffusive penalty terms for the Riemann solver (\fileName{riemannSolverNonlinear.cpph}) and \textsc{cfl}-condition (\fileName{stableTimeStepSize.cpph}).
+\item Adding the diffusive penalty terms for the Riemann solver\\(\fileName{riemannSolverNonlinear.cpph}) and \textsc{cfl}-condition (\fileName{stableTimeStepSize.cpph}).
   This corresponds to \cref{eq:rusanov-flux,eq:cfl-aderdg}.
 \item Computing the gradient for the \muscl{} scheme (\fileName{musclhancock.cpph}) and passing it to the flux (\fileName{rusanov.cpph}).
 \end{itemize}
@@ -82,7 +82,7 @@ The implementation of the global observables is quite simple.
 We use three functions that need to be defined by the user.
 They adhere to the interface:
 \begin{itemize}
-\item The function \funName{mapGlobalObservables} computes for a cell the observables from its degrees of freedoms and cell size.
+\item The function \funName{mapGlobalObservables} computes the observables for a cell from its degrees of freedoms and its size.
   It returns a vector of size $\ngobs$.
 \item The function \funName{reduceGlobalObservables} updates the current partially reduced vector of global observables \varName{reducedGlobalObservables} with another vector of partially reduced observables \varName{curGlobalObservables}.
 \item The function \funName{resetGlobalObservables} takes no arguments and returns a vector of size $\ngobs$.
@@ -110,28 +110,29 @@ Finally, \funName{reduceGlobalObservables} is implemented exactly as described i
 
 For the actual implementation, we follow \cref{alg:reduce-gobs} but include distributed and shared memory parallelization in the following way:
 \begin{itemize}
-\item Add vectors \varName{\_globalObservables} and \varName{\_nextGlobalObservables} to all solvers.
+\item Adding vectors \varName{\_globalObservables} and \varName{\_nextGlobalObservables} to all solvers.
   The former stores the observables of the previous timestep, the latter the ones of the current timestep.
-  We can thus use the old observables for mesh refinement and compute a new reduction concurrently.
+  We can thus use the old observables for mesh refinement and compute a new reduction at the same time.
   Before the first timestep, we reset both current and next observables.
   At the beginning of each timestep, we overwrite the previous data with the current data, and reset \varName{\_nextGlobalObservables} with \funName{resetGlobalObservables}.
-  This is done in the methods \funName{startNewTimeStep}, \funName{startNewTimeStepFused}, \funName{updateTimeStepSizesFused}, \funName{updateTimeStepSizes}.
-\item Reduce global observables in solver with method \funName{reduceGlobalObservables} that takes the \varName{cellInfo} and \varName{solverNumber}.
+  This is done in the methods \funName{startNewTimeStep}, \funName{startNewTimeStepFused}, \funName{updateTimeStepSizesFused} and \funName{updateTimeStepSizes}.
+\item Reducing global observables in solver with method \funName{reduceGlobalObservables} that takes a \varName{cellInfo} and a \varName{solverNumber}.
   The solver number is always 0 because we only use one solver at a given time.
-  The cell information stores pointers to the cell data for all solvers.
+  The cell information stores pointers to the degrees of freedoms.
   We implement this method for all solvers.
   This has the advantage that we have a shared interface for all solver types.
-\item Reduce global observables per node in the mappings \className{FinaliseMeshRefinement}, \className{FusedTimeStep}, \className{UpdateAndReduce}.
+\item Reducing global observables per node in the mappings \className{FinaliseMeshRefinement}, \className{FusedTimeStep} and \className{UpdateAndReduce}.
   \begin{itemize}
   \item We initialize the observables in the method \funName{beginIteration} with \funName{resetGlobalObservables}. 
   \item We reduce the observables in \funName{leaveCell} by calling the solver method \funName{reduceGlobalObservables} with the \varName{cellInfo} of the current cell as argument.
     For the mapping \className{UpdateAndReduce} this is done in the method \funName{enterCell} instead.
   \item If we use \tbb{}, we merge the partially reduced observables in \funName{mergeWithWorkerThread} with \funName{reduceGlobalObservables} using the current reduced observables and the partially reduced observables from the worker.
     This is not necessary for the mapping \className{FinaliseMeshRefinement}.
-   \item We update the global observables of the solver in the method \funName{endIteration}, which call the method \funName{updateG}.
+   \item We update the global observables of the solver in the method \funName{endIteration}, which calls the method \funName{updateGlobalObservables}.
   \end{itemize}
-\item If we use \mpi{}, we also need to reduce the observables over all ranks.
-  \exahype{} already reduces the timestep size, we extend these already existing \mpi{} messages to also include the global observables \varName{\_globalObservables}.
+\item Reducing the observables over all ranks, if using \mpi{}.
+  \exahype{} already reduces the timestep size.
+  We extend these already existing \mpi{} messages to also include the global observables \varName{\_globalObservables}.
   For this, we changed the following methods of the \dg{}-solver:
   \begin{itemize}
   \item \funName{compileMessageForMaster} and \funName{sendDataToMaster} to send data from the workers to the master rank.
@@ -140,7 +141,7 @@ For the actual implementation, we follow \cref{alg:reduce-gobs} but include dist
   \item \funName{mergeWithMasterData} to overwrite the current data of the workers with the reductions from the previous timestep.
   \end{itemize}
   The solvers update the variable \varName{\_nextGlobalObservables} during the \mpi{}-reduction.
-  Together with the aforementioned resetting of the observables, this again corresponds to \cref{alg:reduce-gobs}.
+  This again corresponds to \cref{alg:reduce-gobs} together with the aforementioned resetting of the observables, 
 \end{itemize}
 The global observables interface is defined for all solvers, the \mpi{}-reduction only for the \aderdg{}-solver.
 
