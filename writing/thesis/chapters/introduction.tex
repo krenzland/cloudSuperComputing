@@ -7,20 +7,20 @@ Current climate and weather models are not ready for the exascale era~\cite{schu
 While~\cite{schulthess2018reflecting} proposes a spatial resolution of $\SI{1}{\kilo\meter}$ as a goal, current state of the art simulations operate on a resolution that is an order of magnitude coarser.
 
 Of course, a finer grid is not useful if the computational effort is too large.
-Thus, also propose a compute rate of one simulated years per wall-clock day.
+Thus they propose a compute rate of one simulated years per wall-clock day.
 An example of a recent supercomputing effort in this domain~\cite{fuhrer2018near} achieved a performance of 0.043 simulated years per wall-clock day with a resolution of $\SI{930}{\m}$ for a near-global simulation on the Piz Daint supercomputer.
 They used the \textsc{cosmo} 5.0 model which is based on a finite-difference approach.
 
 \sidetitle{Discontinuous Galerkin}
-The discontinuous Galerkin (\dg{}) methods are an exciting numerical method as they are relatively easy to scale.
+The discontinuous Galerkin (\dg{}) methods are exciting numerical schemes as they are relatively easy to scale.
 In addition, they can be of high order and can perform local grid refinement~\cite{hesthaven2008nodal}.
 These advantages are only some reasons why they have been investigated for weather and climate modeling~\cite{muller2010adaptive,giraldo2008study}.
 Recently, \ader{} discontinuous Galerkin methods has been proposed, for example in~\cite{dumbser2008unified}.
-This method is scalable and of arbitrary order in both time and space.
-With an appropriate limiter, it is also stable, even in the vicinity of discontinuities~\cite{dumbser2016simple}.
-It is thus a promising candidate for a numerical scheme for the exascale era.
+These methods are scalable and of arbitrary order in both time and space.
+With an appropriate limiter, they are also stable, even in the vicinity of discontinuities~\cite{dumbser2016simple}.
+They are thus promising numerical methods, even for the exascale era.
 
-The goal of this thesis is to evaluate the \aderdg{} method for testing scenarios, which have been devised as benchmark examples for meteorological applications~\cite{robert1993bubble,giraldo2008study}.
+The goal of this thesis is to evaluate the \aderdg{} method of~\cite{dumbser2008unified} for testing scenarios, which have been devised as benchmark examples for meteorological applications~\cite{robert1993bubble,giraldo2008study}.
 We implement this with the \exahype{}-engine, which is \enquote{An Exascale Hyperbolic \pde{} Engine}.
 
 We make the following contributions:

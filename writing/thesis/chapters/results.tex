@@ -44,7 +44,7 @@ We then use these nodes to compute the approximation error per cell.
 
 For the limiting case of $p \to \infty$ we use the maximum of the point-wise error over all nodal points.
 
-\begin{table}[htb]
+\begin{table}[tb]
   \centering
 \caption{Numerical order of convergence of ADER-DG method}%
 \label{tab:convergence-order}
@@ -66,19 +66,19 @@ The size of the slope is then the convergence order.
 The plot for the $L_2$ error~(\cref{fig:convergence-l2-error}) shows that our method converges for all tested polynomial orders.
 Note that the error for the finest grid with order 6 is worse than the error for order 5.
 For all other mesh sizes and orders, a higher order implies a smaller error.
-Comparing our errors with the optimal order of convergence $N+1$, we notice that while our scheme exhibits the theoretical order of convergence of 2 for a polynomial order $N=1$, orders have diminishing returns.
+Comparing our errors with the optimal order of convergence $N+1$, we notice that while our scheme exhibits the theoretical order of convergence of 2 for a polynomial order $N=1$, larger orders exhibit diminishing returns.
 
 The same is true for other error norms (\cref{tab:convergence-order}).
 This means, that we do not achieve the optimal theoretical order of convergence in general.
-In~\cite{dumbser2010arbitrary}, which use a similar numerical method and the same scenario, but a different grid, \citeauthor{dumbser2010arbitrary} achieves the optimal order for most polynomial orders.
+In~\cite{dumbser2010arbitrary}, which uses a similar numerical method and the same scenario, but a different grid, \citeauthor{dumbser2010arbitrary} achieves the optimal order for most polynomial orders.
 Some \textsc{dg}-methods of even polynomial order only achieve a numerical convergence order of $N+\nicefrac{1}{2}$.
-The exact theoretical reason for this is unclear but it shares characteristics with the behavior of other \dg{}-schemes.
+The exact theoretical reason for this is unclear but this phenomenon is similar to the behavior of other \dg{}-schemes.
 We refer the interested reader to the discussion of error estimates for nonlinear problems and for multi-dimensional problems with \dg{}-schemes of~\cite{hesthaven2008nodal}.
 
-\section{Accurate CFD}\label{sec:cfd}
+\section{Simulation of CFD Scenarios}\label{sec:cfd}
 After we established that our scheme converges, we evaluate it using standard \textsc{cfd} testing scenarios that either have an analytical solution or for which we have a reference solution.
 
-\sidetitle{Taylor-Green Vortex}
+\sidetitle{Taylor-Green vortex}
 We used an \aderdg{}-scheme of order 5 with a mesh of size $27 \times 27$ cells to simulate the Taylor-Green Vortex~\pcref{eq:taylor-green}.
 The simulation ran for \SI{10}{\s}.
 Our solution resulted in the expected streamlines (\cref{fig:taylor-green-streamlines}).
@@ -92,7 +92,7 @@ Overall, we notice a very good agreement with both the analytical solution and t
   \centering
   \includegraphics[trim={0.0cm 0.0cm 0.5cm 0.5cm},clip]{thesis_taylor_green_stream}
   \caption{\label{fig:taylor-green-streamlines}%
-    Streamlines for Taylor-Green vortex}
+    Streamlines for Taylor-Green vortex at $t=\SI{10}{\s}$}
 \end{figure}
 
 \begin{figure}[htb]
@@ -108,20 +108,21 @@ Overall, we notice a very good agreement with both the analytical solution and t
     \caption{Position vs.\ pressure}
   \end{subfigure}
   \caption{\label{fig:taylor-green-result}%
-    Comparison of Taylor-Green simulation with analytical solution.
+    Comparison of Taylor-Green simulation with analytical solution~\pcref{eq:taylor-green} at $t=\SI{10}{\s}$.
     The former is represented by the scatter plot, the latter by the gray line.
     Note that we only show every 5th point.
-    The other variable of the slice is held at 0.}
+    The other variable of the slice is held constant at a value of zero.}
 \end{figure}
 
-\sidetitle{ABC Flow}
+\sidetitle{ABC-flow}
 \begin{figure}[htb]
   \centering
   \includegraphics{thesis_abc_flow_pressure}
   \caption{\label{fig:abc-result}%
-  Pressure for the \textsc{abc}-flow.
-  Each column represents a one-dimensional slice, all other coordinates are held constant at their median value.
-  We compare the analytical solution (gray line) with our approximation (scatter plot).
+  Pressure for the \textsc{abc}-flow at $t=\SI{1}{\s}$.
+  Each column represents a one-dimensional slice, all other coordinates are held constant at a value of zero.
+  We compare the analytical solution~\pcref{eq:abc-flow} with our approximation.
+  The former is represented by the gray line, the latter by the scatter plot.
   We only show every 4th point.}
 \end{figure}
 We used an \aderdg{}-scheme of order 2 with a mesh consisting of $27 \times 27 \times 27$ cells to simulate the \textsc{abc}-flow~\pcref{eq:abc-flow}.
@@ -129,7 +130,7 @@ We ran the simulation for \SI{1}{\s}.
 Our solution for the pressure shows an excellent agreement~(\cref{fig:abc-result}) with the analytical solution.
 We thus show that our implementation can also handle three-dimensional scenarios.
 
-\sidetitle{Lid-Driven Cavity}
+\sidetitle{Lid-driven cavity}
 \begin{figure}[htb]
   \centering
   \begin{subfigure}[t]{0.5\textwidth}
@@ -159,10 +160,10 @@ They too agree with the reference solution of~\cite{ghia1982high}.
 Surprisingly, the limiter was not activated at all.
 We noticed that we need the limiter when we use a lower speed of sound and thus have a flow with larger Mach number.
 
-\section{Accurate Clouds}\label{sec:results-cloud}
+\section{Simulation of Clouds}\label{sec:results-cloud}
 We discussed the capabilities of our scheme regarding standard \textsc{cfd} testing scenario.
 In this section, we consider our bubble scenarios.
-\sidetitle{Cosine Bubble}
+\sidetitle{Cosine bubble}
 \begin{figure}[htb]
   \centering
   \begin{subfigure}[t]{0.5\textwidth}
@@ -213,7 +214,7 @@ Despite the different parameters, the maximum perturbation and its position matc
   }
 \end{figure}
 
-\sidetitle{Two Bubbles}
+\sidetitle{Two bubbles}
 We ran the second scenario, the two bubbles scenario~\pcref{eq:bubbles-values}, with the same \amr{} settings as the first one.
 The results in (\cref{fig:two-bubbles-contour}) are comparable to the reference solution~\cite{muller2010adaptive} for the first seven minutes.
 Note that the final plot at \SI{7}{\min} looks different in our simulation.
@@ -244,11 +245,11 @@ Furthermore, we use the full Navier-Stokes viscous fluxes instead of an approxim
   }
 \end{figure}
 
-\section{AMR vs Static Mesh}\label{sec:results-tts-amr}
+\section{AMR vs.\ Static Mesh}\label{sec:results-tts-amr}
 To show the effectiveness of the \amr{} criterion, we compare the two settings:
 \begin{description}
 \item[AMR] We used a coarse mesh with just $27 \times 27$ cells.
-  Each could can be refined once.
+  Each could be refined once.
   That is, the cells had side lengths of roughly \SI{37.04}{\m} and  \SI{12.35}{\m}.
   As refinement thresholds we used $T_\text{refine} = 2.5$ and $T_\text{delete} = -0.5$ in \cref{eq:refinement-criterion}.
   They are the exact same settings that we used for the bubble scenarios in the previous section.
@@ -308,7 +309,7 @@ To ensure a fair comparison, we ran both configurations with the same optimizati
 }
 \end{verbatim}
 We ran the simulation without plotters to focus on the performance of the numerics and the mesh refinement routines.
-We used a single node Supermuc Phase 2.
+We used a single node of the Supermuc Phase 2.
 The node has two Intel® Haswell Xeon Processor E5-2697 v3 \textsc{cpu}s with 14 cores each.
 Both \textsc{cpu}s ran at a frequency of $\SI{1.8}{\GHz}$.
 
@@ -316,7 +317,7 @@ We solely used the \tbb{} parallelization of \exahype{}.
 To find a reasonable parameter for the number of background job consumers, we ran a grid search.
 We ran three \amr{} test cases for a simulation time of $\SI{1}{\min}$.
 The test cases were identical in setting to the aforementioned \amr{} run, but with two levels of refinement.
-The best median performance was achieved by using six background threads.
+The best median performance was achieved with six background threads.
 Note that the results were noisy and it is unclear whether the chosen number of background threads is optimal.
 
 The \amr{}-run took \SI{98654}{\s} (\SI{1}{\day} \SI{3}{\hour} \SI{24}{\minute} \SI{14}{\s})
@@ -325,8 +326,8 @@ In other words, the latter method took over 71\% longer.
 
 To summarize, our \amr{} criterion saved a significant amount of computational effort while preserving the fine details of a fully refined grid.
 
-\section{Reactive Euler \textit{\&} Navier Stokes}\label{sec:results-reactive}
-As a final benchmark, we used the \textsc{cj}-detonation wave~\pcref{eq:cj-detonation} to evaluate the reactive Navier-Stokes equations.
+\section{Simulation of Reactive Detonation Waves}\label{sec:results-reactive}
+As a final benchmark, we used the \textsc{cj} detonation wave~\pcref{eq:cj-detonation} to evaluate the reactive Navier-Stokes equations.
 We used a limiting \aderdg{}-scheme with an order of 3.
 For runs without viscosity we used a mesh size of $81 \times 81$, for the runs with a viscosity of $\mu = 0.01$ we used a coarser mesh consisting in $27 \times 27$ cells.
 We chose the smaller grid because our boundary conditions became unstable for finer grids.
@@ -343,7 +344,7 @@ For some runs, we used the \textsc{dmp} settings
 where the \texttt{dmp\_relaxation\_parameter} refers to $\varepsilon_0$ and \texttt{dmp\_difference\_scaling} refers to $\varepsilon$ in \cref{eq:limiting-dmp}.
 The large value of $\varepsilon_0 = 0.05$ is necessary, as otherwise the full domain is refined.
 We use $\Qrho, \pressure$ and $\QZZ$ as \textsc{dmp} variables.
-\begin{figure}[tb]
+\begin{figure}[t]
   \centering
   \begin{subfigure}[t]{0.3\textwidth}
     \centering
@@ -383,21 +384,20 @@ We use $\Qrho, \pressure$ and $\QZZ$ as \textsc{dmp} variables.
   }
 \end{figure}
 The results for runs with and without \textsc{dmp} can be seen in \cref{fig:detonation-line-plots}.
-Note, that oscillations appeared for the Euler equations unless we use the \textsc{dmp}-criterion.
+Note, that oscillations appeared for the Euler equations without the \textsc{dmp}-criterion.
 This is not the case for the Navier Stokes equations.
 
 This scenario shows the differences between the viscous Navier-Stokes equations and the Euler equations clearly:
 The viscous effects smooth out the otherwise sharp curves.
 Furthermore, they have the effect that fewer cells are limited~(\cref{fig:detonation-pressure-contour}).
-Note that the limiter activation are not symmetric which is unexpected for a radial-symmetric scenario.
+Note that the limiter activation are not symmetric which is unexpected for a radialsymmetric scenario.
 The contours for pressure and mass fraction look similar for all considered settings.
 
 It is difficult to compare these results with our references because they both use different settings.
 In contrast to~\cite{helzel2000modified} we use a non-stiff source term and viscous effects; \cite{hidalgo2011ader} includes viscosity but is limited to one-dimensional scenarios.
 Comparing with \cref{fig:detonation-contour-reference} we can see that our simulation captures the overall behavior of the reaction similar to the stiff simulations of~\cite{helzel2000modified}.
 The viscous effects have a similar smoothing effect as in~\cite{hidalgo2011ader}.
-
-\begin{figure}[htb]
+\begin{figure}[htb!]
   \centering
   \begin{subfigure}[t]{1.0\textwidth}
     \centering
@@ -415,9 +415,9 @@ The viscous effects have a similar smoothing effect as in~\cite{hidalgo2011ader}
     Red color indicates that a cell is limited.
   }
 \end{figure}
-\begin{figure}[H]
+\begin{figure}[htb]
     \centering
-    \includegraphics[width=0.3\textwidth]{leveque_detonation_mass_fraction}
+    \includegraphics[width=0.4\textwidth]{leveque_detonation_mass_fraction}
     \caption{\label{fig:detonation-contour-reference}Reference solution for mass fraction with stiff source.
       Image taken from~\cite{helzel2000modified}.}
 \end{figure}

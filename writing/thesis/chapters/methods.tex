@@ -1,5 +1,5 @@
 % TODO: Extract to settings
-\chapter{An ADER-DG scheme for the Navier-Stokes Equations}\label{chap:methods}
+\chapter{An ADER-DG Scheme for the Navier-Stokes Equations}\label{chap:methods}
 This chapter describes the numerical and physical background that is needed to simulate reacting fluids with high accuracy.
 We start with a description of the arbitrary high order derivatives (\ader{}) discontinuous Galerkin (\dg{}) method, with a focus on equations that contain both advective and diffusive terms.
 We then segue into a short description of the \muscl{} scheme, which is a second order finite volume method.
@@ -81,6 +81,7 @@ We split the flux into a hyperbolic $\hyperFlux(\Q)$ and a viscous part $\viscFl
   \flux(\Q, \gradQ) = \hyperFlux(\Q) + \viscFlux(\Q, \gradQ).
 \end{equation}
 
+\sidetitle{Hyperbolic flux}
 The hyperbolic flux is given by
 \begin{equation}
   \label{eq:hyper-flux}
@@ -93,8 +94,7 @@ The pressure $\pressure$ is given by the equation of state of an ideal reacting 
   \label{eq:eos}
   \pressure = (\gamma - 1) \left(\QE - \frac{1}{2} \left(\Qv \cdot \Qj \right)  - q_0 \QZ - gz \right).
 \end{equation}
-The term $q_0 \QZ$ is the chemical energy with a heat release $q_0$~\cite{helzel2000modified}, the term $gz$ is the geopotential height~\cite{giraldo2008study}.
-We set $g$ to 9.81.
+The term $q_0 \QZ$ is the chemical energy with a heat release $q_0$~\cite{helzel2000modified}, the term $gz$ is the geopotential height with the gravity of Earth $g$~\cite{giraldo2008study}.
 The pressure is related to the temperature $T$ by the thermal equation of state
 \begin{equation}
   \label{eq:temperature}
@@ -102,6 +102,7 @@ The pressure is related to the temperature $T$ by the thermal equation of state
 \end{equation}
 where $R$ is the specific gas constant of a fluid.
 
+\sidetitle{Viscous flux}
 The viscous flux is
 \begin{equation}
   \label{eq:visc-flux}
@@ -124,9 +125,9 @@ These constants are all fluid dependent and relate to each other~\cite{dumbser20
 \begin{align}
   \label{eq:fluid-constants}
   \begin{split}
-  c_v &= \frac{1}{\gamma - 1} R \\
-  c_p &= \frac{\gamma}{\gamma - 1} R\\
-  R &= c_p - c_v\\
+  c_v &= \frac{1}{\gamma - 1} R, \\
+  c_p &= \frac{\gamma}{\gamma - 1} R,\\
+  R &= c_p - c_v,\\
   \gamma &= \frac{c_p}{c_v}.
   \end{split}
 \end{align}
@@ -149,6 +150,7 @@ The maximal absolute eigenvalues for the normal Jacobians of both convective and
 with velocity in direction of the normal $\Qv_{\normal}$ and speed of sound $c = \sqrt{\gamma R T }$.
 The Jacobians of both fluxes can be found in \cref{chap:appendix-pde}.
 
+\sidetitle{Gravity}
 We also support two different kind of optional source terms.
 The first source term is gravity, given by
 \begin{equation}\label{eq:source-gravity}
@@ -193,12 +195,14 @@ This form of the equation is inspired by equation set 3 of~\cite{giraldo2008stud
 They additionally use a splitting of the energy and use the perturbations directly as conservative variables.
 %We do not use this to simplify the implementation of gradients.
 
+\sidetitle{Chemical reactions}
 The chemical reactive source term is
 \begin{equation}\label{eq:source-reaction}
   \source[\QZ] = - K(T) \QZ.
 \end{equation}
 We use the simple reaction model
 \begin{equation}\label{eq:reaction-model}
+  K(T) = 
 \begin{cases}
   - \frac{1}{\reactionTimescale} & T > \reactionTemperature\\
   0 & \text{otherwise}
@@ -273,7 +277,8 @@ For each cell we denote its center by $\cellCenter (\cell)$ and its size by $\De
 
 The \aderdg{}-scheme is a predictor-corrector method.
 We first compute a local time evolution of each cell in a predictor step and then add the influence of the neighbors in the corrector step.
-\sidetitle{Reference Cell}
+
+\sidetitle{Reference cell}
 For reasons of computational efficiency, we describe the scheme in terms of a reference cell.
 We use the quad cell $\hat{\cell} = (0, 1)^\dimensions$ as space reference cell.
 The mapping, which takes a point on the reference cell with coordinates $\hat{\bm{x}}$ and and returns its coordinates $\bm{x}$ in a grid cell $\cell$ is
@@ -292,7 +297,7 @@ The mapping, which takes a point on the reference cell with coordinates $\hat{\b
   \end{pmatrix}.
 \end{equation}
 The symbol $\mapping^{-1}$ denotes the inverse mapping.
-It can be used to define a function $f(\bm{x})$ acting on a point $\hat{\bm{x}}$ of a regular cell in terms of a function $\hat{f}(\bm{x})$ that acts on the corresponding point of the reference cell by the relation
+It can be used to define a function $f(\bm{x})$ acting on a point $\bm{x}$ of a regular cell in terms of a function $\hat{f}(\bm{x})$ that acts on the corresponding point of the reference cell by the relation
 \begin{equation}
   \label{eq:function-ref-cell}
   f(\bm{x}) = f\left( \mapping^{-1}(\bm{x}) \right) = \hat{f}(\hat{\bm{x}}).
@@ -313,7 +318,6 @@ The Jacobian determinant of $\mapping$ is simply the volume $V$ of the cell
   \volume = \operatorname{det}(\operatorname{Jacobian}\mapping) = \Delta x \, \Delta y \,\Delta z,
 \end{equation}
 the Jacobian determinant of $\timeMapping$ is $\Delta t$.
-\todo{Similarly -> as well as?}
 This is useful for evaluating derivatives by the chain rule and, similarly, integrals by substitution.
 For example, we can evaluate a volume integral over a cell by
 \begin{equation}
@@ -326,7 +330,8 @@ f(\bm{x})
     \hat{f}(\hat{\bm{x}})
   }.
 \end{equation}
-\sidetitle{Basis Functions}
+
+\sidetitle{Basis functions}
 The next step is the definition of basis functions for our cells.
 We use Lagrange polynomials that are defined in the one-dimensional case for the reference interval $(0,1)$ by
 \begin{align}
@@ -336,7 +341,7 @@ We use Lagrange polynomials that are defined in the one-dimensional case for the
 We can then approximate functions as a sum over the support points $\quadNode[j]$
 \begin{equation}
   \label{eq:langrange-expansion-1d}
-  f(x) = \sum_{i = 0}^N f(x_i) \lagrangeRef[i](x) = f(x_i) \lagrangeRef[i](x),
+  f(x) = \sum_{i = 0}^N f(\quadNode[i]) \lagrangeRef[i](x) = f(\quadNode[i]) \lagrangeRef[i](x),
 \end{equation}
 where we used the Einstein summation convention which implies summation over repeated free indices.
 This convention is used from here on.
@@ -347,17 +352,16 @@ The support points $\quadNode[i]$ are chosen such that they coincide with the no
 \end{equation}
 where $\quadWeight[i]$ is the quadrature weight corresponding to the node $\quadNode[i]$.
 
-The basis functions are similarly defined in $\dimensions$-dimensions by considering nodes that are the tensor-products of $d$ one-dimensional Gauss-Legendre quadrature nodes.
-They are indexed by a multi-index $n = (n_1, \ldots, n_\dimensions)$
+The basis functions are similarly defined in $\dimensions$-dimensions by considering nodes that are the tensor-products of $d$ one-dimensional Gauss-Legendre quadrature nodes
 \begin{equation}
   \label{eq:basis-space}
-  \sbasisRef[][n] (\bm{x}) = \prod_{i=0}^{\dimensions} \lagrangeRef[n_i] (x_i)
+  \sbasisRef[][n] (\bm{x}) = \prod_{i=0}^{\dimensions} \lagrangeRef[n_i] (x_i).
 \end{equation}
-that is linearized such that $n = (0, \ldots, \sbasisSize)$.
+They are indexed by a multi-index $\bm{n} = (n_1, \ldots, n_\dimensions)$ that is linearized such that $n = (0, \ldots, \sbasisSize)$.
 A $d$-dimensional function is then approximated by
 \begin{equation}
   \label{eq:lagrange-expansion}
-  f(\bm{x}) = \sum_{i = 0}^{\sbasisSize - 1} f(\bm{x}_i) \lagrangeRef[i](\bm{x}) = f(\bm{x}_i) \lagrangeRef[i](\bm{x}).
+  f(\bm{x}) = \sum_{i = 0}^{\sbasisSize - 1} f(\quadNodeNd[i]) \lagrangeRef[i](\bm{x}) = f(\quadNodeNd[i]) \lagrangeRef[i](\bm{x}).
 \end{equation}
 Similarly to the one-dimensional case, we can evaluate integrals by
 \begin{align}
@@ -392,7 +396,8 @@ Two important properties of this family of polynomials are
       \end{cases}.
 \end{equation}
 
-We define the basis functions over a space-cell with an index $n = 0, \ldots, \sbasisSize - 1$
+\sidetitle{Cell basis}
+We define the basis functions over a space-cell with an index $n = 0, \ldots, \sbasisSize - 1$ as
 \begin{align}\label{eq:space-basis}
   \begin{split}
   \sbasis[][n] (\bm{x}) &= \sbasisRef[][n] \left( \mapping^{-1}(\bm{x}) \right).
@@ -450,7 +455,7 @@ The coefficients correspond to the quantity evaluated at the basis node, due to 
 \sidetitle{Predictor}
 We are now ready to derive the predictor.
 We first multiply the conservation law by a test function of the same function space as the basis, integrate over a space-time-element $\cell$ and replace all terms with their discrete approximations.
-In particular, we replace the vector of conservative variables $\Q$ with the space-time predictor $\stpredictor[\cell]$.
+In particular, we replace the vector of conservative variables $\Q$ with the space-time predictor $\stpredictor[\cell]$ and arrive at
 \begin{align}\label{eq:weak-pde-space-time}
 \begin{split}
 \intdt{\intdcell{
@@ -498,7 +503,7 @@ The cell-local scheme is then
 \\&+
 \intdt{\intdcell{
     \sttestfunction[][v,l,n] (t) \stsource(\stpredictor[i])
-}}.
+}}.\raisetag{0.8cm}
 \end{split}
 \end{align}
 Here, we introduced the iteration counter $i$ as a subscript for the space-time predictor.
@@ -582,20 +587,23 @@ We use the extrapolated values later for the Riemann solver and for the reconstr
 The final step of the \aderdg{}-scheme is the corrector.
 We multiply the system \cref{eq:conservation-law-gradient} by a space test function and integrate over the space-time control volume.
 This results, yet again, in the weak formulation of the \pde{}
-\begin{equation}
+\begin{align}
+  \begin{split}
   \label{eq:weak-pde}
 \intdt{\intdcell{
 \stestfunction[][v,n] \pdv{\Q}{t}
 }}
-+
+&+
 \intdt{\intdcell{
-    \stestfunction[][v,n] \left( \div{F(\Q, \gradQ } \right)
+    \stestfunction[][v,n] \left( \div{\flux(\Q, \gradQ } \right)
 }}
-=
+\\&=
 \intdt{\intdcell{
-    \stestfunction[][v,n] S(\Q, \bm{x}, t)
+    \stestfunction[][v,n] \source(\Q, \bm{x}, t)
 }}.
-\end{equation}
+  \end{split}
+\end{align}
+
 We now insert our discrete approximations and apply the space-basis expansion~\pcref{eq:cell-approx-space} to the discrete solution.
 The first term can be integrated by parts in time.
 This has the convenient result that only the boundary terms remain because the basis is constant in time.
@@ -623,7 +631,7 @@ Finally, we need to solve
 \left(\intdt{\intdcell{
       \stestfunction[][v,n] \stsource(\spredictor)
 }}\right)
-\end{split}
+\end{split}\raisetag{0.8cm}
 \end{align}
 for the coefficients $\ssolCoeff[\nextTime][v,n]$ of the new solution.
 Here the superscripts $\pm$ denote values that are extrapolated to the boundaries.
@@ -721,7 +729,7 @@ We use this constant for both hyperbolic and diffusive penalty terms to ensure s
 For a more detailed and rigorous stability analysis of the Riemann solver, see~\cite{gassner2008discontinuous}.
 We use a value of $0.7$ for the constant $\text{CFL}$.
 
-\section{MUSCL-Hancock Finite Volume Scheme}\label{sec:muscl}
+\section{The MUSCL-Hancock Scheme}\label{sec:muscl}
 We discussed a modern, high-order \dg{} method in the previous chapter.
 While this scheme is efficient, it can become unstable, especially in case of discontinuities.
 A simple alternative is a finite volume scheme.
@@ -733,7 +741,7 @@ In contrast to the previous \dg{} scheme, we now only store averages instead of 
 We achieve higher order by reconstructing a linear function from a cell and its neighbors.
 Let $\cellAvg$ denote the averages per cell at spatial coordinates $i,j$.
 
-\sidetitle{Boundary Extrapolated Values}
+\sidetitle{Boundary extrapolated values}
 We first compute the slope of the linear function connecting the cells.
 We use the minmod slope-limiter
 \begin{equation}
@@ -772,7 +780,7 @@ We also use the slopes defined in \cref{eq:slopes} to estimate the gradient of $
   \gradCellAvg = \left( \slope{x} \bigg\rvert \slope{y} \right),
 \end{equation}
 which is of course an abuse of notation insofar as it is not the gradient of the constant cell value but rather of the linear reconstruction \pcref{eq:slopes}.
-\sidetitle{Time Evolution}
+\sidetitle{Time evolution}
 To achieve second order in time, we evolve the boundary extrapolated values
 \begin{equation}\label{eq:muscl-time-evolution}
   \begin{split}
@@ -828,13 +836,13 @@ with a constant value of $\text{CFL} = 0.9$.
 For reasons of simplicity, we only prescribe the solution at the boundary and then estimate the gradient with \cref{eq:muscl-gradient}.
 This has the effect that the scheme becomes unstable in the case of strong viscous effect next to the boundaries.
 
-\section{Adaptive Mesh Refinement \textit{\&} Finite Volume Limiting}\label{sec:grid}
+\section{Finite Volume Limiting \textit{\&} Adaptive Mesh Refinement}\label{sec:grid}
 This section is concerned with two different but related concepts:
 finite volume limiting and adaptive mesh refinement.
 Both have in common that they change the structure of the grid.
 Instead of a regular grid where each cell has the same size, we now have different cell sizes and even different numerical schemes.
 
-\subsection{Limiting}\label{sec:limiting}
+\subsection{Finite Volume Limiting}\label{sec:limiting}
 Higher order \textsc{dg} methods cannot cope with discontinuous solutions.
 Even worse, in the case of non-linear fluxes, discontinuities can appear even from smooth initial data.
 In addition, oscillations stemming from the high-order polynomial approximation can lead to wrong or unphysical data.
@@ -882,13 +890,13 @@ In our case we use the \muscl{}-method (\cref{sec:muscl}).
 The recomputation starts by subdividing the infringing cell into $N_s = 2N + 1$ sub-cells.
 This number of sub-cells has the advantage that we do not lose spatial resolution and that we can use the same timestep size for both cell types.
 The reason for this is that the \textsc{cfl}-conditions for both schemes \pcref{eq:cfl-aderdg,eq:cfl-muscl} coincide for our choice of $N_s$.
+\Cref{fig:limiting-subcells} depicts the mapping from \dg{}-cells to finite volume sub-cells.
+For the sake of brevity, we omit technical details and refer the interested reader to~\cite{dumbser2016simple}.
 \begin{figure}[htb]
   \centering
   \includegraphics{thesis_aderdg_subcell_grid}
   \caption{\label{fig:limiting-subcells}Conversion from \dg{} degrees of freedoms to finite volume degree of freedoms. Image taken from~\cite{dumbser2018conformal}. We changed the typeface of the figure.}
 \end{figure}
-\Cref{fig:limiting-subcells} depicts the mapping from \dg{}-cells to finite volume sub-cells.
-For the sake of brevity, we omit technical details and refer the interested reader to~\cite{dumbser2016simple}.
 
 \subsection{Adaptive Mesh Refinement}\label{sec:amr}
 The goal of adaptive mesh refinement (\amr{}) is to increase the computational efficiency by using a coarse spatial resolution in areas with low information content and a higher resolution in areas of interest.
@@ -897,6 +905,7 @@ Of course, the difficult part is recognizing interesting areas.
 We use a global, gradient based refinement strategy.
 We first describe the computation of our indicator variable and then describe a simple way how one can detect outliers.
 
+\sidetitle{Total variation}
 Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a function that maps the discrete solution of a cell to an arbitrary indicator variable.
 We assume that $\bm{f}$ is expanded in the space-basis \pcref{eq:cell-approx-space}.
 The total variation (\textsc{tv}) of this function is defined by
@@ -917,6 +926,7 @@ This integral can be evaluated efficiently on the reference cell \pcref{eq:space
 \newcommand{\variance}{\std^2}
 \newcommand{\gobsCount}{n}
 \newcommand{\sampleVariance}{\overline{\variance}}
+\sidetitle{Outliers}
 A simple way of determining outliers is to compute the mean and standard deviation for a set.
 Any value that differs by a certain multitude of the standard deviation from the mean can be marked as an outlier.
 We thus want to compute the mean and variance over all grid cells.

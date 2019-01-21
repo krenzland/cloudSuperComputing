@@ -6,13 +6,13 @@
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
 {Name} & {Analytic Solution} & {Gravity} & {Coupling} & {Limiting}\\ \midrule
-Manufactured Solution~\cite{dumbser2010arbitrary} & \cmark{} & \xmark{} & \xmark{} & \xmark{} \\
-Taylor-Green Vortex~\cite{dumbser2016high} & \cmark{} & \xmark{} & \xmark{} & \xmark{} \\
-\textsc{ABC}-Flow~\cite{tavelli2016staggered} & \cmark{} & \xmark{} & \xmark{} & \xmark{} \\
-Lid Driven Cavity~\cite{fambri2017space} & \xmark{} & \xmark{} & \xmark{} & \cmark{} \\
-Cosine Bubble~\cite{giraldo2008study} & \xmark{} & \cmark{} & \xmark{} & \xmark{} \\
-Two Bubbles~\cite{robert1993bubble,muller2010adaptive} & \xmark{} & \cmark{} & \xmark{} & \xmark{} \\
-\textsc{CJ}-Detonation~\cite{helzel2000modified,hidalgo2011ader} & \xmark{} & \xmark{} & \cmark{} & \cmark{} \\
+Manufactured solution~\cite{dumbser2010arbitrary} & \cmark{} & \xmark{} & \xmark{} & \xmark{} \\
+Taylor-Green vortex~\cite{dumbser2016high} & \cmark{} & \xmark{} & \xmark{} & \xmark{} \\
+\textsc{ABC}-flow~\cite{tavelli2016staggered} & \cmark{} & \xmark{} & \xmark{} & \xmark{} \\
+Lid driven cavity~\cite{fambri2017space} & \xmark{} & \xmark{} & \xmark{} & \cmark{} \\
+Cosine bubble~\cite{giraldo2008study} & \xmark{} & \cmark{} & \xmark{} & \xmark{} \\
+Two bubbles~\cite{robert1993bubble,muller2010adaptive} & \xmark{} & \cmark{} & \xmark{} & \xmark{} \\
+\textsc{CJ} detonation~\cite{helzel2000modified,hidalgo2011ader} & \xmark{} & \xmark{} & \cmark{} & \cmark{} \\
 \bottomrule
 \end{tabular}
 \end{table}%
@@ -23,7 +23,7 @@ They all have a different focus:
 \item The manufactured solution is an exact solution for our equation set and can be thus used to reliably evaluate the quality of our implementation.
 \item The Taylor-Green vortex, the \textsc{abc}-flow and the lid-driven cavity flow are standard \textsc{cfd} testing scenarios for which we have a reference solution.
 \item The bubble scenarios are simple examples for flows over a realistic background atmosphere.  
-\item The \textsc{cj}-detonation wave uses the reactive advection term to model a detonation.
+\item The \textsc{cj} detonation wave uses the reactive advection term to model a detonation.
 \end{itemize}
 
 Unless otherwise noted, we use the constants
@@ -74,8 +74,8 @@ Note that we only consider the compressible Navier Stokes equations here, withou
 \section{Classical Scenarios}
 In addition to the convergence test, we use standard \textsc{cfd} scenarios to evaluate our simulations.
 
-\sidetitle{Taylor-Green Vortex}
-An interesting testing scenario is the Taylor-Green Vortex, which exhibits a complicated flow from a simple initial condition.
+\sidetitle{Taylor-Green vortex}
+An interesting testing scenario is the Taylor-Green vortex, which exhibits a complicated flow from a simple initial condition.
 It is an analytic solution for the incompressible Navier-Stokes equations which agrees relatively well with our equation set at low Mach numbers.
 We can thus use it to evaluate the performance of our solver.
 The solution is
@@ -91,11 +91,11 @@ The solution is
   \pressure(\bm{x}, t) &= \exp(-4 \mu t) \, \nicefrac{1}{4} \left( \cos(2x) + \cos(2y) \right) + C,
   \end{split}
 \end{align}
-where $C = 100/\gamma$ is a constant that governs the speed of sound and thus the Mach number~\cite{dumbser2016high}.
+where $C = \nicefrac{100}{\gamma}$ is a constant that governs the speed of sound and thus the Mach number~\cite{dumbser2016high}.
 
 We use a viscosity of $\mu = 0.1$ and Cauchy boundary conditions.
 
-\sidetitle{ABC-Flow}
+\sidetitle{ABC-flow}
 %\subsection{ABC-Flow}
 We use the Arnold–Beltrami–Childress (\textsc{abc}) flow as a simple example of a three-dimensional scenario~\cite{tavelli2016staggered}.
 Unlike the three-dimensional Taylor-Green vortex, the \textsc{abc}-flow has the analytical solution
@@ -117,8 +117,7 @@ in the incompressible limit.
 Here, $C = \nicefrac{100}{\gamma}$ is an arbitrary constant.
 We use a viscosity of $\mu = 0.01$ and Cauchy boundary conditions.
 
-\sidetitle{Lid-Driven Cavity}
-%\subsection{Lid-Driven Cavity Flow}
+\sidetitle{Lid-driven cavity}
 The lid-driven cavity flow is another simple testing scenario for the Navier-Stokes equations.
 The flow is driven entirely by the boundary conditions.
 They consist in four no-slip walls~\pcref{eq:no-slip} where the upper wall has a constant velocity $\Qv^w = (1.0, 0)$.
@@ -129,7 +128,7 @@ This leads us to the constant initial conditions of
   \begin{split}
   \Qrho(\bm{x}) &= 1,\\
   \Qv(\bm{x}) &=  \bm{0},\\
-  \pressure(\bm{x}) &= \frac{100}{\gamma}.
+  \pressure(\bm{x}) &= \nicefrac{100}{\gamma}.
   \end{split}
 \end{align}
 % Mach = u/speed of sound
@@ -138,7 +137,7 @@ This leads us to the constant initial conditions of
 This scenario is surprisingly difficult for an \textsc{ader-dg} scheme as the boundary conditions can lead to a discontinuity at the corners, because the wall speed is discontinuous~\cite{fambri2017space}.
 Therefore, this scenario is a good choice to test the stability of our scheme.
 
-\sidetitle{CJ Detonation Wave}
+\sidetitle{CJ detonation wave}
 We investigate the radialsymmetric Chapman-Jouget (\textsc{cj}) detonation wave scenario from~\cite{helzel2000modified}.
 This scenario for the reactive Navier Stokes equations is set up in a 2D box of size $[-1, 1] \times [-1, 1]$ surrounded by no-slip walls~\pcref{eq:no-slip}.
 We use the reactive source term~\pcref{eq:source-reaction,eq:reaction-model} and set the characteristic timescale to the non-stiff case $\reactionTimescale = 0.1$ and the threshold temperature to $\reactionTemperature = 0.26$.
@@ -193,7 +192,7 @@ To allow for an easier description of the initial conditions we split the potent
   \potT = \backgroundPotT + \pertubationPotT.
 \end{equation}
 
-The initial conditions for pressure and density can be computed directly from the \textsc{pde} once few assumptions have been given.
+The initial conditions for pressure and density can be computed directly from the \textsc{pde} given a few assumptions.
 We assume that $\backgroundPotT$ is constant over the entire domain~\cite{giraldo2008study}.
 Inserting the definition of potential temperature, given by \cref{eq:potTToT}, into the equation of state~\pcref{eq:eos} leads us to
 \begin{equation}
@@ -209,15 +208,15 @@ or equivalently
   \label{eq:eos-potT}
 \Qrho(z) = \frac{p_{0}^{\frac{R}{c_{p}}} p^{\frac{1}{\gamma}}{\left (z \right )}}{R \backgroundPotT}.
 \end{equation}
-We want to consider flow in hydrostatic equilibrium, i.e.\ a flow for which the pressure-gradient and gravitational force are exactly in balance.
+We want to consider flow in hydrostatic equilibrium, i.e.\ a flow for which the pressure-gradient and gravitational force are exactly in balance~\cite{muller2010adaptive}.
 Inserting this assumption in the momentum equation in $z$-direction and using \cref{eq:eos} once again, we arrive at the ordinary differential equation (\textsc{ode})
 \begin{align}
   \label{eq:hydrostatic-balance-potT}
   \begin{split}
   \frac{d}{d z} p{\left (z \right )} &= -g \Qrho(z)
                                      = 
-        - \frac{g p_{0}^{\frac{R}{c_{p}}} p^{\frac{1}{\gamma}}{\left (z \right )}}{R \backgroundPotT}\\
-  p{\left (0 \right )} &= p_0
+        - \frac{g p_{0}^{\frac{R}{c_{p}}} p^{\frac{1}{\gamma}}{\left (z \right )}}{R \backgroundPotT},\\
+  p{\left (0 \right )} &= p_0,
   \end{split}
 \end{align}
 where we use the reference pressure $p_0$ as the pressure on ground level.
@@ -243,7 +242,7 @@ Finally, we compute the energy by inserting pressure and density into the equati
     Hydrostatic background pressure for constants \cref{eq:atmosphere-constants}}
 \end{figure}
 
-\sidetitle{Hydrostatic Wall}
+\sidetitle{Hydrostatic wall}
 This leaves us with one problem:
 The adiabatic free-slip boundary conditions defined by~\cref{eq:free-slip} are no longer valid.
 Concretely, we need to impose the viscous heat flux
@@ -264,8 +263,8 @@ We use the following set of constants for these scenarios
 the other constants are evaluated according to \cref{eq:fluid-constants}.
 The background pressure for these constants is depicted in \cref{fig:hydrostatic-p}.
 
-\sidetitle{Cosine Bubble}
-As a simple test case, we consider the cosine bubble scenario that describes a background atmosphere that is perturbed by a large warm air bubble in the middle of the domain~\cite{giraldo2008study}.
+\sidetitle{Cosine bubble}
+As a simple test case, we consider the cosine bubble scenario which describes a background atmosphere that is perturbed by a large warm air bubble in the middle of the domain~\cite{giraldo2008study}.
 We use a background potential temperature of $\backgroundPotT = 300$ and a domain of $\SI{1}{\km} \times \SI{1}{\km}$.
 The background atmosphere is assumed to be in hydrostatic equilibrium.
 Let
@@ -289,7 +288,7 @@ We use the constants
 \end{equation}
 We use a constant viscosity of $\mu = 0.1$.
 
-\sidetitle{Two Bubbles}
+\sidetitle{Two bubbles}
 The two bubbles scenario consists of a small cold air bubble that is on top of a large warm air bubble~\cite{robert1993bubble,muller2010adaptive}.
 We use the same procedure as before to compute the initial conditions, again with $\backgroundPotT = 300$ but with a perturbation of the form
 
