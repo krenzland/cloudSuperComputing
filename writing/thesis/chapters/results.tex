@@ -134,7 +134,7 @@ We thus show that our implementation can also handle three-dimensional scenarios
   \centering
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics[]{thesis_lid_driven_cavity_stream}
+    \includegraphics[trim={0.05cm 0.05cm 0.55cm 1.0cm},clip]{thesis_lid_driven_cavity_stream}
     \caption{\label{fig:lid-driven-cavity-streamlines}%
       Streamlines of the cavity flow.}
   \end{subfigure}~%
@@ -143,7 +143,7 @@ We thus show that our implementation can also handle three-dimensional scenarios
     \includegraphics{thesis_lid_driven_cavity}
     \caption{\label{fig:lid-driven-cavity-result}%
       Plot of velocity slices. Lines are our soulution, scatter plot shows reference solution~\cite{ghia1982high}.
-      For each slice, the other variable is hold constant at the center of the domain (0).}
+      For each slice, the other variable is hold constant at a value of zero.}
   \end{subfigure}
   
   \caption{\label{fig:lid-driven-cavity}%
@@ -167,13 +167,13 @@ In this section, we consider our bubble scenarios.
   \centering
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics[scale=1.0]{thesis_cosine_bubble_contour_t700}
+    \includegraphics[trim={0.00cm 0.00cm 6.35cm 0.0cm},clip]{thesis_cosine_bubble_contour_comparison}
     \caption{\label{fig:cosine-bubble-contour-ours}%
       Our result}
   \end{subfigure}~%
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics{giraldo_results_cosine_bubble}
+    \includegraphics[trim={6.8cm 0.00cm 0cm 0.0cm},clip]{thesis_cosine_bubble_contour_comparison}
     \caption{\label{fig:cosine-bubble-contour-giraldo}%
       Figure taken from~\cite{giraldo2008study}, resolution of \SI{20}{\m}, $N = 10$, \dg{}, modified Navier-Stokes} %poly order
   \end{subfigure}
@@ -196,15 +196,15 @@ Despite the different parameters, the maximum pertubation and its position match
 
 \begin{figure}[htb]
   \centering
-  \begin{subfigure}[t]{0.5\textwidth}
+  \begin{subfigure}[t]{0.45\textwidth}
     \centering
-    \includegraphics{thesis_cosine_bubble_pertubation}
+    \includegraphics[trim={0.00cm 0.00cm 8.4cm 0.0cm},clip]{thesis_cosine_bubble_pertubation_comparison}
     \caption{\label{fig:cosine-bubble-potT-ours}%
       Our result}
   \end{subfigure}~%
-  \begin{subfigure}[t]{0.5\textwidth}
+  \begin{subfigure}[t]{0.55\textwidth}
     \centering
-    \includegraphics{giraldo_results_cosine_bubble_pertubation}
+    \includegraphics[trim={7.00cm 0.00cm 0.0cm 0.0cm},clip]{thesis_cosine_bubble_pertubation_comparison}
     \caption{\label{fig:cosine-bubble-potT-giraldo}%
       Figure taken from~\cite{giraldo2008study}, resolution of \SI{20}{\m}, $N = 10$, \dg{}3 uses modified Navier-Stokes} %poly order
   \end{subfigure}
@@ -221,43 +221,25 @@ A possible source for this is that we use a different equation set than~\cite{mu
 While we use a general purpose set with small modifications for atmospheric flows, they use a equation set that is fully focussed on this scenario.
 Furthermore, we use the full Navier-Stokes viscous fluxes instead of an approximation.
 
-% \begin{figure}[p]
-%   \vspace*{-4.5cm}
-%   \thisfloatpagestyle{empty}
-%   \centering
-%   \begin{subfigure}{1\textwidth}
-%     \centering
-%     \includegraphics{thesis_two_bubbles_contour_collage.pdf}
-%   \end{subfigure}
-%   \vspace*{1cm}
-%   \begin{subfigure}[t]{1\textwidth}
-%     \centering
-%     \includegraphics[trim=0.0cm 0.0cm 0.0cm 0.0cm, clip, scale=1.2]{giraldo_results_two_bubbles}
-%   \end{subfigure}
-%   \caption{\label{fig:two-bubbles-contour}%
-%     Results for two bubble scenario.
-%     On the top is our, the bottom plots are taken from~\cite{muller2010adaptive}.
-%   Contour values for potential temperature pertubation are $-0.05, 0.05, 0.1, \ldots 0.45$.
-% }
-% \end{figure}
 \begin{figure}[p]
   \thisfloatpagestyle{empty}
+  \vspace*{-1cm}
   \centering
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-  \includegraphics[trim={0cm 0cm 6cm 0cm},clip]{thesis_two_bubbles_contour_collage_comparison} 
+  \includegraphics[trim={0cm 0cm 5.6cm 0cm},clip]{thesis_two_bubbles_contour_collage_comparison} 
   \caption{Our \amr{} solution.}
   \end{subfigure}~%
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
   % Without z axis on right \includegraphics[trim={8.16cm 0cm 0cm 0cm},clip]{thesis_two_bubbles_contour_collage_comparison} 
-  \includegraphics[trim={7.4cm 0cm 0cm 0cm},clip]{thesis_two_bubbles_contour_collage_comparison} 
+  \includegraphics[trim={6.2cm 0cm 0cm 0cm},clip]{thesis_two_bubbles_contour_collage_comparison} 
   \caption{Reference solution from~\cite{muller2010adaptive}.}
   \end{subfigure}
   \caption{\label{fig:two-bubbles-contour}%
      Contours of the potential temperature for two bubble scenario.
      On the left is our solution, the right plots are taken from~\cite{muller2010adaptive}.
-     We modified the arrangement of the reference plots and the placement of its axes. 
+     We rescaled the reference plots and changed their arrangement and axes placement.
    Contour values for potential temperature pertubation are $-0.05, 0.05, 0.1, \ldots 0.45$.
   }
 \end{figure}
@@ -284,7 +266,7 @@ This is why we only report an \amr{} run with one level of dynamic refinement.
 % \end{figure}
 For both settings, we used an \aderdg{}-method of order $4$ and thus have a minimal effective resolution of ca.\ $\SI{3.09}{\m}$.
 %The final result for the run with the fully refined mesh (\cref{fig:two-bubbles-noamr-contour}) looks identical to the \amr{} results (\cref{fig:two-bubbles-contour}) shown in the previous section.
-Note that the \amr{} criterion manages to track the bubble correctly~(\cref{fig:two-bubbles-amr-grid}) and introduces only small errors~(\cref{fig:two-bubbles-amr-error}) compared to the solution with the fully refined mesh\todo{Increase font size a bit more}.
+Note that the \amr{} criterion manages to track the bubble correctly~(\cref{fig:two-bubbles-amr-grid}) and introduces only small errors~(\cref{fig:two-bubbles-amr-error}) compared to the solution with the fully refined mesh.
 
 \begin{figure}[htb]
 \centering
