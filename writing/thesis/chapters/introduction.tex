@@ -2,14 +2,14 @@
 \sidetitle{Climate modeling}
 Simulations are an important part of weather and climate forecasts.
 Both types of forecasts are difficult problems that are limited by a lack of computational power.
-Especially in a time, where the realization of exascale supercomputers is imminent, scalable numericals model become more and more important.
+Especially in a time where the realization of exascale supercomputers is imminent, scalable numericals model are becoming more and more important.
 Current climate and weather models are not ready for the exascale era~\cite{schulthess2018reflecting}.
 While~\cite{schulthess2018reflecting} proposes a spatial resolution of $\SI{1}{\kilo\meter}$ as a goal, current state of the art simulations operate on a resolution that is an order of magnitude coarser.
 
 Of course, a finer grid is not useful if the computational effort is too large.
-Thus, they also propose a compute rate of one simulated years per wall-clock day.
+Thus, also propose a compute rate of one simulated years per wall-clock day.
 An example of a recent supercomputing effort in this domain~\cite{fuhrer2018near} achieved a performance of 0.043 simulated years per wall-clock day with a resolution of $\SI{930}{\m}$ for a near-global simulation on the Piz Daint supercomputer.
-They used a \textsc{cosmo}-model which is based on a finite-difference approach.
+They used the \textsc{cosmo} 5.0 model which is based on a finite-difference approach.
 
 \sidetitle{Discontinuous Galerkin}
 The discontinuous Galerkin (\dg{}) methods are an exciting numerical method as they are relatively easy to scale.
@@ -26,12 +26,11 @@ We implement this with the \exahype{}-engine, which is \enquote{An Exascale Hype
 We make the following contributions:
 \begin{itemize}
 \item In \cref{sec:navier-stokes}, we describe a coupling of the compressible Navier-Stokes equations for two and three dimensional problems.
-Furthermore, we adapt the equation set for scenarios with gravity.
-In addition, we present a coupling with an advection-reaction term.
+In addition, we adapt the equation set for scenarios with gravity and present a coupling with an advection-reaction term.
 \item We describe an \aderdg{} (\cref{sec:ader-dg}) and \muscl{}-scheme (\cref{sec:muscl}) for problems with diffusive terms.
   Moreover, we describe a combination of both methods in \cref{sec:limiting}, where we use the \muscl{}-scheme in cases where the \aderdg{}-method is unstable.
-\item In \cref{sec:amr}, we introduce an adaptive mesh refinement (\amr{}) method that checks, whether a local cell is an outlier.
-  As indicator function we use the total variation of the discrete solution and as outlier detection we use the mean and standard variance of this function.
+\item In \cref{sec:amr}, we introduce an adaptive mesh refinement (\amr{}) method that checks whether a local cell is an outlier.
+  As indicator function, we use the total variation of the discrete solution, and as outlier detection, we use the mean and standard variance of this function.
 \item In \cref{chap:implementation} we show how we implemented our proposed method using the \exahype{}-engine.
 \item We present seven scenarios that stem from different domains in \cref{chap:scenarios}.
 \item We check the performance of our proposed method in~\cref{chap:results}.

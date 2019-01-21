@@ -142,7 +142,7 @@ Therefore, this scenario is a good choice to test the stability of our scheme.
 We investigate the radialsymmetric Chapman-Jouget (\textsc{cj}) detonation wave scenario from~\cite{helzel2000modified}.
 This scenario for the reactive Navier Stokes equations is set up in a 2D box of size $[-1, 1] \times [-1, 1]$ surrounded by no-slip walls~\pcref{eq:no-slip}.
 We use the reactive source term~\pcref{eq:source-reaction,eq:reaction-model} and set the characteristic timescale to the non-stiff case $\reactionTimescale = 0.1$ and the threshold temperature to $\reactionTemperature = 0.26$.
-Inside a circle of radius $0.3$ we have totally unburnt gas, outside of this circle we have burned gas.
+Inside a circle of radius $0.3$ we have completely unburnt gas, outside of this circle we have burned gas.
 Let $\alpha =  \operatorname{atan2}(z,x)$ be the angle in polar coordinates.
 We use the initial conditions
 \begin{equation}\label{eq:cj-detonation}
@@ -209,7 +209,7 @@ or equivalently
   \label{eq:eos-potT}
 \Qrho(z) = \frac{p_{0}^{\frac{R}{c_{p}}} p^{\frac{1}{\gamma}}{\left (z \right )}}{R \backgroundPotT}.
 \end{equation}
-We want to consider flow in hydrostatic equilibrium, i.e.\ flow where the force originating from the pressure-gradient is exactly balanced by gravitation.
+We want to consider flow in hydrostatic equilibrium, i.e.\ a flow for which the pressure-gradient and gravitational force are exactly in balance.
 Inserting this assumption in the momentum equation in $z$-direction and using \cref{eq:eos} once again, we arrive at the ordinary differential equation (\textsc{ode})
 \begin{align}
   \label{eq:hydrostatic-balance-potT}
@@ -230,7 +230,7 @@ p(z) &= \left(\left(1 - \frac{1}{\gamma}\right) \left(C - \frac{g p_{0}^{\frac{R
  C &= \frac{c_{p} p_{0}^{\frac{R}{c_{p}}}}{R}.
 \end{align}
 
-We can now compute the initial conditions for a scenario where the background potential energy is in hydrostatic equilbrium with a pertubation that is not in equilbrium.
+We can now compute the initial conditions for a scenario with a background potential energy that is in hydrostatic equilbrium and a pertubation that is not.
 We first compute the background pressure with background potential temperature $\backgroundPotT = \text{const.}$ using \cref{eq:hydrostatic-background-pressure}.
 Next, we compute the pertubated potential temperature $\potT$ and use \cref{eq:potTToT} to convert it to temperature.
 The density $\Qrho(\bm{x})$ can now be evaluated with the thermal equation of state \cref{eq:temperature}.
@@ -265,9 +265,9 @@ the other constants are evaluated according to \cref{eq:fluid-constants}.
 The background pressure for these constants is depicted in \cref{fig:hydrostatic-p}.
 
 \sidetitle{Cosine Bubble}
-As a simple test case we consider the cosine bubble scenario where we have one large warm air bubble in the middle of the domain~\cite{giraldo2008study}.
-The initial conditions of the scenario are given by a pertubation of a hydrostatic equlibrium.
+As a simple test case, we consider the cosine bubble scenario that describes a background atmosphere that is pertubated by a large warm air bubble in the middle of the domain~\cite{giraldo2008study}.
 We use a background potential temperature of $\backgroundPotT = 300$ and a domain of $\SI{1}{\km} \times \SI{1}{\km}$.
+The background atmosphere is assumed to be in hydrostatic equilibrium.
 Let
 \begin{equation}
   \label{eq:radius}
@@ -290,8 +290,7 @@ We use the constants
 We use a constant viscosity of $\mu = 0.1$.
 
 \sidetitle{Two Bubbles}
-As a simple test case we consider a scenario where we have one large warm air bubble in the middle and a small cold bubble on the top.
-This scenario was first published by \citeauthor{robert1993bubble}~\cite{robert1993bubble}.
+The two bubbles scenario consists of a small cold air bubble that is on top of a large warm air bubble~\cite{robert1993bubble,muller2010adaptive}.
 We use the same procedure as before to compute the initial conditions, again with $\backgroundPotT = 300$ but with a pertubation of the form
 
 \begin{equation}

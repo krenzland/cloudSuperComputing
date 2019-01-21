@@ -1,10 +1,10 @@
 % TODO: Extract to settings
 \chapter{An ADER-DG scheme for the Navier-Stokes Equations}\label{chap:methods}
-This chapter describes the numerical and physical background that is needed to simulate reacting fluids with good accuracy.
-We start with a description of the arbitrary high order derivatives (\ader{}) discontinuous Galerkin (\dg{}) method with a focus on equations that contain both advective and diffusive terms.
-We then seque into a short description of the \muscl{} scheme which is a second order finite volume method.
+This chapter describes the numerical and physical background that is needed to simulate reacting fluids with high accuracy.
+We start with a description of the arbitrary high order derivatives (\ader{}) discontinuous Galerkin (\dg{}) method, with a focus on equations that contain both advective and diffusive terms.
+We then seque into a short description of the \muscl{} scheme, which is a second order finite volume method.
 
-We conclude this chapter by a description of finite volume limiting and adaptive mesh refinement (\amr{}).
+We conclude this chapter with a description of finite volume limiting and adaptive mesh refinement (\amr{}).
 The limiting combines both numerical methods to achieve a stable, high-order method and the \amr{} allows us to perform high quality simulations with a smaller computational cost.
 \section{Reactive Compressible Navier Stokes Equations}\label{sec:navier-stokes}
 \newcommand{\diffCoeff}{\varepsilon}
@@ -87,7 +87,7 @@ The hyperbolic flux is given by
   \hyperFlux(\Q) = \hyperFluxDef,
 \end{equation}
 which are the Euler equations coupled with an advection equation.
-In this equation $\bm{a} \otimes \bm{b} = \bm{a} \bm{b}^\intercal$ is the Kronecker or outer product of two vectors $\bm{a}$ and $\bm{b}$.
+In this equation, $\bm{a} \otimes \bm{b} = \bm{a} \bm{b}^\intercal$ is the Kronecker or outer product of two vectors $\bm{a}$ and $\bm{b}$.
 The pressure $\pressure$ is given by the equation of state of an ideal reacting gas
 \begin{equation}
   \label{eq:eos}
@@ -177,7 +177,7 @@ We now focus on the following part of the momentum equation (neglecting viscous 
 The background state \cref{eq:hydrostatic-balance} can be comparitively large and can thus diminish other parts of the flux due to numerical instabilities~\cite{muller2010adaptive}.
 To avoid this, we split the pressure as $\pressure = \backgroundPressure(z) + \pressure' (\bm{x}, t)$ and the density as $\Qrho = \backgroundRho(z) + \Qrho'(\bm{x}, t)$.
 Inserting this splitting and the definition of divergence into \cref{eq:momentum-equation} allows us to apply \cref{eq:hydrostatic-balance}.
-Furthermore, the background states have zero derivatives in all directions but in $z$.
+The derivatives of the background states are non-zero only for the $z$-direction.
 We arrive at 
 \begin{equation}
   \label{eq:momentum-equation-split}
@@ -207,15 +207,15 @@ We use the simple reaction model
 where $\reactionTimescale$ is the timescale of the reaction and $\reactionTemperature$ is the activation temperature~\cite{hidalgo2011ader,helzel2000modified}.
 
 \sidetitle{Boundary conditions}
-To close the system we need to impose boundary conditions.
-Many scenarios are described with periodic boundary conditions,
+To close the system, we need to impose boundary conditions.
+Many scenarios are described with periodic boundary conditions.
 This is not possible with \exahype{}.
-Instead we use the analytical solution of our problems at the boundary, imposing both the conservative variables $\Q$ and its gradient $\gradQ$.
+Instead, we use the analytical solution of our problems at the boundary, imposing both the conservative variables $\Q$ and its gradient $\gradQ$.
 This type of boundary condition is called Cauchy condition.
 Note that this leads to an error when our problem does not possess an exact analytical solution.
 This is the case for test cases that are exact solutions for the incompressible Navier Stokes equations but do not satisfy the compressible equation set.
 
-As a physical boundary condition we limit ourselves to wall boundary condition
+As a physical boundary condition, we limit ourselves to wall boundary condition.
 A standard wall boundary condition for viscous fluid is the no-slip condition, where we assume that when the fluid is close to a wall, it has a velocity of zero relative to the wall.
 We enfore this by setting
 \begin{align}
@@ -268,7 +268,7 @@ In our implementation of the discontinous Galerkin (\dg) framework, we approxima
   \broken = \bigcup_k \cell[k]
 \end{equation}
 of disjoint quadrilateral cells $\cell$.
-Note that we do not distinguish between the approximation space and the domain, the use should be clear given its surrounding context.
+Note that we do not distinguish between the approximation space and the domain; the use should be clear given its surrounding context.
 For each cell we denote its center by $\cellCenter (\cell)$ and its size by $\Delta x, \Delta y$ and $\Delta z$.
 
 The \aderdg{}-scheme is a predictor-corrector method.
@@ -313,6 +313,7 @@ The Jacobian determinant of $\mapping$ is simply the volume $V$ of the cell
   \volume = \operatorname{det}(\operatorname{Jacobian}\mapping) = \Delta x \, \Delta y \,\Delta z,
 \end{equation}
 the Jacobian determinant of $\timeMapping$ is $\Delta t$.
+\todo{Similarly -> as well as?}
 This is useful for evaluating derivatives by the chain rule and, similarly, integrals by substitution.
 For example, we can evaluate a volume integral over a cell by
 \begin{equation}
@@ -330,7 +331,7 @@ The next step is the definition of basis functions for our cells.
 We use Langrange polynomials that are defined in the one-dimensional case for the reference interval $(0,1)$ by
 \begin{align}
   \label{eq:lagrange-basis}
-    \lagrangeRef(x) = \prod_{\substack{0 \leq j \leq N \\ i \neq j}} \frac{x - {\quadNode[j]}}{x_i - \quadNode[j]},
+    \lagrangeRef(x) = \prod_{\substack{0 \leq j \leq N \\ i \neq j}} \frac{x - {\quadNode[j]}}{x_i - \quadNode[j]}.
 \end{align}
 We can then approximate functions as a sum over the support points $\quadNode[j]$
 \begin{equation}
@@ -435,7 +436,7 @@ Similarly, we define the space degrees of freedoms by an expansion in the space 
   \label{eq:cell-approx-space}
   \spredictor[\cell] (\bm{x}) = \spredictorCoeff[\cell][v',n'] \sbasis[\cell][v',n'] (\bm{x}),
 \end{equation}
-where the basis, unlike in \cref{eq:cell-approx-space-time}, does not depend on the time.
+where the basis does not depend on the time, unlike in \cref{eq:cell-approx-space-time}.
 We need the space-expansion for the predictor $\spredictor$, the discrete solution $\ssol$, the source $\ssource$ and the flux $\sflux$,
 with coefficients $\spredictorCoeff, \ssolCoeff, \ssourceCoeff$ and $\sfluxCoeff$ respectively.
 Each coefficient index generally has the same range as the corresponding basis index.
@@ -830,7 +831,7 @@ This has the effect that the scheme becomes unstable in the case of strong visco
 
 \section{Adaptive Mesh Refinement \textit{\&} Finite Volume Limiting}\label{sec:grid}
 This section is concerned with two different but related concepts:
-finite volume limiting and adaptive mesh refinement (\amr{}).
+finite volume limiting and adaptive mesh refinement.
 Both have in common that they change the structure of the grid.
 Instead of a regular grid where each cell has the same size, we now have different cell sizes and even different numerical schemes.
 
@@ -844,7 +845,7 @@ The idea is to smooth out steep gradients and thus lessen the effect of disconti
 
 A relatively recent way of dealing with this problem is the finite volume subcell limiter.
 Our discussion follows the one in~\cite{dumbser2016simple}.
-This limiting is an a posteriori limiting, which means that we first evaluate a timestep with an unlimited \aderdg{}-method and then check, whether our solution is \enquote{correct}.
+This limiting is an a posteriori limiting, which means that we first evaluate a timestep with an unlimited \aderdg{}-method and then check whether our solution is \enquote{correct}.
 In our case, we check whether the solution is a finite floating point number.
 We also check whether it is physically admissible with the criterion
 \begin{equation}
@@ -893,14 +894,14 @@ The reason for this is that the \textsc{cfl}-conditions for both schemes \pcref{
 For the sake of brevity, we omit technical details and refer the interestd reader to~\cite{dumbser2016simple}.
 
 \subsection{Adaptive Mesh Refinement}\label{sec:amr}
-The goal of \amr{} is to increase the computational efficiency by using a coarse spatial resolution in areas with low information content and a higher resolution in areas of interest.
+The goal of adaptive mesh refinement (\amr{}) is to increase the computational efficiency by using a coarse spatial resolution in areas with low information content and a higher resolution in areas of interest.
 A simple example for this would be using smaller mesh cells for the simulation of a wave, while using larger cells for areas where the wave does not pass through.
 Of course, the difficult part is recognizing interesting areas.
 We use a global, gradient based refinement strategy.
 We first describe the computation of our indicator variable and then describe a simple way how one can detect outliers.
 
 Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a function that maps the discrete solution of a cell to an arbitrary indicator variable.
-Furthermore, we assume that $\bm{f}$ is expanded in the space-basis \pcref{eq:cell-approx-space}.
+We assume that $\bm{f}$ is expanded in the space-basis \pcref{eq:cell-approx-space}.
 The total variation (\textsc{tv}) of this function is defined by
 \begin{equation}
   \label{eq:tv}

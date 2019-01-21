@@ -3,7 +3,7 @@ This chapter is organized as follows:
 We first give a short overview of the general structure of the \exahype{} code and then describe the changes done over the course of this project.
 \exahype{} implements an \aderdg{} solver with \muscl{} limiting and \textsc{amr}, as described in \cref{chap:methods}.
 It uses \softwareName{Intel® Threading Building Blocks} (\tbb{}) for shared memory parallelism and the \softwareName{Message Passing Interface} (\mpi{}) for distributed memory parallelism. 
-In the following we define a \enquote{user} as someone who implements the logic of a \pde{} but does not change the implementation of \exahype{} itself.
+In the following, we define a \enquote{user} as someone who implements the logic of a \pde{} but does not change the implementation of \exahype{} itself.
 This is in contrast with a \enquote{developer} whose scope is the entirety of the source code.
 The goal of our implementation is that all new features should be accesible to users as well.
 
@@ -28,7 +28,7 @@ The workflow from the perspective of a user is:
   We implement the grid refinement criterion in \funName{refinementCriterion} and the limiting criterion in \funName{isPhysicallyAdmissible}.
   To close the system, the user needs to prescribe initial and boundary conditions with \funName{adjustPointSolution}, \funName{boundaryConditions} and \funName{boundaryValues}.
   The methods \funName{boundaryConditions} first calls \funName{boundaryValues} and then solves the Riemann-problem at the boundary.
-  In many cases it thus suffices to only override the latter method.
+  Thus, it suffices in many cases to only override the latter method.
 \item Finally, the user can specify more options such as mesh size and spacing, simulation time, parallelization options, plotters, and optimization parameters.
  After compiling the program, it can be run with the setting file as first and only parameter.
 \end{itemize}
@@ -47,12 +47,12 @@ We will thus only give the necessary minimum of information that is needed to un
   \item \className{FusedTimeStep}
   \end{itemize}
 \item Often, a mapping calls a method defined in \className{Solver}.
-  These implementation can differ between different solvers.
+  The implementation of this method can differ between different solvers.
 \item The actual numerical logic is outsourced to kernels.
 \end{itemize}
 Furthermore, the degrees of freedom and some meta-information are stored for each cell in a heap data-structure.
 The information for each \dg{}-cell is defined in the file \fileName{ADERDGCellDescrition.def}.
-Similar files exists for the finite volume solver but are not relevant for us.
+Similar files exist for the finite volume solver but are not relevant for us.
 These files are converted to \cpp{} files by the software \softwareName{DaStGen}~\cite{bungartz2008dastgen}.
 
 \section{Implementing numerics}
@@ -65,7 +65,7 @@ These changes are:
     We pass the gradient of the conserved variables to the \funName{flux} method of the \className{Solver}.
     Because we need the time-average of the gradient later, we return it.
    \item In the function \funName{aderExtrapolatorNonlinear}, which implements the boundary extrapolation, we also compute the extrapolated gradient.
-    \item In the function \funName{spaceTimePredictorNonlinear} we also return the extrapolated gradient.
+    \item In the function \funName{spaceTimePredictorNonlinear}, we also return the extrapolated gradient.
   \end{itemize}
 \item Storing the extrapolated and time-averaged gradient for each cell for use in the boundary conditions and the corrector step.
 \item Using the gradient for the computation of the boundary conditions.
@@ -74,7 +74,7 @@ These changes are:
   This corresponds to \cref{eq:rusanov-flux,eq:cfl-aderdg}.
 \item Computing the gradient for the \muscl{} scheme (\fileName{musclhancock.cpph}) and passing it to the flux (\fileName{rusanov.cpph}).
 \end{itemize}
-Furthermore, we needed to change the templates for the glue code and needed to modify some function signatures to accompany the other changes.
+Additionaly, we needed to change the templates for the glue code and needed to modify some function signatures to accompany the other changes.
 
 \section{Implementing Global Observables}
 \newcommand{\ngobs}{N^{\text{gobs}}}
@@ -125,7 +125,7 @@ For the actual implementation, we follow \cref{alg:reduce-gobs} but include dist
   \begin{itemize}
   \item We initialize the observables in the method \funName{beginIteration} with \funName{resetGlobalObservables}. 
   \item We reduce the observables in \funName{leaveCell} by calling the solver method \funName{reduceGlobalObservables} with the \varName{cellInfo} of the current cell as argument.
-    For the mapping \className{UpdateAndReduce} this is done in the method \funName{enterCell} instead.
+    For the mapping \className{UpdateAndReduce}, this is done in the method \funName{enterCell} instead.
   \item If we use \tbb{}, we merge the partially reduced observables in \funName{mergeWithWorkerThread} with \funName{reduceGlobalObservables} using the current reduced observables and the partially reduced observables from the worker.
     This is not necessary for the mapping \className{FinaliseMeshRefinement}.
    \item We update the global observables of the solver in the method \funName{endIteration}, which calls the method \funName{updateGlobalObservables}.
