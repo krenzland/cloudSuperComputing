@@ -2,7 +2,7 @@
 \chapter{An ADER-DG scheme for the Navier-Stokes Equations}\label{chap:methods}
 This chapter describes the numerical and physical background that is needed to simulate reacting fluids with high accuracy.
 We start with a description of the arbitrary high order derivatives (\ader{}) discontinuous Galerkin (\dg{}) method, with a focus on equations that contain both advective and diffusive terms.
-We then seque into a short description of the \muscl{} scheme, which is a second order finite volume method.
+We then segue into a short description of the \muscl{} scheme, which is a second order finite volume method.
 
 We conclude this chapter with a description of finite volume limiting and adaptive mesh refinement (\amr{}).
 The limiting combines both numerical methods to achieve a stable, high-order method and the \amr{} allows us to perform high quality simulations with a smaller computational cost.
@@ -158,7 +158,7 @@ where $\bm{e_z}$ is the unit vector pointing in $z$-direction~\cite{giraldo2008s
 
 \newcommand{\backgroundPressure}{\overline{\pressure}}
 \newcommand{\backgroundRho}{\overline{\Qrho}}
-Some of our scenarios can be described as a pertubation of a background state that is initially in hydrostatic balance
+Some of our scenarios can be described as a perturbation of a background state that is initially in hydrostatic balance
 \begin{equation}
   \label{eq:hydrostatic-balance}
   \pdv{}{z} \backgroundPressure{\left (z \right )} = -g \backgroundRho(z),
@@ -174,7 +174,7 @@ We now focus on the following part of the momentum equation (neglecting viscous 
   =
   -g \bm{k} \cdot \Qrho.
 \end{equation}
-The background state \cref{eq:hydrostatic-balance} can be comparitively large and can thus diminish other parts of the flux due to numerical instabilities~\cite{muller2010adaptive}.
+The background state \cref{eq:hydrostatic-balance} can be comparatively large and can thus diminish other parts of the flux due to numerical instabilities~\cite{muller2010adaptive}.
 To avoid this, we split the pressure as $\pressure = \backgroundPressure(z) + \pressure' (\bm{x}, t)$ and the density as $\Qrho = \backgroundRho(z) + \Qrho'(\bm{x}, t)$.
 Inserting this splitting and the definition of divergence into \cref{eq:momentum-equation} allows us to apply \cref{eq:hydrostatic-balance}.
 The derivatives of the background states are non-zero only for the $z$-direction.
@@ -190,7 +190,7 @@ We arrive at
 \end{equation}
 We thus cancel parts of the flux with parts of the source term.
 This form of the equation is inspired by equation set 3 of~\cite{giraldo2008study}.
-They additionally use a splitting of the energy and use the pertubations directly as conservative variables.
+They additionally use a splitting of the energy and use the perturbations directly as conservative variables.
 %We do not use this to simplify the implementation of gradients.
 
 The chemical reactive source term is
@@ -217,7 +217,7 @@ This is the case for test cases that are exact solutions for the incompressible 
 
 As a physical boundary condition, we limit ourselves to wall boundary condition.
 A standard wall boundary condition for viscous fluid is the no-slip condition, where we assume that when the fluid is close to a wall, it has a velocity of zero relative to the wall.
-We enfore this by setting
+We enforce this by setting
 \begin{align}
   \label{eq:no-slip}
   \begin{split}
@@ -244,7 +244,7 @@ The other variables are extrapolated in the same manner as in \cref{eq:no-slip}.
 
 We manually set the energy component of the numerical flux to zero for both no- and free-slip conditions.
 \section{The ADER-DG Method}\label{sec:ader-dg}
-We describe the arbitrary derivative discontinous Galerkin (\aderdg) method in this chapter.
+We describe the arbitrary derivative discontinuous Galerkin (\aderdg) method in this chapter.
 Our description of the main method follows~\cite{dumbser2008unified,dumbser2010arbitrary,dumbser2018efficient}, our notation follows primarily~\cite{dumbser2018efficient}.
 Let $\NVar$ be the number of variables, $\dimensions$ the number of spatial dimensions and $N > 0$ the degree of the basis functions.
 We also call $N$ the order of the method.
@@ -262,7 +262,7 @@ contain the gradient $\gradQ \in \mathbb{R}^{\NVar \times \dimensions}$ of the s
 They are therefore not hyperbolic but rather parabolic or elliptic.
 
 We discuss the solution of a conservation law \cref{eq:conservation-law-gradient} with two or three dimensional domain $\domain$ and its boundary $\boundary$.
-In our implementation of the discontinous Galerkin (\dg) framework, we approximate this solution in the space
+In our implementation of the discontinuous Galerkin (\dg) framework, we approximate this solution in the space
 \begin{equation}
   \label{eq:dg-space}
   \broken = \bigcup_k \cell[k]
@@ -328,7 +328,7 @@ f(\bm{x})
 \end{equation}
 \sidetitle{Basis Functions}
 The next step is the definition of basis functions for our cells.
-We use Langrange polynomials that are defined in the one-dimensional case for the reference interval $(0,1)$ by
+We use Lagrange polynomials that are defined in the one-dimensional case for the reference interval $(0,1)$ by
 \begin{align}
   \label{eq:lagrange-basis}
     \lagrangeRef(x) = \prod_{\substack{0 \leq j \leq N \\ i \neq j}} \frac{x - {\quadNode[j]}}{x_i - \quadNode[j]}.
@@ -353,7 +353,7 @@ They are indexed by a multi-index $n = (n_1, \ldots, n_\dimensions)$
   \label{eq:basis-space}
   \sbasisRef[][n] (\bm{x}) = \prod_{i=0}^{\dimensions} \lagrangeRef[n_i] (x_i)
 \end{equation}
-that is linearised such that $n = (0, \ldots, \sbasisSize)$.
+that is linearized such that $n = (0, \ldots, \sbasisSize)$.
 A $d$-dimensional function is then approximated by
 \begin{equation}
   \label{eq:lagrange-expansion}
@@ -423,13 +423,15 @@ where $\bm{e_v} \in \mathbb{R}^{\NVar}$ is vector with components
 \end{equation}
 and $\bm{A} \otimes \bm{B}$ denotes the tensor product between two tensors $\bm{A}$ and $\bm{B}$.
 
-\sidetitle{Expansion of quantities}\todo{Maybe explain this later, right now $\stpredictor$ is not defined!}
+\sidetitle{Expansion of quantities}
 All quantities can be expanded in the space-time basis.
 For example, the expansion of the space-time predictor $\stpredictor[\cell]$ can be written as
 \begin{equation}
   \label{eq:cell-approx-space-time}
-  \stpredictor[\cell] (\bm{x}, t) = \stpredictorCoeff[\cell][v',l',n'] \stbasis[\cell][v',l',n'](\bm{x}, t).
+  \stpredictor[\cell] (\bm{x}, t) = \stpredictorCoeff[\cell][v',l',n'] \stbasis[\cell][v',l',n'](\bm{x}, t),
 \end{equation}
+with coefficients $\stpredictorCoeff$.
+The space-time predictor is the result of the predictor step.
 We denote the space-time flux as $\stflux$ and the space-time source as $\stsource$ with coefficient vectors $\stfluxCoeff$ and $\stsourceCoeff$.
 Similarly, we define the space degrees of freedoms by an expansion in the space basis, for example for the space predictor
 \begin{equation}
@@ -474,7 +476,7 @@ Henceforth, we drop the cell index for all quantities and the spatial argument f
 We integrate the first term of \cref{eq:weak-pde-space-time} by parts in time and the flux divergence in space.
 Here we do not use the Riemann solver for the flux boundary term but rather use the known discrete solution at time $t$.
 This corresponds to upwinding in time~\cite{dumbser2008unified}.
-Note that this neglects the interaction with neighbouring cells.
+Note that this neglects the interaction with neighboring cells.
 The cell-local scheme is then
 \begin{align}\label{eq:space-time-predictor}
 \begin{split}
@@ -597,7 +599,7 @@ This results, yet again, in the weak formulation of the \pde{}
 We now insert our discrete approximations and apply the space-basis expansion~\pcref{eq:cell-approx-space} to the discrete solution.
 The first term can be integrated by parts in time.
 This has the convenient result that only the boundary terms remain because the basis is constant in time.
-We then integrate the flux divergence by parts in space and insert the Riemann solver to connect with the neighbouring elements.
+We then integrate the flux divergence by parts in space and insert the Riemann solver to connect with the neighboring elements.
 Finally, we need to solve
 \newcommand{\massMatrixDef}{\intdcell{
   \stestfunction[][v,n] \sbasis[][v,n']
@@ -708,7 +710,7 @@ The penalty term depends on the maximal absolute eigenvalues of the Jacobian mat
 in direction of the normal vector $\normal$. 
 This Riemann solver was first published in~\cite{gassner2008discontinuous} and used for an \textsc{ader-dg} scheme in~\cite{dumbser2010arbitrary}.
 
-The timestep is restriced to a so-called \textsc{cfl}-type penalty
+The timestep is restricted to a so-called \textsc{cfl}-type penalty
 \begin{equation}\label{eq:cfl-aderdg}
  %\Delta t \leq  \text{CFL} \, \frac{\alpha(N) \, h}{\maxConvEigen + 2 \maxViscEigen \frac{1}{\alpha(N) h}}
  \Delta t \leq  \text{CFL} \, \alpha(N) \, h \sum_{i=1}^{\dimensions} \frac{1}{\maxConvEigen_i + 2 \maxViscEigen_i \frac{1}{\alpha(N) h}},
@@ -725,10 +727,10 @@ While this scheme is efficient, it can become unstable, especially in case of di
 A simple alternative is a finite volume scheme.
 We use the \muscl{} method\cite{vanLeer1979towards}.
 Our discussion and notation follows the one in~\cite{toro2009riemann}.
-Similar to~\cite{toro2009riemann} we only describe the two-dimensional case without source terms, an extension to three dimensions is straigthforward.
+Similar to~\cite{toro2009riemann} we only describe the two-dimensional case without source terms, an extension to three dimensions is straightforward.
 
 In contrast to the previous \dg{} scheme, we now only store averages instead of a full polynomial solution for each cell.
-We achieve higher order by reconstructing a linear function from a cell and its neighbours.
+We achieve higher order by reconstructing a linear function from a cell and its neighbors.
 Let $\cellAvg$ denote the averages per cell at spatial coordinates $i,j$.
 
 \sidetitle{Boundary Extrapolated Values}
@@ -758,7 +760,6 @@ We use the slope to reconstruct the value at the cell boundaries.
 In the following, $\cellAvg^{\pm x}$ is the average of the left ($+$) or right ($-$) cell boundary.
 Similar, $\cellAvg^{\pm y}$ is the value at the top and bottom cell boundary.
 These so called boundary extrapolated values are given by
-\newcommand{\extrapolatedCellAvg}[3][i,j]{\cellAvg[#1]^{#3 #2} = \cellAvg #3 \frac{1}{2} \slope{#2}}%
 \begin{equation}
 \begin{alignedat}{2}
 & \extrapolatedCellAvg{x}{-} , \qquad && \extrapolatedCellAvg{x}{+}, \\
@@ -773,7 +774,6 @@ We also use the slopes defined in \cref{eq:slopes} to estimate the gradient of $
 which is of course an abuse of notation insofar as it is not the gradient of the constant cell value but rather of the linear reconstruction \pcref{eq:slopes}.
 \sidetitle{Time Evolution}
 To achieve second order in time, we evolve the boundary extrapolated values
-\newcommand{\evolvedCellAvg}[2][i,j]{\hat{U}_{#1}^{#2}}
 \begin{equation}\label{eq:muscl-time-evolution}
   \begin{split}
     \forall (k \in \{-x, +x, -y, +y \} ): \quad  \hat{U}_{ij}^k &= \cellAvg^k
@@ -815,7 +815,6 @@ Finally, the update can be described by
   \end{split}
 \end{align}
 This results in a scheme that has an order of convergence of two for both space and time.
-\todo{Is this enough detail?}
 We treat the source term by a simple splitting scheme.
 The interested reader is referred to the discussions in~\cite{leVeque2002finite,toro2009riemann}.
 
@@ -838,12 +837,12 @@ Instead of a regular grid where each cell has the same size, we now have differe
 \subsection{Limiting}\label{sec:limiting}
 Higher order \textsc{dg} methods cannot cope with discontinuous solutions.
 Even worse, in the case of non-linear fluxes, discontinuities can appear even from smooth initial data.
-In addition, oscillations stemming from the high-order polynomical approximation can lead to wrong or unphysical data.
+In addition, oscillations stemming from the high-order polynomial approximation can lead to wrong or unphysical data.
 This is called Gibbs phenomenon.
 A classical way of dealing with this problem is the usage of so called limiters.
 The idea is to smooth out steep gradients and thus lessen the effect of discontinuities~\cite{hesthaven2008nodal}.
 
-A relatively recent way of dealing with this problem is the finite volume subcell limiter.
+A relatively recent way of dealing with this problem is the finite volume sub-cell limiter.
 Our discussion follows the one in~\cite{dumbser2016simple}.
 This limiting is an a posteriori limiting, which means that we first evaluate a timestep with an unlimited \aderdg{}-method and then check whether our solution is \enquote{correct}.
 In our case, we check whether the solution is a finite floating point number.
@@ -875,23 +874,21 @@ We check for each cell $\cell[i]$ whether
 \end{align}
 holds.
 The parameters $\varepsilon$ and $\varepsilon_0$ can be set freely.
-The former controls by which factor the local jump can differ from its neighbourhood, the latter is needed for zero jumps~\cite{dumbser2016simple}.
-Note that this criterion is only a heuristic and is suspectible to false positives.
+The former controls by which factor the local jump can differ from its neighborhood, the latter is needed for zero jumps~\cite{dumbser2016simple}.
+Note that this criterion is only a heuristic and is susceptible to false positives.
 
 If a solution violates any of our criteria, we recompute the last timestep for the offending cells with a limited finite volume method.
 In our case we use the \muscl{}-method (\cref{sec:muscl}).
-The recomputation starts by subdividing the infringing cell into $N_s = 2N + 1$ subcells.
-This number of subcells has the advantage that we do not lose spatial resolution and that we can use the same timestep size for both cell types.
+The recomputation starts by subdividing the infringing cell into $N_s = 2N + 1$ sub-cells.
+This number of sub-cells has the advantage that we do not lose spatial resolution and that we can use the same timestep size for both cell types.
 The reason for this is that the \textsc{cfl}-conditions for both schemes \pcref{eq:cfl-aderdg,eq:cfl-muscl} coincide for our choice of $N_s$.
 \begin{figure}[htb]
   \centering
-  \includegraphics[scale=0.7]{thesis_aderdg_subcell_grid}
-  \caption{\label{fig:limiting-subcells}Conversion from \dg{} degrees of freedoms to finite volume degree of freedoms. Image taken from~\cite{dumbser2018conformal}. }
+  \includegraphics{thesis_aderdg_subcell_grid}
+  \caption{\label{fig:limiting-subcells}Conversion from \dg{} degrees of freedoms to finite volume degree of freedoms. Image taken from~\cite{dumbser2018conformal}. We changed the typeface of the figure.}
 \end{figure}
-\todo{Cite source for subcells~\pcref{fig:limiting-subcells}. See guidebook. NOTE THAT IT IS MODIFIED. Also: Fix size, currently font is a ziny bit too small}
-
-\Cref{fig:limiting-subcells} depicts the mapping from \dg{}-cells to finite volume subcells.
-For the sake of brevity, we omit technical details and refer the interestd reader to~\cite{dumbser2016simple}.
+\Cref{fig:limiting-subcells} depicts the mapping from \dg{}-cells to finite volume sub-cells.
+For the sake of brevity, we omit technical details and refer the interested reader to~\cite{dumbser2016simple}.
 
 \subsection{Adaptive Mesh Refinement}\label{sec:amr}
 The goal of adaptive mesh refinement (\amr{}) is to increase the computational efficiency by using a coarse spatial resolution in areas with low information content and a higher resolution in areas of interest.
@@ -971,7 +968,7 @@ This is why we compute the population standard deviation by
   \caption{\label{alg:merge-variance}
     Merging two sets of reduced mean and variance~\cite{chan1982updating}}
 \end{algorithm}
-Chebychev's inequality
+Chebyshev's inequality
 \begin{equation}
   \label{eq:chebychev}
   \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2},
@@ -991,7 +988,7 @@ This motivates the following refinement criterion
 which refines a cell when its total variations differs by a multiple of the standard deviation.
 In this equation, the constants $T_\text{refine}$ and $T_\text{delete}$ can be used to tailor the trade-off between the quality of approximation and computational cost.
 They can be chosen freely, as long as $T_\text{refine} < T_\text{delete}$.
-Chebychev's inequality~\pcref{eq:chebychev} then guarantees that only a subset of cells is marked for refinement.
+Chebyshev's inequality~\pcref{eq:chebychev} then guarantees that only a subset of cells is marked for refinement.
 Note that this inequality provides only a loose bound.
 If one would be willing to assume a distribution of the indicator variable, tighter bounds can be derived~\cite{wasserman2004all}.
 

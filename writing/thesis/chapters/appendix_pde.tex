@@ -1,7 +1,7 @@
 \chapter{Details for Navier-Stokes Equations}\label{chap:appendix-pde}
 This appendix contains the Jacobians of the flux and the gradient of the temperature.
 We only present results for two-dimensions, the results for three-dimensions follow trivially.
-To simplify notation, we denote the unit vector pointing in $x$-direction by $\bm{e}_x$ and the vector in $z$-direction by $\bm{e}_z$.
+To simplify the notation, we denote the unit vector pointing in $x$-direction by $\bm{e}_x$ and the vector in $z$-direction by $\bm{e}_z$.
 
 The Jacobian of the hyperbolic flux~\cref{eq:hyper-flux} are in $x$ and $z$ direction:
 \begin{align}
@@ -9,9 +9,9 @@ The Jacobian of the hyperbolic flux~\cref{eq:hyper-flux} are in $x$ and $z$ dire
 &\pdv{\flux}{\Q} \cdot \bm{e}_x = \\
 &\qquad \left(\begin{array}{rrrrr}
 0 & 1 & 0 & 0 & 0 \\
--\frac{1}{2} \, {\left(2 \, g y - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{z}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} - \frac{j_{x}^{2}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x}}{\rho} + \frac{2 \, j_{x}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{z}}{\rho} & \gamma - 1 & -{\left(\gamma - 1\right)} q_{0} \\
+-\frac{1}{2} \, {\left(2 \, g z - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{z}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} - \frac{j_{x}^{2}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x}}{\rho} + \frac{2 \, j_{x}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{z}}{\rho} & \gamma - 1 & -{\left(\gamma - 1\right)} q_{0} \\
 -\frac{j_{x} j_{z}}{\rho^{2}} & \frac{j_{z}}{\rho} & \frac{j_{x}}{\rho} & 0 & 0 \\
--\frac{{\left(2 \, g y - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{z}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} j_{x}}{2 \, \rho} - \frac{{\left(E + {\pressure}\right)} j_{x}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x}^{2}}{\rho^{2}} + \frac{E + {\pressure}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{x} j_{z}}{\rho^{2}} & \frac{\gamma j_{x}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{x} q_{0}}{\rho} \\
+-\frac{{\left(2 \, g z - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{z}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} j_{x}}{2 \, \rho} - \frac{{\left(E + {\pressure}\right)} j_{x}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x}^{2}}{\rho^{2}} + \frac{E + {\pressure}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{x} j_{z}}{\rho^{2}} & \frac{\gamma j_{x}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{x} q_{0}}{\rho} \\
 -\frac{Z j_{x}}{\rho^{2}} & \frac{Z}{\rho} & 0 & 0 & \frac{j_{x}}{\rho}
 \end{array}\right)
 \end{split},\\
@@ -20,8 +20,8 @@ The Jacobian of the hyperbolic flux~\cref{eq:hyper-flux} are in $x$ and $z$ dire
 &\qquad \left(\begin{array}{rrrrr}
 0 & 0 & 1 & 0 & 0 \\
 -\frac{j_{x} j_{z}}{\rho^{2}} & \frac{j_{z}}{\rho} & \frac{j_{x}}{\rho} & 0 & 0 \\
--\frac{1}{2} \, {\left(2 \, g y - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{z}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} - \frac{j_{z}^{2}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{z}}{\rho} + \frac{2 \, j_{z}}{\rho} & \gamma - 1 & -{\left(\gamma - 1\right)} q_{0} \\
--\frac{{\left(2 \, g y - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{z}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} j_{z}}{2 \, \rho} - \frac{{\left(E + {\pressure}\right)} j_{z}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x} j_{z}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{z}^{2}}{\rho^{2}} + \frac{E + {\pressure}}{\rho} & \frac{\gamma j_{z}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{z} q_{0}}{\rho} \\
+-\frac{1}{2} \, {\left(2 \, g z - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{z}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} - \frac{j_{z}^{2}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{z}}{\rho} + \frac{2 \, j_{z}}{\rho} & \gamma - 1 & -{\left(\gamma - 1\right)} q_{0} \\
+-\frac{{\left(2 \, g z - \frac{j_{x}^{2}}{\rho^{2}} - \frac{j_{z}^{2}}{\rho^{2}}\right)} {\left(\gamma - 1\right)} j_{z}}{2 \, \rho} - \frac{{\left(E + {\pressure}\right)} j_{z}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{x} j_{z}}{\rho^{2}} & -\frac{{\left(\gamma - 1\right)} j_{z}^{2}}{\rho^{2}} + \frac{E + {\pressure}}{\rho} & \frac{\gamma j_{z}}{\rho} & -\frac{{\left(\gamma - 1\right)} j_{z} q_{0}}{\rho} \\
 -\frac{Z j_{z}}{\rho^{2}} & 0 & \frac{Z}{\rho} & 0 & \frac{j_{z}}{\rho}
 \end{array}\right)
 \end{split}

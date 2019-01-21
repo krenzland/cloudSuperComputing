@@ -61,6 +61,9 @@
 \usepackage[separate-uncertainty]{siunitx}
 \usepackage{calc}
 
+% For debuggins:
+%\usepackage{showframe}
+
 % -------------- Algorithms --------------
 \usepackage{algorithm,algorithmicx}
 \usepackage[noend]{algpseudocode}
@@ -119,7 +122,8 @@
 \usepackage{varioref}
 \usepackage[%
   citecolor=Gray,
-  linkcolor=Black, %YellowOrange,
+  linkcolor=Black,
+  urlcolor=Black,
   colorlinks=true]{hyperref}
 \usepackage{hyperref}
 \usepackage[noabbrev]{cleveref}
@@ -224,31 +228,36 @@
 \NewDocumentCommand{\stestfunction}{ O{} O{} }{\sbasis[#1][#2]}
 \NewDocumentCommand{\sttestfunction}{ O{} O{} }{\stbasis[#1][#2]}
 
-% Space-time dofs
-\NewDocumentCommand{\stpredictor}{ O{} O{} }{\overline{\bm{q}}^{#1}_{#2}}
-\NewDocumentCommand{\stpredictorCoeff}{ O{} O{} }{\underline{\overline{q}}^{#1}_{#2}}
+% Bold if no index is supplied.
+\newcommand{\bmempty}[2]{
+\notblank{#2}{#1}{\bm{#1}}
+}
 
-\NewDocumentCommand{\stflux}{ O{} O{} }{\overline{F}^{#1}_{#2}}
-\NewDocumentCommand{\stfluxCoeff}{ O{} O{} }{\underline{\overline{F}}^{#1}_{#2}}
+% Space-time dofs
+\NewDocumentCommand{\stpredictor}{ O{} O{} }{\overline{\bmempty{q}{#2}}^{#1}_{#2}}
+\NewDocumentCommand{\stpredictorCoeff}{ O{} O{} }{\underline{\overline{\bmempty{q}{#2}}}^{#1}_{#2}}
+
+\NewDocumentCommand{\stflux}{ O{} O{} }{\overline{\bmempty{F}{#2}}^{#1}_{#2}}
+\NewDocumentCommand{\stfluxCoeff}{ O{} O{} }{\underline{\overline{\bmempty{F}{#2}}}^{#1}_{#2}}
 
 % \NewDocumentCommand{\stsol}{ O{} O{} }{\overline{u}^{#1}_{#2}}
 % \NewDocumentCommand{\stsol}{ O{} O{} }{\underline{\overline{u}}^{#1}_{#2}}
 
-\NewDocumentCommand{\stsource}{ O{} O{} }{\overline{S}^{#1}_{#2}}
-\NewDocumentCommand{\stsourceCoeff}{ O{} O{} }{\underline{\overline{S}}^{#1}_{#2}}
+\NewDocumentCommand{\stsource}{ O{} O{} }{\overline{\bmempty{S}{#2}}^{#1}_{#2}}
+\NewDocumentCommand{\stsourceCoeff}{ O{} O{} }{\underline{\overline{\bmempty{S}{#2}}}^{#1}_{#2}}
 
 % Space dofs
-\NewDocumentCommand{\spredictor}{ O{} O{} }{\bm{q}^{#1}_{#2}}
+\NewDocumentCommand{\spredictor}{ O{} O{} }{\bmempty{q}{#2}^{#1}_{#2}}
 \NewDocumentCommand{\spredictorCoeff}{ O{} O{} }{\underline{q}^{#1}_{#2}}
 
-\NewDocumentCommand{\ssource}{ O{} O{} }{S^{#1}_{#2}}
-\NewDocumentCommand{\ssourceCoeff}{ O{} O{} }{\underline{S}^{#1}_{#2}}
+\NewDocumentCommand{\ssource}{ O{} O{} }{\bmempty{S}{#2}^{#1}_{#2}}
+\NewDocumentCommand{\ssourceCoeff}{ O{} O{} }{\underline{\bmempty{S}{#2}}^{#1}_{#2}}
 
-\NewDocumentCommand{\ssol}{ O{} O{} }{u^{#1}_{#2}}
-\NewDocumentCommand{\ssolCoeff}{ O{} O{} }{\underline{u}^{#1}_{#2}}
+\NewDocumentCommand{\ssol}{ O{} O{} }{\bmempty{u}{#2}^{#1}_{#2}}
+\NewDocumentCommand{\ssolCoeff}{ O{} O{} }{\underline{\bmempty{u}{#2}}^{#1}_{#2}}
 
-\NewDocumentCommand{\sflux}{ O{} O{} }{F^{#1}_{#2}}
-\NewDocumentCommand{\sfluxCoeff}{ O{} O{} }{\underline{F}^{#1}_{#2}}
+\NewDocumentCommand{\sflux}{ O{} O{} }{\bmempty{F}{#2}^{#1}_{#2}}
+\NewDocumentCommand{\sfluxCoeff}{ O{} O{} }{\underline{\bmempty{F}{#2}}^{#1}_{#2}}
 
 % Equation parts
 \newcommand{\flux}{\bm{F}}
@@ -298,6 +307,8 @@ S_{#1}
 
 % MUSCL
 \newcommand{\cellAvg}[1][i,j]{\bm{U}_{#1}}
+\newcommand{\extrapolatedCellAvg}[3][i,j]{\cellAvg[#1]^{#3 #2} = \cellAvg #3 \frac{1}{2} \slope{#2}}%
+\newcommand{\evolvedCellAvg}[2][i,j]{\hat{\bm{U}}_{#1}^{#2}}
 \newcommand{\sign}{\operatorname{sign}}
 \newcommand{\minmod}{\operatorname{minmod}}
 \newcommand{\slope}[2][i,j]{\bm{s}^{#2}_{#1}}

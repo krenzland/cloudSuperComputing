@@ -1,13 +1,13 @@
 \chapter{\abstractname}
 This thesis is concerned with the simulation of clouds using the ExaHyPE framework.
-ExaHyPE is an engine for hyperbolic partial differential equations that uses the ADER-DG scheme.
+ExaHyPE is an engine for hyperbolic partial differential equations that uses the \aderdg{} scheme.
 
 We use the compressible Navier-Stokes equations for computational fluid dynamics.
 Due to the diffusive components, the Navier-Stokes equations are not hyperbolic.
 We thus need to modify parts of the numerical scheme.
 In addition, we extend the equation set to the reactive compressible Navier-Stokes equations which include a source term that models chemical reactions.
 
-We develop a gradient-based, global adaptive mesh refinement (AMR) indicator that finds cells with unusually large gradients.
+We develop a gradient-based, global adaptive mesh refinement (\amr{}) indicator that finds cells with unusually large gradients.
 
 Our implementation is evaluated for standard two and three dimensional fluid dynamics test cases, for flows over a realistic background atmosphere and for a reactive detonation wave.
 Additionally, we perform a convergence test and a time-to-solution benchmark that evaluates our proposed AMR criterion.

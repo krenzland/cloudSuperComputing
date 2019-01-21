@@ -2,7 +2,7 @@
 \sidetitle{Climate modeling}
 Simulations are an important part of weather and climate forecasts.
 Both types of forecasts are difficult problems that are limited by a lack of computational power.
-Especially in a time where the realization of exascale supercomputers is imminent, scalable numericals model are becoming more and more important.
+Especially in a time where the realization of exascale supercomputers is imminent, scalable numerical model are becoming more and more important.
 Current climate and weather models are not ready for the exascale era~\cite{schulthess2018reflecting}.
 While~\cite{schulthess2018reflecting} proposes a spatial resolution of $\SI{1}{\kilo\meter}$ as a goal, current state of the art simulations operate on a resolution that is an order of magnitude coarser.
 
@@ -17,7 +17,7 @@ In addition, they can be of high order and can perform local grid refinement~\ci
 These advantages are only some reasons why they have been investigated for weather and climate modeling~\cite{muller2010adaptive,giraldo2008study}.
 Recently, \ader{} discontinuous Galerkin methods has been proposed, for example in~\cite{dumbser2008unified}.
 This method is scalable and of arbitrary order in both time and space.
-With an appropiate limiter, it is also stable, even in the vicinity of discontinuities~\cite{dumbser2016simple}.
+With an appropriate limiter, it is also stable, even in the vicinity of discontinuities~\cite{dumbser2016simple}.
 It is thus a promising candidate for a numerical scheme for the exascale era.
 
 The goal of this thesis is to evaluate the \aderdg{} method for testing scenarios, which have been devised as benchmark examples for meteorological applications~\cite{robert1993bubble,giraldo2008study}.

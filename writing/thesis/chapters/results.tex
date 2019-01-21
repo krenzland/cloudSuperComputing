@@ -4,20 +4,30 @@ In this chapter, we use them to gauge the quality of our numerical scheme.
 We start with a convergence test, followed by three standard testing scenarios.
 Next, we simulate two different cloud scenarios and check whether our \amr{} criterion is useful.
 
-\newcommand{\error}{\operatorname{Total-Error}}
+\newcommand{\error}{\operatorname{Error}}%
 \section{Convergence Test}\label{sec:results-convergence}
+\begin{figure}[hb]
+  \centering
+  \includegraphics[trim=0.2cm 0.3cm 0.2cm 1.0cm, clip]{thesis_convergence}
+  \caption{\label{fig:convergence-l2-error}%
+    $L_2$-Error vs.\ Grid Size.
+    The dashed lines are the optimal order of convergence $N+1$.
+  The line is estimated by a linear regression fit and setting the slope to the ideal order.}
+\end{figure}
 For the convergence test, we run our manufactured solution scenario~(\cref{sec:manufactured-solution}) for all orders 1 to 6 and for number of cells $3^2, 9^2, 27^2$ and $81^2 $.
 
+In the following, we describe the error for one variable.
+We define the total error as the sum of the error of all conservative variables.
 Before computing the error, we first need to define the $L_p$ norms for a $p > 0$ by
 \begin{equation}
   \label{eq:Lp-nrom}
   \Vert f(\bm{x}) \Vert_p = \left( \intddomain{ \vert f(\bm{x}) \vert^p}  \right)^{1/p}.
 \end{equation}
-We are interested in the total error which we define as the norm of the difference between an analytical solution $f(\bm{x}, t)$ and our approximation $\hat{f}(\bm{x}, t)$.
+We are interested in the total error which we define as the norm of the difference between an analytical solution $f(\bm{x}, t)$ and our approximation $\ssol(\bm{x}, t)$.
 The error at a time $t$ is thus defined as
 \begin{equation}
   \label{eq:error}
-  \error(t,p) = \Vert f(\bm{x}, t) - \hat{f}(\bm{x}, t) \Vert_p.
+  \error(t,p) = \Vert f(\bm{x}, t) - \ssol (\bm{x}, t) \Vert_p.
 \end{equation}
 
 We first observe that for our approximation space $\broken$ we can split up the error as a sum over all cells.
@@ -26,22 +36,13 @@ We evaluate the cell-wise error with Gaussian quadrature~\pcref{eq:quadrature,eq
 %   \Vert f(\bm{x}, t) - \hat{f}(\bm{x}, t) \Vert_p^p =
    \error(t,p) = 
    \left( \sum_{\cell[i] \in \broken}
-    \left( V \sum_{\bm{j}} \vert f^{\cell[i]}(\quadNodeNd[j], t) - \hat{f}^{\cell{i}}(\quadNodeNd[j], t) \vert^p \, \quadWeight[j] \right) \right)^{1/p}.
+    \left( V \sum_{\quadNodeNd[j] \in \refCell[i]} \vert f^{\cell[i]}(\quadNodeNd[j], t) - \ssol[\cell{i}](\quadNodeNd[j], t) \vert^p \, \quadWeight[j] \right) \right)^{1/p}.
  \end{equation}
 Here, a superscript of $\cell[j]$ denotes the restriction of the function to a grid cell.
 To increase the quadrature quality, we evaluate both analytical and approximate solution at the quadrature nodes of a scheme with 10 quadrature nodes $\quadNode[j]$ with weights $\quadWeight[j]$.
 We then use these nodes to compute the approximation error per cell.
 
 For the limiting case of $p \to \infty$ we use the maximum of the point-wise error over all nodal points.
-
-\begin{figure}[htb]
-  \centering
-  \includegraphics[trim=0.2cm 0.3cm 0.2cm 1.0cm, clip]{thesis_convergence}
-  \caption{$L_2$-Error vs.\ Grid Size.
-    The dashed lines are the optimal order of convergence $N+1$.
-  The line is estimated by a linear regression fit and setting the slope to the ideal order.}
-  \label{fig:convergence-l2-error}
-\end{figure}
 
 \begin{table}[htb]
   \centering
@@ -60,18 +61,18 @@ For the limiting case of $p \to \infty$ we use the maximum of the point-wise err
 \end{tabular}
 \end{table}
 
-To compute the numerical order of convergence, we perform a linear regression of the logarithm of the error vs.\ the logarithm of the meshsize.
+To compute the numerical order of convergence, we perform a linear regression of the logarithm of the error vs.\ the logarithm of the mesh size.
 The size of the slope is then the convergence order.
 The plot for the $L_2$ error~(\cref{fig:convergence-l2-error}) shows that our method converges for all tested polynomial orders.
 Note that the error for the finest grid with order 6 is worse than the error for order 5.
-For all other meshsizes and orders, a higher order implies a smaller error.
+For all other mesh sizes and orders, a higher order implies a smaller error.
 Comparing our errors with the optimal order of convergence $N+1$, we notice that while our scheme exhibits the theoretical order of convergence of 2 for a polynomial order $N=1$, orders have diminishing returns.
 
 The same is true for other error norms (\cref{tab:convergence-order}).
 This means, that we do not achieve the optimal theoretical order of convergence in general.
 In~\cite{dumbser2010arbitrary}, which use a similar numerical method and the same scenario, but a different grid, \citeauthor{dumbser2010arbitrary} achieves the optimal order for most polynomial orders.
 Some \textsc{dg}-methods of even polynomial order only achieve a numerical convergence order of $N+\nicefrac{1}{2}$.
-The exact theoretical reason for this is unclear but it shares characteristics with the behaviour of other \dg{}-schemes.
+The exact theoretical reason for this is unclear but it shares characteristics with the behavior of other \dg{}-schemes.
 We refer the interested reader to the discussion of error estimates for nonlinear problems and for multi-dimensional problems with \dg{}-schemes of~\cite{hesthaven2008nodal}.
 
 \section{Accurate CFD}\label{sec:cfd}
@@ -81,7 +82,7 @@ After we established that our scheme converges, we evaluate it using standard \t
 We used an \aderdg{}-scheme of order 5 with a mesh of size $27 \times 27$ cells to simulate the Taylor-Green Vortex~\pcref{eq:taylor-green}.
 The simulation ran for \SI{10}{\s}.
 Our solution resulted in the expected streamlines (\cref{fig:taylor-green-streamlines}).
-Furthermore, we compare our results with the analytical solution for the incrompressible case.
+Furthermore, we compare our results with the analytical solution for the incompressible case.
 We achieved a small error~(\cref{fig:taylor-green-result}) for both pressure and velocity.
 The small errors are expected and not only stem from numerical inaccuracies but primarily from the fact that we simulated a compressible fluid.
 Note that the error is small over the entire domain, and not only close to the boundary, where we imposed the analytical solution.
@@ -141,7 +142,7 @@ We thus show that our implementation can also handle three-dimensional scenarios
     \centering
     \includegraphics{thesis_lid_driven_cavity}
     \caption{\label{fig:lid-driven-cavity-result}%
-      Plot of velocity slices. Lines are our soulution, scatter plot shows reference solution~\cite{ghia1982high}.
+      Plot of velocity slices. Lines are our solution, scatter plot shows reference solution~\cite{ghia1982high}.
       For each slice, the other variable is held constant at a value of zero.}
   \end{subfigure}
   
@@ -188,27 +189,27 @@ We thus had a resolution of ca.\ \SI{37.037}{\m} up to \SI{12.3457}{\m}.
 The coarse structure of our results~(\cref{fig:cosine-bubble-contour-ours}) agrees with the reference solution~(\cref{fig:cosine-bubble-contour-giraldo} of~\cite{giraldo2008study} but the fine details differ.
 In contrast to us, they used a scheme of polynomial order 10 and a uniform spatial resolution of \SI{20}{\m}.
 Moreover, we used a physical viscosity of $0.1$, which explains why we have fewer spurious details despite using a lower order.
-This becomes clearer by comparing the potential temperature pertubation.
+This becomes clearer by comparing the potential temperature perturbation.
 Our solution has a smooth distribution inside the cloud~(\cref{fig:cosine-bubble-potT-ours}) while the results of~\cite{giraldo2008study} show sharp peaks~(\cref{fig:cosine-bubble-potT-giraldo}).
-In addition, our solution does not contain negative values for the pertubation.
-Despite the different parameters, the maximum pertubation and its position matches for both results.
+In addition, our solution does not contain negative values for the perturbation.
+Despite the different parameters, the maximum perturbation and its position matches for both results.
 
 \begin{figure}[htb]
   \centering
   \begin{subfigure}[t]{0.45\textwidth}
     \centering
-    \includegraphics[trim={0.00cm 0.00cm 8.4cm 0.0cm},clip]{thesis_cosine_bubble_pertubation_comparison}
+    \includegraphics[scale=0.974,trim={0.00cm 0.00cm 8.4cm 0.0cm},clip]{thesis_cosine_bubble_pertubation_comparison}
     \caption{\label{fig:cosine-bubble-potT-ours}%
       Our result}
   \end{subfigure}~%
   \begin{subfigure}[t]{0.55\textwidth}
     \centering
-    \includegraphics[trim={7.00cm 0.00cm 0.0cm 0.0cm},clip]{thesis_cosine_bubble_pertubation_comparison}
+    \includegraphics[scale=0.974,trim={7.00cm 0.00cm 0.0cm 0.0cm},clip]{thesis_cosine_bubble_pertubation_comparison}
     \caption{\label{fig:cosine-bubble-potT-giraldo}%
-      Figure taken from~\cite{giraldo2008study}, resolution of \SI{20}{\m}, $N = 10$, \dg{}3 uses modified Navier-Stokes} %poly order
+      Figure taken from~\cite{giraldo2008study}, resolution of \SI{20}{\m}, \\$N = 10$, \dg{}3 uses modified Navier-Stokes} %poly order
   \end{subfigure}
   \caption{\label{fig:cosine-bubble-potT}%
-    Height $z$ vs.\ pertubation of potential temperature for the cosine bubble scenario at $t=\SI{700}{\s}$ and $x = \SI{500}{\m}$.
+    Height $z$ vs.\ perturbation of potential temperature for the cosine bubble scenario at $t=\SI{700}{\s}$ and $x = \SI{500}{\m}$.
   }
 \end{figure}
 
@@ -217,7 +218,7 @@ We ran the second scenario, the two bubbles scenario~\pcref{eq:bubbles-values}, 
 The results in (\cref{fig:two-bubbles-contour}) are comparable to the reference solution~\cite{muller2010adaptive} for the first seven minutes.
 Note that the final plot at \SI{7}{\min} looks different in our simulation.
 A possible source for this is that we use a different equation set than~\cite{muller2010adaptive}.
-While we use a general purpose set with small modifications for atmospheric flows, they use a equation set that is fully focussed on this scenario.
+While we use a general purpose set with small modifications for atmospheric flows, they use a equation set that is fully focused on this scenario.
 Furthermore, we use the full Navier-Stokes viscous fluxes instead of an approximation.
 
 \begin{figure}[p]
@@ -239,7 +240,7 @@ Furthermore, we use the full Navier-Stokes viscous fluxes instead of an approxim
      Contours of the potential temperature for two bubble scenario.
      On the left is our solution, the right plots are taken from~\cite{muller2010adaptive}.
      We rescaled the reference plots and changed their arrangement and axes placement.
-   Contour values for potential temperature pertubation are $-0.05, 0.05, 0.1, \ldots 0.45$.
+   Contour values for potential temperature perturbation are $-0.05, 0.05, 0.1, \ldots 0.45$.
   }
 \end{figure}
 
@@ -248,10 +249,10 @@ To show the effectiveness of the \amr{} criterion, we compare the two settings:
 \begin{description}
 \item[AMR] We used a coarse mesh with just $27 \times 27$ cells.
   Each could can be refined once.
-  That is, the cells had sidelengths of roughly \SI{37.04}{\m} and  \SI{12.35}{\m}.
+  That is, the cells had side lengths of roughly \SI{37.04}{\m} and  \SI{12.35}{\m}.
   As refinement thresholds we used $T_\text{refine} = 2.5$ and $T_\text{delete} = -0.5$ in \cref{eq:refinement-criterion}.
   They are the exact same settings that we used for the bubble scenarios in the previous section.
-\item[Fine] We used a uniform grid where all cells had a sidelength corresponding to the finest mesh of the \amr{}-test case.
+\item[Fine] We used a uniform grid where all cells had a side length corresponding to the finest mesh of the \amr{}-test case.
   In addition, we disabled the reduction of global observables.
 \end{description}
 While our \amr{} criterion is able to cope with an additional, coarser level, the current implementation in \exahype{} is unstable in this case.
@@ -311,10 +312,10 @@ We used a single node Supermuc Phase 2.
 The node has two Intel® Haswell Xeon Processor E5-2697 v3 \textsc{cpu}s with 14 cores each.
 Both \textsc{cpu}s ran at a frequency of $\SI{1.8}{\GHz}$.
 
-We solely used the \tbb{} parallelisation of \exahype{}.
+We solely used the \tbb{} parallelization of \exahype{}.
 To find a reasonable parameter for the number of background job consumers, we ran a grid search.
-We ran three \amr{} testcases for a simulation time of $\SI{1}{\min}$.
-The testcases were identical in setting to the aforementioned \amr{} run, but with two levels of refinement.
+We ran three \amr{} test cases for a simulation time of $\SI{1}{\min}$.
+The test cases were identical in setting to the aforementioned \amr{} run, but with two levels of refinement.
 The best median performance was achieved by using six background threads.
 Note that the results were noisy and it is unclear whether the chosen number of background threads is optimal.
 
@@ -327,7 +328,7 @@ To summarize, our \amr{} criterion saved a significant amount of computational e
 \section{Reactive Euler \textit{\&} Navier Stokes}\label{sec:results-reactive}
 As a final benchmark, we used the \textsc{cj}-detonation wave~\pcref{eq:cj-detonation} to evaluate the reactive Navier-Stokes equations.
 We used a limiting \aderdg{}-scheme with an order of 3.
-For runs without viscosity we used a meshsize of $81 \times 81$, for the runs with a viscosity of $\mu = 0.01$ we used a coarser mesh consisting in $27 \times 27$ cells.
+For runs without viscosity we used a mesh size of $81 \times 81$, for the runs with a viscosity of $\mu = 0.01$ we used a coarser mesh consisting in $27 \times 27$ cells.
 We chose the smaller grid because our boundary conditions became unstable for finer grids.
 A reason for this might be the fact that we are unable to prescribe the gradient at the boundary in our \muscl{} implementation.
 For some runs, we used the \textsc{dmp} settings
@@ -392,8 +393,8 @@ Note that the limiter activation are not symmetric which is unexpected for a rad
 The contours for pressure and mass fraction look similar for all considered settings.
 
 It is difficult to compare these results with our references because they both use different settings.
-In constrast to~\cite{helzel2000modified} we use a non-stiff source term and viscous effects; \cite{hidalgo2011ader} includes viscosity but is limited to one-dimensional scenarios.
-Comparing with \cref{fig:detonation-contour-reference} we can see that our simulation captures the overall behaviour of the reaction similar to the stiff simulations of~\cite{helzel2000modified}.
+In contrast to~\cite{helzel2000modified} we use a non-stiff source term and viscous effects; \cite{hidalgo2011ader} includes viscosity but is limited to one-dimensional scenarios.
+Comparing with \cref{fig:detonation-contour-reference} we can see that our simulation captures the overall behavior of the reaction similar to the stiff simulations of~\cite{helzel2000modified}.
 The viscous effects have a similar smoothing effect as in~\cite{hidalgo2011ader}.
 
 \begin{figure}[htb]
@@ -414,10 +415,9 @@ The viscous effects have a similar smoothing effect as in~\cite{hidalgo2011ader}
     Red color indicates that a cell is limited.
   }
 \end{figure}
-
-\begin{figure}[htb]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.33\textwidth]{leveque_detonation_mass_fraction}
+    \includegraphics[width=0.3\textwidth]{leveque_detonation_mass_fraction}
     \caption{\label{fig:detonation-contour-reference}Reference solution for mass fraction with stiff source.
       Image taken from~\cite{helzel2000modified}.}
 \end{figure}

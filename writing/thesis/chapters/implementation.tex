@@ -5,7 +5,7 @@ We first give a short overview of the general structure of the \exahype{} code a
 It uses \softwareName{Intel® Threading Building Blocks} (\tbb{}) for shared memory parallelism and the \softwareName{Message Passing Interface} (\mpi{}) for distributed memory parallelism. 
 In the following, we define a \enquote{user} as someone who implements the logic of a \pde{} but does not change the implementation of \exahype{} itself.
 This is in contrast with a \enquote{developer} whose scope is the entirety of the source code.
-The goal of our implementation is that all new features should be accesible to users as well.
+The goal of our implementation is that all new features should be accessible to users as well.
 
 \section{ExaHyPE}
 \exahype{} is based on the space-filling-curves library \peano~\cite{weinzierl2011}.
@@ -74,7 +74,7 @@ These changes are:
   This corresponds to \cref{eq:rusanov-flux,eq:cfl-aderdg}.
 \item Computing the gradient for the \muscl{} scheme (\fileName{musclhancock.cpph}) and passing it to the flux (\fileName{rusanov.cpph}).
 \end{itemize}
-Additionaly, we needed to change the templates for the glue code and needed to modify some function signatures to accompany the other changes.
+Additionally, we needed to change the templates for the glue code and needed to modify some function signatures to accompany the other changes.
 
 \section{Implementing Global Observables}
 \newcommand{\ngobs}{N^{\text{gobs}}}
@@ -105,7 +105,7 @@ Examples are computing the minimum, maximum, sum, mean and variance.
 
 For the variance of the total variation, we store the partial mean, sample variance, and count as global observables.
 The vector $(-1, -1, 0)$ is then the base-case for the iteration~\pcref{alg:reduce-gobs} and is thus returned by the function \funName{resetGlobalObservables}.
-The method \funName{mapGlobalObservables} is defined to return $\left( \tv \left[ f(\Q) \right], 0, 1 \right)$, where $f(\Q)$ returns an arbitary indicator value per cell.
+The method \funName{mapGlobalObservables} is defined to return $\left( \tv \left[ f(\Q) \right], 0, 1 \right)$, where $f(\Q)$ returns an arbitrary indicator value per cell.
 Finally, \funName{reduceGlobalObservables} is implemented exactly as described in \cref{alg:merge-variance}.
 
 For the actual implementation, we follow \cref{alg:reduce-gobs} but include distributed and shared memory parallelization in the following way:

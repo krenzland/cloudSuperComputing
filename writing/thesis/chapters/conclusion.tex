@@ -1,6 +1,6 @@
 \chapter{Conclusion}\label{chap:conclusion}
 We implemented a \muscl{}-limited \aderdg{}-scheme with \amr{} for the reactive Navier Stokes equations in this thesis.
-We showed that the scheme works and is capable of simulation different scenarios:\todo{Reference sections of results. Reference theory chapter. Reference implementation.}
+We showed that the scheme works and is capable of simulation different scenarios:
 \begin{itemize}
 \item We showed in \cref{sec:results-convergence} that our scheme converges for all considered orders for the Navier-Stokes equations.
 \item We evaluated our method for standard \textsc{cfd} scenarios~(\cref{sec:cfd}) and achieved competitive results for all used scenarios.
@@ -15,8 +15,8 @@ Of course, there are some things that can be improved and which need further wor
 \begin{itemize}
 \item The current treatment of the boundary conditions is not stable for some scenarios.
   Especially the viscous walls for the \muscl{}-method are not correct, due to limitations of \exahype{}.
-\item The\textsc{cfl}-condition~\pcref{eq:cfl-aderdg,eq:cfl-muscl} has the effect that our method needs a large number of timesteps.
-  Even though our \amr{}-criterion is able to reduce the number of needed cells drastically, we could get another large improvement by utilizing local timestepping.
+\item The \textsc{cfl}-condition~\pcref{eq:cfl-aderdg,eq:cfl-muscl} has the effect that our method needs a large number of timesteps.
+  Even though our \amr{}-criterion is able to reduce the number of needed cells drastically, we could get another large improvement by utilizing local time-stepping.
 \item Our implementation of the \textsc{cj}-detonation wave cannot handle realistic detonations because we do not have an implementation of stiff source terms.
   An implementation of this is straight-forward but includes changes to the space-time predictor and its initial guess, and also to the \muscl{}-scheme.
 \end{itemize}
