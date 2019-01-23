@@ -1,0 +1,161 @@
+
+
+% Commands/Macros
+% Names of methods or so
+\newcommand{\muscl}{\textsc{muscl}-Hancock}
+\newcommand{\dg}{\textsc{dg}}
+\newcommand{\ader}{\textsc{ader}}
+\newcommand{\aderdg}{\textsc{ader-dg}}
+\newcommand{\amr}{\textsc{amr}}
+\newcommand{\pde}{\textsc{pde}}
+\newcommand{\cpp}{C\texttt{++}}
+\newcommand{\tbb}{\textsc{tbb}}
+\newcommand{\mpi}{\textsc{mpi}}
+
+\newcommand{\softwareName}[1]{\textit{#1}}
+\newcommand{\exahype}{\softwareName{ExaHyPE}}
+\newcommand{\peano}{\softwareName{Peano}}
+\newcommand{\className}[1]{\texttt{#1}}
+\newcommand{\funName}[1]{\textsf{#1}}
+\newcommand{\fileName}[1]{\textbf{#1}}
+\newcommand{\varName}[1]{\enquote{#1}}
+
+
+
+% Variables and other equation stuff
+\newcommand{\Q}{\bm{Q}}
+\newcommand{\gradQ}{\gradient{\Q}}
+\newcommand{\Qrho}{\rho}
+\newcommand{\Qj}{\rho \bm{v}}
+\newcommand{\Qv}{\bm{v}}
+\newcommand{\QE}{\rho E}
+\newcommand{\QZZ}{Z} % TODO: Name?
+\newcommand{\QZ}{\rho \QZZ}
+\newcommand{\potT}{\theta}
+\newcommand{\backgroundPotT}{\overline{\theta}}
+\newcommand{\pertubationPotT}{\theta'}
+\newcommand{\stressT}{\bm{\sigma}}
+\newcommand{\pressure}{p}
+\newcommand{\maxConvEigen}[1][]{
+  \vert%
+  \lambda_c^{\text{max}}
+  \notblank{#1}{\left(#1\right)}{}
+  \vert%
+}
+\newcommand{\maxViscEigen}[1][]{
+  \vert%
+  \lambda_v^{\text{max}}
+  \notblank{#1}{\left(#1\right)}{}
+  \vert%
+}
+\newcommand{\Riemann}{\operatorname{Riemann}}
+
+% Domain
+\newcommand{\domain}{\Omega}
+\newcommand{\boundary}{\partial \domain}
+\newcommand{\broken}{\domain}
+
+% Cells
+\newcommand{\cell}[1][]{C_{#1}}
+\newcommand{\refCell}[1][]{\hat{C}_{#1}}
+\newcommand{\cellb}{\partial{} \cell}
+\newcommand{\refCellb}{\partial{} \refCell}
+
+% Basis functions
+\newcommand{\lagrange}[1][i]{\varphi_{#1}}
+\newcommand{\lagrangeRef}[1][i]{\hat{\varphi}_{#1}}
+\NewDocumentCommand{\sbasis}{ O{} O{} }{\phi^{#1}_{#2}}
+\NewDocumentCommand{\sbasisRef}{ O{} O{} }{\hat{\phi}^{#1}_{#2}} %{\hat{\sbasis[#1][#2]}}
+\NewDocumentCommand{\stbasis}{ O{} O{} }{ \psi^{#1}_{#2}}
+\NewDocumentCommand{\stbasisRef}{ O{} O{} }{\hat{\psi}^{#1}_{#2}} %{\hat{\stbasis[#1][#2]}}
+%\newcommand{\stestfunction}[1]{\sbasis[#1]}
+\NewDocumentCommand{\stestfunction}{ O{} O{} }{\sbasis[#1][#2]}
+\NewDocumentCommand{\sttestfunction}{ O{} O{} }{\stbasis[#1][#2]}
+
+% Bold if no index is supplied.
+\newcommand{\bmempty}[2]{
+\notblank{#2}{#1}{\bm{#1}}
+}
+
+% Space-time dofs
+\NewDocumentCommand{\stpredictor}{ O{} O{} }{\overline{\bmempty{q}{#2}}^{#1}_{#2}}
+\NewDocumentCommand{\stpredictorCoeff}{ O{} O{} }{\underline{\overline{\bmempty{q}{#2}}}^{#1}_{#2}}
+
+\NewDocumentCommand{\stflux}{ O{} O{} }{\overline{\bmempty{F}{#2}}^{#1}_{#2}}
+\NewDocumentCommand{\stfluxCoeff}{ O{} O{} }{\underline{\overline{\bmempty{F}{#2}}}^{#1}_{#2}}
+
+% \NewDocumentCommand{\stsol}{ O{} O{} }{\overline{u}^{#1}_{#2}}
+% \NewDocumentCommand{\stsol}{ O{} O{} }{\underline{\overline{u}}^{#1}_{#2}}
+
+\NewDocumentCommand{\stsource}{ O{} O{} }{\overline{\bmempty{S}{#2}}^{#1}_{#2}}
+\NewDocumentCommand{\stsourceCoeff}{ O{} O{} }{\underline{\overline{\bmempty{S}{#2}}}^{#1}_{#2}}
+
+% Space dofs
+\NewDocumentCommand{\spredictor}{ O{} O{} }{\bmempty{q}{#2}^{#1}_{#2}}
+\NewDocumentCommand{\spredictorCoeff}{ O{} O{} }{\underline{q}^{#1}_{#2}}
+
+\NewDocumentCommand{\ssource}{ O{} O{} }{\bmempty{S}{#2}^{#1}_{#2}}
+\NewDocumentCommand{\ssourceCoeff}{ O{} O{} }{\underline{\bmempty{S}{#2}}^{#1}_{#2}}
+
+\NewDocumentCommand{\ssol}{ O{} O{} }{\bmempty{u}{#2}^{#1}_{#2}}
+\NewDocumentCommand{\ssolCoeff}{ O{} O{} }{\underline{\bmempty{u}{#2}}^{#1}_{#2}}
+
+\NewDocumentCommand{\sflux}{ O{} O{} }{\bmempty{F}{#2}^{#1}_{#2}}
+\NewDocumentCommand{\sfluxCoeff}{ O{} O{} }{\underline{\bmempty{F}{#2}}^{#1}_{#2}}
+
+% Equation parts
+\newcommand{\flux}{\bm{F}}
+\newcommand{\viscFlux}{\flux^{v}}
+\newcommand{\hyperFlux}{\flux^{h}}
+%\newcommand{\source}{\bm{S}}
+\newcommand{\source}[1][]{
+  \notblank{#1}{
+S_{#1}
+}{
+\bm{S}
+}
+}
+
+% Integrals
+\newcommand{\curTime}{t^k}
+\newcommand{\nextTime}{t^{k+1}}
+\newcommand{\intdt}[1]{\int_{\curTime}^{\nextTime} #1 \dd{t}}
+\newcommand{\intdcell}[1]{\int_{\cell} #1 \dd{\bm{x}}}
+\newcommand{\intdrefcell}[1]{\int_{\refCell} #1 \dd{\hat{\bm{x}}}}
+\newcommand{\intdcellb}[1]{\int_{\cellb} #1 \dd{S}} % TODO: define boundary of cell
+\newcommand{\intdrefcellb}[1]{\int_{\refCellb} #1 \hat{\dd{S}}} % TODO: define boundary of cell
+\newcommand{\intddomain}[1]{\int_{\domain} #1 \dd{\bm{x}}}
+
+% Yet to be sorted
+\newcommand{\quadWeight}[1][i]{w_{#1}}
+\newcommand{\quadNode}[1][i]{\hat{x}_{#1}}
+\newcommand{\quadNodeNd}[1][i]{\hat{\bm{x}}_{#1}}
+\newcommand{\sbasisSize}{(N+1)^\dimensions}
+\newcommand{\stbasisSize}{(N+1)^{\dimensions+1}}
+\newcommand{\normal}{\bm{n}}
+
+\newcommand{\pleft}{\bm{L}}
+\newcommand{\prightsol}{\bm{r}}
+\newcommand{\prightpred}{\bm{w}}
+
+\newcommand{\reactionTimescale}{\tau}
+\newcommand{\reactionTemperature}{T_{\text{ign}}}
+
+\newcommand{\tv}{\operatorname{TV}}
+
+\newcommand{\NVar}{N^{\text{var}}}
+\newcommand{\dimensions}{d}
+\newcommand{\mapping}{\mathcal{M}}
+\newcommand{\volume}{V}
+\newcommand{\cellCenter}{\operatorname{cell-center}}
+
+% MUSCL
+\newcommand{\cellAvg}[1][i,j]{\bm{U}_{#1}}
+\newcommand{\extrapolatedCellAvg}[3][i,j]{\cellAvg[#1]^{#3 #2} = \cellAvg #3 \frac{1}{2} \slope{#2}}%
+\newcommand{\evolvedCellAvg}[2][i,j]{\hat{\bm{U}}_{#1}^{#2}}
+\newcommand{\sign}{\operatorname{sign}}
+\newcommand{\minmod}{\operatorname{minmod}}
+\newcommand{\slope}[2][i,j]{\bm{s}^{#2}_{#1}}
+\newcommand{\gradCellAvg}[1][i,j]{\gradient{\cellAvg[#1]}}
+\newcommand{\fluxX}{\flux_x}
+\newcommand{\fluxY}{\flux_y}%
