@@ -1,0 +1,29 @@
+% https://tex.stackexchange.com/questions/123106/detect-aspect-ratio-in-beamer?noredirect=1&lq=1
+
+\makeatletter
+\newcommand\ifratio[3]{%
+\ifnum#1=169%
+    \ifdim\beamer@paperwidth=16.00cm\relax%
+        \ifdim\beamer@paperheight=9.00cm\relax%
+            #2%
+        \else%
+            #3%
+        \fi%
+    \else%
+        #3%
+    \fi%
+\else%
+    \ifnum#1=43%
+        \ifdim\beamer@paperwidth=12.80cm\relax%
+            \ifdim\beamer@paperheight=9.60cm\relax%
+                #2%
+            \else%
+                #3%
+            \fi%
+        \else%
+            #3%
+        \fi%
+    \fi%
+\fi%
+}
+\makeatother

@@ -1,0 +1,401 @@
+% https://tex.stackexchange.com/questions/123106/detect-aspect-ratio-in-beamer?noredirect=1&lq=1
+\documentclass[aspectratio=169]{beamer}
+%\documentclass[]{beamer}
+%\usepackage{eulervm}
+\usetheme{metropolis} % Use metropolis theme
+\usepackage{appendixnumberbeamer}
+\usepackage{lmodern}
+
+
+\renewcommand{\footnoterule}{%
+  \hspace{2cm}
+  \kern -3pt
+  \hrule width \textwidth height 1pt
+  \kern 2pt
+}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[autostyle, english = british]{csquotes}
+\usepackage[british]{babel}
+\usepackage{todonotes}
+\usepackage[%
+  backend=biber,
+  doi=false,
+  url=false,
+  isbn=false,
+  eprint=false,
+  style=verbose,
+  citestyle=verbose,
+  hyperref=true,
+  maxnames=99,
+  minnames=1,
+  maxbibnames=99,
+  firstinits,
+  uniquename=init]{biblatex}
+%\DeclareFieldFormat[inproceedings, article]{pages}{}%
+%\DeclareFieldFormat[inproceedings]{organization}{}%
+  % ignore some field for citations
+\DeclareSourcemap{
+  \maps[datatype=bibtex, overwrite]{
+    \map{
+      \step[fieldset=edition, null]
+      \step[fieldset=publisher, null]
+      \step[fieldset=pages, null]
+      \step[fieldset=organization, null]
+    }
+  }
+}
+
+\addbibresource{../bibliography.bib}
+
+\let\oldfootnotesize\footnotesize
+\renewcommand*{\footnotesize}{\oldfootnotesize\fontsize{6}{6}}
+
+\usepackage{caption}
+\usepackage{xpatch}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{mathtools} % for \mathclap
+\usepackage{nicefrac}
+\usepackage{physics} % for derivatives
+\usepackage{varioref}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage[noabbrev]{cleveref}
+\newcommand{\creflastconjunction}{, and\nobreakspace} % use Oxford comma
+\usepackage{todonotes}
+\usepackage{multimedia}
+
+\graphicspath{{../figures/}}
+\let\boundary\undefined%
+
+\usepackage{bm}
+\input{../thesis/macros.tex}
+
+\input{ifaspectratio.tex}
+
+% \newcommand{\Qrho}{\ensuremath{\rho}}
+% \newcommand{\Qj}{\ensuremath{\rho \bm{v}}}
+% %\newcommand{\Qv}{\ensuremath{\Qrho^{-1} \Qj}}
+% \newcommand{\Qv}{\ensuremath{\bm{v}}}
+% \newcommand{\QE}{\ensuremath{\rho E}}
+% \newcommand{\stressT}{\ensuremath{\bm{\sigma}}}
+% \newcommand{\pressure}{\ensuremath{p}}
+% \newcommand{\maxConvEigen}{\ensuremath{\vert \lambda_c^{\text{max}} \vert}}
+% \newcommand{\maxViscEigen}{\ensuremath{\vert \lambda_v^{\text{max}} \vert}}
+
+\newcommand{\cn}{\footnote{\enquote{TODO: Citation.}, 2017, \textbf{Conference}, \textit{Author 1, Author 2, Author 3, Author 4} }}
+
+\title{Cloud Simulation with the ExaHyPE-Engine\\Master Thesis Final}
+\author{Lukas Krenz\\Adviser: Leonhard Rannabauer\\Supervisor: Prof.\ Dr.\ Michael Bader}
+\date{January 24, 2019} 
+\institute{\textsc{tum}, Chair for Scientific Computing}
+
+\begin{document}
+\maketitle
+\begin{frame}{Two Bubbles: Hydrostatic Equilibrium\footfullcite{robert1993bubble}}
+  \begin{columns}
+    \begin{column}[t]{0.5\textwidth}
+      \begin{itemize}
+      \item 
+  Air is in hydrostatic equilibrium:
+
+  Gravitational force and pressure-gradient force are \textbf{exactly balanced}.
+
+  \item Constant potential temperature (temperature normalized by pressure) with larger, warm bubble and small, cold bubble on top.
+      
+  \end{itemize}
+    \end{column}~%
+    \begin{column}[t]{0.5\textwidth}
+      \begin{figure}[h]
+        \ifratio{43}{
+          \includegraphics{beamer_43_hydrostatic_equilibrium}
+        } {
+          \includegraphics{beamer_169_hydrostatic_equilibrium}
+        }
+\caption{Background pressure in equilibrium}
+\end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Two Bubbles: Simulation}
+   \begin{figure}[h]
+    \centering
+    \ifratio{43}{
+    \movie[width=0.9\textwidth, height=0.6\textwidth, autostart,, loop, poster]{}{two_bubbles_cartesian.ogv}
+  } {
+    \movie[width=0.7\textwidth, height=0.466666\textwidth, autostart,, loop, poster]{}{two_bubbles_cartesian.ogv}
+  }
+    \caption{Two Bubbles scenario}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{The ADER-DG Approach\footfullcite{dumbser2008unified}}
+  Solve \textbf{hyperbolic conservation laws} of the form
+\begin{equation}
+  \label{eq:conservation-law}
+ \frac{\partial}{\partial_t}  \Q + \divergence{\flux(\Q)} = \source(\bm{x}, t, \Q)
+\end{equation}
+with $Q$ vector of conserved variables, $\bm{x}$ position, $t$ time,  $\nabla \cdot F(Q)$ divergence of flux and $S(\bm{x}, t, Q)$ source term.
+
+\textbf{Discontinuous Galerkin} (\textsc{DG}) divides domain into disjoint elements, approximates solutions by piecewise-polynomials.
+Elements are connected by solving the Riemann problem.
+
+\textbf{ADER}-Approach uses space-time polynomials for time integration instead of Runge-Kutta procedures.
+
+Implemented in the \textsc{PDE}-Framework \textbf{ExaHyPE}.
+\end{frame}
+
+\begin{frame}{The Navier-Stokes Equations (with advection coupling\footfullcite{hidalgo2011ader})}
+  Vector of conserved quantities:
+\begin{equation}
+  \label{eq:conserved-variables}
+ \Q = \left( \Qrho, \Qj, \QE, \QZ \right) 
+\end{equation}
+With $\Qrho$ density of fluid, $\Qj$ velocity density, $\QE$ energy density, $\QZ$ mass fraction of unburnt gas.
+
+Flux:
+\begin{equation}
+  F(\Q, \textcolor{orange}{\gradQ}) = 
+  \begin{pmatrix}
+    \Qj \\
+    \Qv  \otimes \Qj + \bm{I} \pressure + \textcolor{orange}{\stressT} (\Q, \gradQ)  \\
+    \Qv \cdot \left(\bm{I} \QE + \bm{I} \pressure + \textcolor{orange}{\stressT (\Q, \gradQ)} \right) -
+    \textcolor{orange}{\kappa \nabla T}\\
+    \Qj \QZZ
+  \end{pmatrix}
+\end{equation}
+
+$T$ temperature, $\pressure(\Q)$ pressure,
+$\textcolor{orange}{\stressT}$ stress tensor, $\textcolor{orange}{\kappa \nabla T}$ heat diffusion term
+\end{frame}
+
+\begin{frame}{Problem: Not hyperbolic}
+  \textsc{DG} solves equations of the form (e.g.\ Euler):
+  \begin{equation}
+  \label{eq:conservation-law}
+ \pdv{\Q}{t} + \divergence{\flux(\Q)} = \source(\bm{x}, t, \Q)
+\end{equation}
+
+We have:
+\begin{equation}
+  \label{eq:conservation-law-gradient}
+ \pdv{\Q}{t} + \divergence{\flux(\Q, \textcolor{orange}{\gradQ})} = \source(\bm{x}, t, \Q)
+\end{equation}
+
+\textbf{Solution}:
+Modify numerical flux (Riemann solver), time step size (\textsc{cfl}-Condition) and boundary conditions to \textbf{allow diffusive terms}\footfullcite{dumbser2010arbitrary}.
+
+\alert{No explicit discretization} of gradient $\gradQ$.
+\end{frame}
+
+\begin{frame}{Convergence Tests}
+  \begin{figure}[h]
+    \centering
+    \ifratio{43}{
+      \includegraphics[]{{beamer_43_convergence}}
+  } {
+    \includegraphics[]{{beamer_169_convergence}}
+  }
+
+    \caption{Errors. $N$ polynomial order. Dotted lines optimal order $N+1$. }
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}{Adaptive Mesh Refinement: Indicator}
+  $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ maps solution to indicator variable.
+
+  In our case: potential temperature.
+
+  Total variation of $f$:
+\begin{equation}
+  \label{eq:tv}
+  \tv \left[ f(\bm{x}) \right] =
+  \Vert
+\intdcell{ \vert \gradient{f \left( \bm{x} \right)} \vert }
+\Vert_1
+\end{equation}
+
+\end{frame}  
+
+\begin{frame}{Adaptive Mesh Refinement: Global Criterion}
+  \begin{block}{Chebyshev's inequality}
+\begin{equation}
+  \label{eq:chebychev}
+  \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2}
+\end{equation}
+\end{block}
+  
+\begin{block}{Criterion}
+  
+\begin{equation}
+  \label{eq:refinement-criterion}
+  \operatorname{evaluate-refinement}(\Q, \mu, \sigma) =
+  \begin{cases}
+    \text{refine} & \text{if } \tv(\Q) \geq \mu + T_\text{refine} \sigma \\
+    \text{delete} & \text{if } \tv(\Q) < \mu + T_\text{delete} \sigma \\
+    \text{keep} & \text{otherwise}
+    \end{cases}
+\end{equation}
+Computation of $\mu, \sigma$ with stable, pairwise reduction\footfullcite{chan1982updating}.
+
+Global observables implemented in \exahype{} for \textbf{general} pairwise reductions.
+\end{block}
+\end{frame}  
+
+\begin{frame}
+  \frametitle{AMR vs.\ fully refined grid: Settings \textit{\&} time
+    to solution}
+  \begin{block}{Settings}
+    \begin{description}
+    \item[AMR] Coarse mesh size with $27 \times 27$ cells, one adaptive level.
+
+      Potentially up to $81 \times 81$ cells.
+
+      $T_\text{refine} = 2.5$ and $T_\text{delete} = -0.5$.
+    \item[Reference] $81 \times 81$ cells.
+    \end{description}
+  \end{block}
+  Both polynomial order 4.
+
+  Fully refined grid took \textbf{71\%} longer!
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{AMR vs.\ fully refined grid: Grid}
+   \begin{figure}[h]
+    \centering
+    \ifratio{43}{
+    \movie[width=0.9\textwidth, height=0.6\textwidth, autostart,, loop, poster]{}{two_bubbles_legendre.ogv}
+  }{
+    \movie[width=0.7\textwidth, height=0.46666\textwidth, autostart,, loop, poster]{}{two_bubbles_legendre.ogv}
+  }
+    \caption{Two bubbles scenario, with \amr{}}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{AMR vs.\ fully refined grid: Error}
+  \begin{figure}[H]
+    \centering
+    \ifratio{43}{
+\includegraphics[width=0.9\textwidth]{thesis_two_bubbles_amr_error}
+  } {
+\includegraphics[width=0.6\textwidth]{thesis_two_bubbles_amr_error}
+  }
+\caption{Potential temperature of fully refined solution minus \amr{} grid.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{MUSCL-Hancock Scheme~\footfullcite{vanLeer1979towards}}
+  Finite Volume scheme: store only \textbf{cell averages}
+
+  \textbf{Reconstruction} of linear function
+
+  \textbf{Second order} in time and space
+
+  \textbf{Stabilized} with (minmod) slope limiter
+
+  Problem in \exahype{}: Boundary conditions \textbf{unstable}, can only prescribe values at boundary.
+\end{frame}
+
+\begin{frame}{Finite Volume Limiting\footfullcite{dumbser2016simple}}
+  \begin{description}
+\item[ADER-DG] high order, but unstable
+\item[MUSCL] low order, but stable
+\item[Combination] high order \textbf{and} stable
+  \end{description}
+
+Recompute if solution:
+\begin{itemize}
+\item varies by a suspicious amount, using discrete maximum principle (\textsc{dmp}) as heuristic
+\item is NaN or $\infty$
+\item is unphysical
+ \begin{equation}
+  \label{eq:limiting-physical}
+  \operatorname{is-admissible}(\Q) =
+  \begin{cases}
+    \text{true} & \Qrho > 0 \land \pressure > 0 \land \QZZ \geq 0 \\
+    \text{false} & \text{otherwise}
+  \end{cases}
+\end{equation}
+\end{itemize}
+\end{frame}
+
+\begin{frame}\frametitle{Reactive Source\footfullcite{hidalgo2011ader,helzel2000modified}}
+Source term for mass fraction $\QZ$:  
+ \begin{equation}\label{eq:source-reaction}
+  \source[\QZ] = - K(T) \QZ
+\end{equation}
+
+Reaction model:
+\begin{equation}\label{eq:reaction-model}
+  K(T) = 
+\begin{cases}
+  - \frac{1}{\reactionTimescale} & T > \reactionTemperature\\
+  0 & \text{otherwise}
+\end{cases}  
+\end{equation}
+$\reactionTimescale = 0.01$ timescale of reaction
+
+$\reactionTemperature$ activation temperature
+\end{frame}
+
+\begin{frame}
+  \frametitle{Result Reactive}
+   \begin{figure}[h]
+    \centering
+    \ifratio{43}{
+    \movie[width=0.9\textwidth, height=0.6\textwidth, autostart,, loop, poster]{}{detonation.ogv}
+  }{
+    \movie[width=0.7\textwidth, height=0.46666\textwidth, autostart,, loop, poster]{}{detonation.ogv}
+  }
+    \caption{Detonation. Height is pressure, color refinement.
+    Reactive Euler Equations.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Summary}
+  \begin{block}{}
+  \begin{itemize}
+  \item \aderdg{} \textbf{converges} for Navier Stokes equations
+  \item \aderdg{} shows \textbf{good results} for large set of scenarios (many not shown here!)
+  \item (Limiting) \aderdg{} works for reactive Euler \textit{\&} Navier-Stokes
+  \item \amr{}-criterion is \textbf{faster} and tracks cloud \textbf{correctly}.
+  \item All \textbf{extensions} to engine (diffusive fluxes, global observables) useful for \textbf{other users} of \exahype{}.
+  \end{itemize}
+  \end{block}
+
+  \begin{block}{Future Work}
+    \begin{itemize}
+    \item Extension to stiff source terms
+    \item Boundary conditions for \muscl{}.  
+    \end{itemize}
+
+  \end{block}
+\end{frame}
+
+\appendix
+\begin{frame}
+  \frametitle{Reference Solution Two Bubbles\footfullcite{muller2010adaptive}}
+  \begin{center}
+    \ifratio{43}{
+\only<1>{\includegraphics[scale=0.8,trim={0cm 16.3cm 0cm 0cm}, clip]{beamer_two_bubbles_contour_collage_alternative}}
+\only<2>{\includegraphics[scale=0.8,trim={0cm 11.0cm 0cm 5.2cm}, clip]{beamer_two_bubbles_contour_collage_alternative}}
+\only<3>{\includegraphics[scale=0.8,trim={0cm 5.6cm 0cm 10.6cm}, clip]{beamer_two_bubbles_contour_collage_alternative}} 
+\only<4>{\includegraphics[scale=0.8,trim={0cm 0.0cm 0cm 16cm}, clip]{beamer_two_bubbles_contour_collage_alternative}}
+
+} {
+\only<1>{\includegraphics[scale=1.0,trim={0cm 16.3cm 0cm 0cm}, clip]{beamer_two_bubbles_contour_collage_alternative}}
+\only<2>{\includegraphics[scale=1.0,trim={0cm 11.0cm 0cm 5.2cm}, clip]{beamer_two_bubbles_contour_collage_alternative}}
+\only<3>{\includegraphics[scale=1.0,trim={0cm 5.6cm 0cm 10.6cm}, clip]{beamer_two_bubbles_contour_collage_alternative}} 
+\only<4>{\includegraphics[scale=1.0,trim={0cm 0.0cm 0cm 16cm}, clip]{beamer_two_bubbles_contour_collage_alternative}}
+}
+ \end{center}
+\end{frame}
+
+\end{document}
