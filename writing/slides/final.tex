@@ -138,7 +138,7 @@
   \label{eq:conservation-law}
  \frac{\partial}{\partial_t}  \Q + \divergence{\flux(\Q)} = \source(\bm{x}, t, \Q)
 \end{equation}
-with $Q$ vector of conserved variables, $\bm{x}$ position, $t$ time,  $\nabla \cdot F(Q)$ divergence of flux and $S(\bm{x}, t, Q)$ source term.
+with $\Q$ vector of conserved variables, $\bm{x}$ position, $t$ time,  $\divergence{\flux(\Q)}$ divergence of flux and $\source(\bm{x}, t, \Q)$ source term.
 
 \textbf{Discontinuous Galerkin} (\textsc{DG}) divides domain into disjoint elements, approximates solutions by piecewise-polynomials.
 Elements are connected by solving the Riemann problem.
@@ -154,22 +154,22 @@ Implemented in the \textsc{PDE}-Framework \textbf{ExaHyPE}.
   \label{eq:conserved-variables}
  \Q = \left( \Qrho, \Qj, \QE, \QZ \right) 
 \end{equation}
-With $\Qrho$ density of fluid, $\Qj$ velocity density, $\QE$ energy density, $\QZ$ mass fraction of unburnt gas.
+With $\Qrho$ density of fluid, $\Qj$ velocity density, $\QE$ energy density, $\QZ$ mass fraction of chemical reactant (unburnt gas).
 
 Flux:
 \begin{equation}
   F(\Q, \textcolor{orange}{\gradQ}) = 
   \begin{pmatrix}
     \Qj \\
-    \Qv  \otimes \Qj + \bm{I} \pressure + \textcolor{orange}{\stressT} (\Q, \gradQ)  \\
+    \Qv  \otimes \Qj + \bm{I} \pressure + \textcolor{orange}{\stressT (\Q, \gradQ)}  \\
     \Qv \cdot \left(\bm{I} \QE + \bm{I} \pressure + \textcolor{orange}{\stressT (\Q, \gradQ)} \right) -
     \textcolor{orange}{\kappa \nabla T}\\
     \Qj \QZZ
   \end{pmatrix}
 \end{equation}
 
-$T$ temperature, $\pressure(\Q)$ pressure,
-$\textcolor{orange}{\stressT}$ stress tensor, $\textcolor{orange}{\kappa \nabla T}$ heat diffusion term
+Pressure $\pressure(\Q)$,
+stress tensor $\textcolor{orange}{\stressT}$, heat diffusion $\textcolor{orange}{\kappa \nabla T}$ with temperature $T$.
 \end{frame}
 
 \begin{frame}{Problem: Not hyperbolic}
@@ -186,7 +186,7 @@ We have:
 \end{equation}
 
 \textbf{Solution}:
-Modify numerical flux (Riemann solver), time step size (\textsc{cfl}-Condition) and boundary conditions to \textbf{allow diffusive terms}\footfullcite{dumbser2010arbitrary}.
+Modify numerical flux (Riemann solver), time step size (\textsc{cfl}-Condition) and boundary conditions to \textbf{allow diffusive terms}\footfullcite{dumbser2010arbitrary,gassner2008discontinuous}.
 
 \alert{No explicit discretization} of gradient $\gradQ$.
 \end{frame}
@@ -210,7 +210,7 @@ Modify numerical flux (Riemann solver), time step size (\textsc{cfl}-Condition) 
 
   In our case: potential temperature.
 
-  Total variation of $f$:
+  Total variation of $\bm{x}$ for cell $\cell$:
 \begin{equation}
   \label{eq:tv}
   \tv \left[ f(\bm{x}) \right] =
@@ -240,7 +240,7 @@ Modify numerical flux (Riemann solver), time step size (\textsc{cfl}-Condition) 
     \text{keep} & \text{otherwise}
     \end{cases}
 \end{equation}
-Computation of $\mu, \sigma$ with stable, pairwise reduction\footfullcite{chan1982updating}.
+Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pairwise reduction\footfullcite{chan1982updating}.
 
 Global observables implemented in \exahype{} for \textbf{general} pairwise reductions.
 \end{block}
@@ -287,7 +287,7 @@ Global observables implemented in \exahype{} for \textbf{general} pairwise reduc
   } {
 \includegraphics[width=0.6\textwidth]{thesis_two_bubbles_amr_error}
   }
-\caption{Potential temperature of fully refined solution minus \amr{} grid.}
+\caption{Potential temperature of fully refined solution minus \amr{} solution.}
   \end{figure}
 \end{frame}
 
@@ -329,20 +329,15 @@ Recompute if solution:
 \begin{frame}\frametitle{Reactive Source\footfullcite{hidalgo2011ader,helzel2000modified}}
 Source term for mass fraction $\QZ$:  
  \begin{equation}\label{eq:source-reaction}
-  \source[\QZ] = - K(T) \QZ
-\end{equation}
-
-Reaction model:
-\begin{equation}\label{eq:reaction-model}
-  K(T) = 
-\begin{cases}
-  - \frac{1}{\reactionTimescale} & T > \reactionTemperature\\
+  \source[\QZ] =\begin{cases}
+  - \frac{1}{\reactionTimescale} \QZ  & T > \reactionTemperature\\
   0 & \text{otherwise}
 \end{cases}  
 \end{equation}
-$\reactionTimescale = 0.01$ timescale of reaction
 
-$\reactionTemperature$ activation temperature
+$\reactionTimescale = 0.01$ timescale of reaction.
+
+$\reactionTemperature$ activation temperature.
 \end{frame}
 
 \begin{frame}
@@ -360,12 +355,12 @@ $\reactionTemperature$ activation temperature
 \end{frame}
 
 \begin{frame}{Summary}
-  \begin{block}{}
+  \begin{block}{Results}
   \begin{itemize}
   \item \aderdg{} \textbf{converges} for Navier Stokes equations
   \item \aderdg{} shows \textbf{good results} for large set of scenarios (many not shown here!)
-  \item (Limiting) \aderdg{} works for reactive Euler \textit{\&} Navier-Stokes
   \item \amr{}-criterion is \textbf{faster} and tracks cloud \textbf{correctly}.
+  \item (Limited) \aderdg{} works for reactive Euler \textit{\&} Navier-Stokes
   \item All \textbf{extensions} to engine (diffusive fluxes, global observables) useful for \textbf{other users} of \exahype{}.
   \end{itemize}
   \end{block}
