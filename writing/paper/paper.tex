@@ -1,0 +1,275 @@
+\documentclass[runningheads]{llncs}
+\title{Clouds}
+\author{$\ldots$}
+\institute{$\ldots$}
+
+\usepackage{caption}
+\usepackage{xparse} % for NewDocumentCommand
+\usepackage{etoolbox} % for notblank (brackets only when argument)
+\usepackage{xstring} % for \IfSubStr
+\usepackage{xpatch}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools} % for \mathclap
+\usepackage{nicefrac}
+\usepackage{physics} % for derivatives
+\usepackage{varioref}
+\usepackage{nicefrac}
+\usepackage{physics} % for derivatives
+\usepackage[separate-uncertainty]{siunitx}
+\usepackage{hyperref}
+\usepackage[noabbrev]{cleveref}
+\newcommand{\creflastconjunction}{, and\nobreakspace} % use Oxford comma
+\usepackage{todonotes}
+\usepackage{multimedia}
+\graphicspath{{../figures/}}
+\let\boundary\undefined%
+\crefformat{equation}{\eqA{}eq.~\eqB #2#1#3)}
+% TODO: Fix for more than two equations!
+\crefmultiformat{equation}{eqs.~\eqMultiA#2#1#3\eqMultiB}%
+{ and \eqMultiA#2#1#3\eqMultiB}{, \eqMultiA#2#1#3\eqMultiB}{ and~\eqMultiA#2#1#3\eqMultiB}
+\newcommand{\eqA}{}
+\newcommand{\eqB}{(}
+\newcommand{\eqMultiA}{(}
+\newcommand{\eqMultiB}{)}
+\DeclareRobustCommand{\pcrefSingle}[1]{%
+\begingroup%
+  \renewcommand{\eqA}{(}\renewcommand{\eqB}{}%
+\cref{#1}%
+\endgroup%
+}
+\DeclareRobustCommand{\pcrefMulti}[1]{%
+\begingroup%
+    \renewcommand{\eqMultiA}{}\renewcommand{\eqMultiB}{}%
+    (\cref{#1})%
+\endgroup%
+}
+\DeclareRobustCommand{\pcref}[1]{%
+\IfSubStr{#1}{,}{\pcrefMulti{#1}}{\pcrefSingle{#1}}%
+}
+
+\usepackage{bm}
+\input{../thesis/macros.tex}
+
+
+\begin{document}
+\maketitle
+\begin{abstract}
+The abstract should briefly summarize the contents of the paper in
+150--250 words.
+
+\keywords{First keyword  \and Second keyword \and Another keyword.}
+\end{abstract}
+\section{Introduction}
+\newcommand{\diffCoeff}{\varepsilon}
+\newcommand{\hyperFluxDef}{
+  \begin{pmatrix}
+    \Qj \\
+    \Qv  \otimes \Qj + \bm{I} \pressure  \\
+    \Qv \cdot (\bm{I} \QE + \bm{I} \pressure) \\
+    \Qj \QZZ
+  \end{pmatrix}
+}
+\newcommand{\viscFluxDef}{
+  \begin{pmatrix}
+    0\\
+     \stressT (\Q, \gradQ)  \\
+     \Qv \cdot \stressT (\Q, \gradQ) - \kappa \gradient{T}\\
+     0\\
+   \end{pmatrix}
+}%
+We solve the reactive compressible Navier-Stokes equations in the conservative form% \pcref{eq:conservation-law-gradient}
+\begin{equation}
+ \label{eq:equation-set} 
+%  \begin{array}{l}
+%  \text{mass cons.} \\
+%  \text{momentum cons.} \\
+%  \text{energy cons.} \\
+%  \text{cont.\ gas} 
+% \end{array}
+% :
+\quad
+  \pdv{}{t}
+  \underbrace{
+  \begin{pmatrix}
+    \Qrho\\
+    \Qj\\
+    \QE\\
+    \QZ
+    \end{pmatrix}}_{\Q}
+  +
+  \divergence{
+  \underbrace{
+  \left(
+   \underbrace{\hyperFluxDef}_{\hyperFlux(\Q)}
++
+\underbrace{\viscFluxDef}_{\viscFlux(\Q, \gradQ)}
+  \right)}_{\flux(\Q, \gradQ)}}
+ =
+  \underbrace{
+  \begin{pmatrix}
+    \source[\Qrho\phantom{\Qrho}]\\
+    \source[\Qj]\\
+    \source[\QE]\\
+    \source[\QZ]
+    \end{pmatrix}}_{\source(\Q, \bm{x}, t)}
+\end{equation}
+which describes the time evolution of variables $\Q$ with respect to a flux $\flux(\Q, \gradQ)$ and a source $\source(\Q)$.
+The vector of conserved quantities is given by
+\begin{equation}
+  \label{eq:conserved-variables}
+ \Q = \left( \Qrho, \Qj, \QE, \QZ \right),
+\end{equation}
+where $\Qrho$ is the density, $\Qj$ is the two or three-dimensional momentum, $\QE$ is the energy density and $\QZ$ is the mass fraction of the chemical reactant.
+The pressure $\pressure$ is given by the equation of state of an ideal reacting gas
+\begin{equation}
+  \label{eq:eos}
+  \pressure = (\gamma - 1) \left(\QE - \frac{1}{2} \left(\Qv \cdot \Qj \right)  - q_0 \QZ - gz \right).
+\end{equation}
+The term $q_0 \QZ$ is the chemical energy with a heat release $q_0$~\cite{helzel2000modified}, the term $gz$ is the geopotential height with the gravity of Earth $g$~\cite{giraldo2008study}.
+We model the diffusive effects of the flow by the standard stress tensor
+\begin{equation}
+  \label{eq:stress-tensor}
+  \stressT(Q, \nabla Q) =
+  \mu
+  \left(
+  \left(\nicefrac{2}{3} \divergence{\Qv} \right) -
+  \left( \gradient{\Qv} + \gradient{\Qv}^\intercal \right)
+  \right),
+\end{equation}
+with viscosity $\mu$.
+
+Many realistic, atmospheric flows can be described by a pertubation over a background state that is in hydrostatic equilibrium
+\newcommand{\backgroundPressure}{\overline{\pressure}}
+\newcommand{\backgroundRho}{\overline{\Qrho}}
+\begin{equation}
+  \label{eq:hydrostatic-balance}
+  \pdv{}{z} \backgroundPressure{\left (z \right )} = -g \backgroundRho(z).
+\end{equation}
+The momentum equation is dominated by the background flow in this case.
+This leads to numerical instabilities.
+We avoid this by splitting the pressure $\pressure = \backgroundPressure + \pressure'$ and density $\Qrho = \backgroundRho + \Qrho'$
+\begin{equation}
+  \label{eq:momentum-equation-split}
+  \pdv{\Qj}{t}+ \divergence{ \left(
+    \Qv \otimes \Qj + \bm{I} \pressure'
+    \right)
+  } + \viscFlux_\Qj
+  =
+  -g \bm{k} \Qrho'.
+\end{equation}
+
+The rest of this paper is organized as follows:
+\begin{itemize}
+\item Efficient, explicit \aderdg{}-scheme with shared and distributed memory parallelization.
+\item An \textsc{amr}-criterion that is based on the detection of outlier cells w.r.t.\ their total variation.
+\item Evaluation with standard \textsc{cfd} scenarios, atmospheric and reactive flows.
+\end{itemize}
+
+\section{Methods}
+Maybe numerics (dg+muscl?), at least ref.
+Exahype?!
+
+We use the \aderdg{}-scheme as proposed in xxx together with a Rusanov-style flux, which is adapted for \pde{}s with diffusive terms. 
+
+Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a function that maps the discrete solution at a point $\bm{x}$ to an arbitrary indicator variable.
+The total variation (\textsc{tv}) of this function is defined by
+\begin{equation}
+  \label{eq:tv}
+  \tv \left[ f(\bm{x}) \right] =
+  \Vert
+\intdcell{ \vert \gradient{f \left( \bm{x} \right)} \vert }
+\Vert_1
+\end{equation}
+for each cell.
+The operator $\Vert \cdot \Vert_1$ denotes the discrete $l_1$ norm in this equation.
+We compute this efficiently with Gaussian quadrature over the collocated quadrature points.
+\newcommand{\mean}{\mu}%
+\newcommand{\std}{\sigma}%
+\newcommand{\variance}{\std^2}%
+\newcommand{\Trefine}{T_\text{refine}}%
+\newcommand{\Tdelete}{T_\text{delete}}%
+How can we decide whether a cell is important or not?
+To resolve this conundrum, we compute the mean and the population standard deviation of the total variation of all cells.
+It is important to note that we use the method of Chan/LeVeque to compute the modes in a parallel and numerical stable manner.
+A cell is then considered to contain significant information if its deviates from the mean more than a given threshold.
+This criterion can be described formally by
+\begin{equation}
+  \label{eq:refinement-criterion}
+  \operatorname{evaluate-refinement}(\Q, \mu, \sigma) =
+  \begin{cases}
+    \text{refine} & \text{if } \tv(\Q) \geq \mu + \Trefine \sigma \\
+    \text{delete} & \text{if } \tv(\Q) < \mu + \Tdelete \sigma \\
+    \text{keep} & \text{otherwise}.
+    \end{cases}
+\end{equation}
+The parameters $\Trefine > \Tdelete$ can be chosen freely.
+Chebyshev's inequality
+\begin{equation}
+  \label{eq:chebychev}
+  \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2},
+\end{equation}
+with probability $\mathbb{P}$ guarantees that we neither refine nor delete all cells.
+This inequality holds for arbitrary distributions under the weak assumption that they have a mean $\mu$ and standard deviation $\sigma$~\cite{wasserman2004all}.
+
+We use a muscl-hancock based finite volume limiting as proposed in xxx.
+Briefly, we first compute a candidate solution with our \aderdg{}-scheme and check whether it is valid.
+A solution is considered to be invalid if it is a non-finite floating point number or if it is unphysical, i.e.\ if the pressure or density are not positive.
+\todo{dmp?}
+In case of an invalid solution, we recompute the timestep with a limited \muscl{} finite volume method.
+
+\section{Results}
+We use a diverse mix of benchmarking scenarios that consist of standard \textsc{cfd} scenarios, and atmospheric and reactive flows.
+
+A simple scenario is the Taylor-Green vortex.
+It has an analytical solution in the incompressible limit
+The solution is
+\begin{align}
+  \label{eq:taylor-green}
+  \begin{split}
+  \Qrho(\bm{x}, t) &= 1,\\
+  \Qv(\bm{x}, t) &= \exp(-2 \mu t)
+  \begin{pmatrix}
+    \phantom{-}\sin(x) \cos(y) \\
+- \cos(x) \sin(y) 
+    \end{pmatrix}, \\
+  \pressure(\bm{x}, t) &= \exp(-4 \mu t) \, \nicefrac{1}{4} \left( \cos(2x) + \cos(2y) \right) + C,
+  \end{split}
+\end{align}
+where $C = \nicefrac{100}{\gamma}$ is a constant that governs the speed of sound and thus the Mach number~\cite{dumbser2016high}.
+We use a viscosity of $\mu = 0.1$ and Cauchy boundary conditions.
+
+We use the Arnold–Beltrami–Childress (\textsc{abc}) flow as a simple three-dimensional flow~\cite{tavelli2016staggered}.
+It also has an exact solution under the assumption of incompressibility
+\begin{align}
+  \label{eq:abc-flow}
+  \begin{split}
+  \Qrho(\bm{x}, t) &= 1,\\
+  \Qv(\bm{x}, t) &= \phantom{-} \exp(-1\mu t)
+  \begin{pmatrix}
+    \sin(z) + \cos(y)\\
+    \sin(x) + \cos(z)\\
+    \sin(y) + \cos(x)
+  \end{pmatrix}, \\
+  \pressure(\bm{x}, t) &= -\exp(-2 \mu t) \, \left(\cos(x)\sin(y) + \sin(x)\cos(z) + \sin(z)\cos(y)\right)
+  + C
+  \end{split}
+\end{align}
+Here, $C = \nicefrac{100}{\gamma}$ is an arbitrary constant.
+We use a viscosity of $\mu = 0.01$ and Cauchy boundary conditions.
+
+As a final example of standard flow scenarios, we consider the lid-driven cavity flow which initial conditions are given by a fluid at rest, with $\pressure = \text{?}$, etc.
+We consider a domain of size $1 \times 1 \text{?}$ which is surrounded by no-slip walls.
+The flow is driven entirely by the upper wall which has a velocity of $v_x = 1$.
+
+
+Clouds with 2+ AMR Levels (if working?)
+
+
+
+Reactive Detonation Waves (maybe with stiff source term and/or fixed bcs)
+
+\section{Conclusion}
+\end{document}
