@@ -1,7 +1,26 @@
 \documentclass[runningheads]{llncs}
-\title{Clouds}
+\title{Cloud Supercomputing}
 \author{$\ldots$}
 \institute{$\ldots$}
+\usepackage[american]{babel}
+\usepackage[autostyle, english = american]{csquotes}
+\usepackage[%
+  % backend=biber,
+  % url=false,
+  % style=alphabetic,
+  % backref=true,
+  % hyperref=true,
+  % maxnames=4,
+  % minnames=3,
+  % maxbibnames=99,
+  % firstinits,
+  % uniquename=init
+  ]{biblatex}
+\DefineBibliographyStrings{english}{%
+  backrefpage = {see p.},
+  backrefpages = {see pp.}
+}
+\addbibresource{../bibliography.bib}
 
 \usepackage{caption}
 \usepackage{xparse} % for NewDocumentCommand
@@ -129,6 +148,7 @@ The pressure $\pressure$ is given by the equation of state of an ideal reacting 
   \pressure = (\gamma - 1) \left(\QE - \frac{1}{2} \left(\Qv \cdot \Qj \right)  - q_0 \QZ - gz \right).
 \end{equation}
 The term $q_0 \QZ$ is the chemical energy with a heat release $q_0$~\cite{helzel2000modified}, the term $gz$ is the geopotential height with the gravity of Earth $g$~\cite{giraldo2008study}.
+We set $\QZZ$ and $q_0$ to zero for scenarios without a reactive component.
 We model the diffusive effects of the flow by the standard stress tensor
 \begin{equation}
   \label{eq:stress-tensor}
@@ -160,6 +180,15 @@ We avoid this by splitting the pressure $\pressure = \backgroundPressure + \pres
   =
   -g \bm{k} \Qrho'.
 \end{equation}
+The right side of this equation is implemented as a source term.
+
+\todo{Notation? Introduce $T$}For reactive problems, we use the simple reaction model
+\begin{equation}
+  \label{eq:reaction-model}
+  \source[\QZ] = - \frac{1}{\reactionTimescale} \left[T > \reactionTemperature \right]\QZ
+\end{equation}
+where $\reactionTimescale$ is the time scale of the reaction and $\reactionTemperature$ is the critical temperature~\cite{hidalgo2011ader,helzel2000modified}.
+We only consider the case of $\reactionTimescale \geq 10^{-2}$ which corresponds to a non-stiff source.
 
 The rest of this paper is organized as follows:
 \begin{itemize}
@@ -169,6 +198,7 @@ The rest of this paper is organized as follows:
 \end{itemize}
 
 \section{Methods}
+\todo{Write \aderdg{}/\exahype{} section!}
 Maybe numerics (dg+muscl?), at least ref.
 Exahype?!
 
@@ -212,7 +242,7 @@ Chebyshev's inequality
   \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2},
 \end{equation}
 with probability $\mathbb{P}$ guarantees that we neither refine nor delete all cells.
-This inequality holds for arbitrary distributions under the weak assumption that they have a mean $\mu$ and standard deviation $\sigma$~\cite{wasserman2004all}.
+This inequality holds for arbitrary distributions under the weak assumption that their mean $\mu$ and standard deviation $\sigma$ are finite~\cite{wasserman2004all}.
 
 We use a muscl-hancock based finite volume limiting as proposed in xxx.
 Briefly, we first compute a candidate solution with our \aderdg{}-scheme and check whether it is valid.
@@ -223,9 +253,9 @@ In case of an invalid solution, we recompute the timestep with a limited \muscl{
 \section{Results}
 We use a diverse mix of benchmarking scenarios that consist of standard \textsc{cfd} scenarios, and atmospheric and reactive flows.
 
+\todo{Constants of fluids?}
 A simple scenario is the Taylor-Green vortex.
-It has an analytical solution in the incompressible limit
-The solution is
+It has an analytical solution in the incompressible limit which is given by
 \begin{align}
   \label{eq:taylor-green}
   \begin{split}
@@ -235,13 +265,13 @@ The solution is
     \phantom{-}\sin(x) \cos(y) \\
 - \cos(x) \sin(y) 
     \end{pmatrix}, \\
-  \pressure(\bm{x}, t) &= \exp(-4 \mu t) \, \nicefrac{1}{4} \left( \cos(2x) + \cos(2y) \right) + C,
+  \pressure(\bm{x}, t) &= \exp(-4 \mu t) \, \nicefrac{1}{4} \left( \cos(2x) + \cos(2y) \right) + C.
   \end{split}
 \end{align}
-where $C = \nicefrac{100}{\gamma}$ is a constant that governs the speed of sound and thus the Mach number~\cite{dumbser2016high}.
+In this equation, $C = \nicefrac{100}{\gamma}$ is a constant that governs the speed of sound and thus the Mach number~\cite{dumbser2016high}.
 We use a viscosity of $\mu = 0.1$ and Cauchy boundary conditions.
 
-We use the Arnold–Beltrami–Childress (\textsc{abc}) flow as a simple three-dimensional flow~\cite{tavelli2016staggered}.
+We use the Arnold-Beltrami-Childress (\textsc{abc}) flow as a simple three-dimensional flow~\cite{tavelli2016staggered}.
 It also has an exact solution under the assumption of incompressibility
 \begin{align}
   \label{eq:abc-flow}
@@ -260,16 +290,79 @@ It also has an exact solution under the assumption of incompressibility
 Here, $C = \nicefrac{100}{\gamma}$ is an arbitrary constant.
 We use a viscosity of $\mu = 0.01$ and Cauchy boundary conditions.
 
-As a final example of standard flow scenarios, we consider the lid-driven cavity flow which initial conditions are given by a fluid at rest, with $\pressure = \text{?}$, etc.
-We consider a domain of size $1 \times 1 \text{?}$ which is surrounded by no-slip walls.
-The flow is driven entirely by the upper wall which has a velocity of $v_x = 1$.
+As a final example of standard flow scenarios, we consider the lid-driven cavity flow which initial conditions are given by a fluid at rest, with $\Qrho = 0, \pressure(\bm{x}) = \nicefrac{100}{\gamma}$.
 
+We consider a domain of size $\SI{\pi}{m} \times \SI{\pi}{\m} \text{?}$ which is surrounded by no-slip walls.
+The flow is driven entirely by the upper wall which has a velocity of $v_x = \SI{1}{\m/s}$.
+\begin{equation}\label{eq:atmosphere-constants}
+    \gamma = 1.4 ,\qquad \Pr =  0.71 ,\qquad R = 287.058 ,\qquad p_0 = 10000, \qquad g = 9.81,
+\end{equation}
+Our atmospheric flow scenarios are described in terms of the potential energy
+\begin{equation}
+  \potT = T \left( \frac{p_0}{p} \right)^{R/c_p},
+\end{equation}
+with the reference pressure $p_o = \SI{10e5}{\Pa}$.
+
+We compute the initial background density and pressure by inserting the assumption of a constant background energy in \cref{eq:hydrostatic-balance}.
+The background atmosphere is then perturbed.
+\todo{What about our weird boundary condition for heat flux and energy?}
+Let
+\begin{equation}
+  \label{eq:radius}
+  r^2 = (x - x_0)^2 + (z - z_0)^2
+\end{equation}
+denote the difference between spatial positions $x,z$ and the center of a bubble $x_c, z_c$.
+For our first scenario, the cosine bubble, we use a pertubation of the form
+\begin{equation}
+  \label{eq:cos-pertubation-alt}
+  \pertubationPotT = 
+    \nicefrac{A}{2} \left( 1 + \cos(\pi r) \right) \left[ r \leq a \right]
+\end{equation}
+\begin{align}
+  \label{eq:cos-pertubation}
+  \pertubationPotT &= \begin{cases}
+    \nicefrac{A}{2} \left[ 1 + \cos(\pi r) \right] & r \leq a, \\
+    0 & r > a,
+    \end{cases}
+\end{align}
+where $A$ denotes the maximal perturbation and $a$ is the size of the bubble.
+We use the constants
+\begin{equation}\label{eq:cosine-bubble}
+  A = 0.5 \quad a = \SI{250}{\m} \quad x_c = \SI{500}{\m} \quad z_c = \SI{350}{\m}.
+\end{equation}
+We use a constant viscosity of $\mu = 0.1$.
+For our second scenario, the cold bubble on top of a warm bubble, we use the pertubation of the form
+\begin{equation}
+  \label{eq:bubbles-pertubation}
+  \pertubationPotT =
+  \begin{cases}
+    A & r \leq a, \\
+    A \exp \left( - \frac{(r-a)^2}{s^2} \right) & r > a,
+    \end{cases}
+\end{equation}
+where $s$ is the decay rate and $r$  is the radius to the center~\pcref{eq:radius}.
+We have two bubbles, with constants
+\begin{equation}
+  \label{eq:bubbles-values}
+\begin{alignedat}{6}
+  & \text{warm:} \qquad && A = 0.5, \quad&& a = \SI{150}{\m}, \quad&& s = \SI{50}{\m}, \quad&& x_c = \SI{500}{\m,} \quad&& z_c = \SI{300}{\m},\\
+  & \text{cold:} \qquad && A = -0.15, \quad&& a = \SI{0}{\m}, \quad&& s = \SI{50}{\m}, \quad&& x_c = \SI{560}{\m}, \quad&& z_c = \SI{640}{\m}.
+  \end{alignedat}
+\end{equation}
+Similar to~\cite{muller2010adaptive} and to the previous scenario, we use a constant viscosity of $\mu = 0.1$ to regularize the solution.
+
+We start with a coarse mesh that is then subdivided up to two times in an adaptive manner.
+For this we use the criterion of \cref{eq:refinement-criterion} with parameters xxx and xxx.
+We compare this with a simulation obtained by a fully refined grid.
 
 Clouds with 2+ AMR Levels (if working?)
-
-
-
 Reactive Detonation Waves (maybe with stiff source term and/or fixed bcs)
+Finally, we consider the radialsymmetric detonation wave of xxx, which uses the coupled advection-reaction equation.
+Its initial conditions are given by xxx.
+We evaluate this scenario both with a viscosity xxx and with zero viscosity.
 
 \section{Conclusion}
+Insert conclusion here.
+
+\printbibliography{}
 \end{document}
