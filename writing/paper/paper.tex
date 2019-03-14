@@ -1,7 +1,9 @@
 \documentclass[runningheads]{llncs}
 \title{Cloud Supercomputing}
-\author{$\ldots$}
-\institute{$\ldots$}
+\author{Authors}
+\institute{Institute}
+\usepackage[utf8]{inputenc}
+%\usepackage[T1]{fontenc}
 \usepackage[american]{babel}
 \usepackage[autostyle, english = american]{csquotes}
 \usepackage[%
@@ -135,18 +137,25 @@ We solve the reactive compressible Navier-Stokes equations in the conservative f
     \source[\QZ]
     \end{pmatrix}}_{\source(\Q, \bm{x}, t)}
 \end{equation}
-which describes the time evolution of variables $\Q$ with respect to a flux $\flux(\Q, \gradQ)$ and a source $\source(\Q)$.
-The vector of conserved quantities is given by
+with vector of conserved quantitites $\Q$, flux $\flux(\Q, \gradQ)$ and source $\source(\Q)$.
+The conserved quantities
 \begin{equation}
   \label{eq:conserved-variables}
  \Q = \left( \Qrho, \Qj, \QE, \QZ \right),
 \end{equation}
-where $\Qrho$ is the density, $\Qj$ is the two or three-dimensional momentum, $\QE$ is the energy density and $\QZ$ is the mass fraction of the chemical reactant.
+are the density $\Qrho$, the two or three-dimensional momentum $\Qj$, the energy density $\QE$ and the mass fraction of the chemical reactant $\QZ$.
 The pressure $\pressure$ is given by the equation of state of an ideal reacting gas
 \begin{equation}
   \label{eq:eos}
   \pressure = (\gamma - 1) \left(\QE - \frac{1}{2} \left(\Qv \cdot \Qj \right)  - q_0 \QZ - gz \right).
 \end{equation}
+and relates to the temperature $T$ by the thermal equation of state
+\begin{equation}
+  \label{eq:temperature}
+  \pressure = \Qrho R T,
+\end{equation}
+where $R$ is the specific gas constant of a fluid.
+
 The term $q_0 \QZ$ is the chemical energy with a heat release $q_0$~\cite{helzel2000modified}, the term $gz$ is the geopotential height with the gravity of Earth $g$~\cite{giraldo2008study}.
 We set $\QZZ$ and $q_0$ to zero for scenarios without a reactive component.
 We model the diffusive effects of the flow by the standard stress tensor
@@ -166,11 +175,12 @@ Many realistic, atmospheric flows can be described by a pertubation over a backg
 \newcommand{\backgroundRho}{\overline{\Qrho}}
 \begin{equation}
   \label{eq:hydrostatic-balance}
-  \pdv{}{z} \backgroundPressure{\left (z \right )} = -g \backgroundRho(z).
+  \pdv{}{z} \backgroundPressure{\left (z \right )} = -g \backgroundRho(z),
 \end{equation}
+i.e.\ a state where the pressure differences are exactly balanced with the gravitational source term.
 The momentum equation is dominated by the background flow in this case.
 This leads to numerical instabilities.
-We avoid this by splitting the pressure $\pressure = \backgroundPressure + \pressure'$ and density $\Qrho = \backgroundRho + \Qrho'$
+To avoid this, we split the pressure $\pressure = \backgroundPressure + \pressure'$ and density $\Qrho = \backgroundRho + \Qrho'$, arriving at the modified equation
 \begin{equation}
   \label{eq:momentum-equation-split}
   \pdv{\Qj}{t}+ \divergence{ \left(
@@ -180,7 +190,6 @@ We avoid this by splitting the pressure $\pressure = \backgroundPressure + \pres
   =
   -g \bm{k} \Qrho'.
 \end{equation}
-The right side of this equation is implemented as a source term.
 
 \todo{Notation? Introduce $T$}For reactive problems, we use the simple reaction model
 \begin{equation}
@@ -190,7 +199,7 @@ The right side of this equation is implemented as a source term.
 where $\reactionTimescale$ is the time scale of the reaction and $\reactionTemperature$ is the critical temperature~\cite{hidalgo2011ader,helzel2000modified}.
 We only consider the case of $\reactionTimescale \geq 10^{-2}$ which corresponds to a non-stiff source.
 
-The rest of this paper is organized as follows:
+In the rest of the paper, we make the following contributions:
 \begin{itemize}
 \item Efficient, explicit \aderdg{}-scheme with shared and distributed memory parallelization.
 \item An \textsc{amr}-criterion that is based on the detection of outlier cells w.r.t.\ their total variation.
@@ -202,7 +211,7 @@ The rest of this paper is organized as follows:
 Maybe numerics (dg+muscl?), at least ref.
 Exahype?!
 
-We use the \aderdg{}-scheme as proposed in xxx together with a Rusanov-style flux, which is adapted for \pde{}s with diffusive terms. 
+We use the \aderdg{}-scheme as proposed in \cite{dumbser2008unified} together with a Rusanov-style flux~\cite{gassner2008discontinuous,fambri2017space} that is adapted for \pde{}s with diffusive terms. 
 
 Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a function that maps the discrete solution at a point $\bm{x}$ to an arbitrary indicator variable.
 The total variation (\textsc{tv}) of this function is defined by
@@ -215,7 +224,7 @@ The total variation (\textsc{tv}) of this function is defined by
 \end{equation}
 for each cell.
 The operator $\Vert \cdot \Vert_1$ denotes the discrete $l_1$ norm in this equation.
-We compute this efficiently with Gaussian quadrature over the collocated quadrature points.
+We compute the integral efficiently with Gaussian quadrature over the collocated quadrature points.
 \newcommand{\mean}{\mu}%
 \newcommand{\std}{\sigma}%
 \newcommand{\variance}{\std^2}%
@@ -223,7 +232,7 @@ We compute this efficiently with Gaussian quadrature over the collocated quadrat
 \newcommand{\Tdelete}{T_\text{delete}}%
 How can we decide whether a cell is important or not?
 To resolve this conundrum, we compute the mean and the population standard deviation of the total variation of all cells.
-It is important to note that we use the method of Chan/LeVeque to compute the modes in a parallel and numerical stable manner.
+It is important to note that we use the method of~\cite{chan1982updating} to compute the modes in a parallel and numerical stable manner.
 A cell is then considered to contain significant information if its deviates from the mean more than a given threshold.
 This criterion can be described formally by
 \begin{equation}
@@ -244,11 +253,11 @@ Chebyshev's inequality
 with probability $\mathbb{P}$ guarantees that we neither refine nor delete all cells.
 This inequality holds for arbitrary distributions under the weak assumption that their mean $\mu$ and standard deviation $\sigma$ are finite~\cite{wasserman2004all}.
 
-We use a muscl-hancock based finite volume limiting as proposed in xxx.
+We use a \muscl{}-hancock based finite volume limiting as proposed in~\cite{dumbser2016simple}.
 Briefly, we first compute a candidate solution with our \aderdg{}-scheme and check whether it is valid.
 A solution is considered to be invalid if it is a non-finite floating point number or if it is unphysical, i.e.\ if the pressure or density are not positive.
 \todo{dmp?}
-In case of an invalid solution, we recompute the timestep with a limited \muscl{} finite volume method.
+In case of an invalid solution, we recompute the timestep with a limited \muscl{} finite volume method\todo{Source for the fv method}.
 
 \section{Results}
 We use a diverse mix of benchmarking scenarios that consist of standard \textsc{cfd} scenarios, and atmospheric and reactive flows.
@@ -268,7 +277,7 @@ It has an analytical solution in the incompressible limit which is given by
   \pressure(\bm{x}, t) &= \exp(-4 \mu t) \, \nicefrac{1}{4} \left( \cos(2x) + \cos(2y) \right) + C.
   \end{split}
 \end{align}
-In this equation, $C = \nicefrac{100}{\gamma}$ is a constant that governs the speed of sound and thus the Mach number~\cite{dumbser2016high}.
+The constant $C = \nicefrac{100}{\gamma}$ governs the speed of sound and thus the Mach number~\cite{dumbser2016high}.
 We use a viscosity of $\mu = 0.1$ and Cauchy boundary conditions.
 
 We use the Arnold-Beltrami-Childress (\textsc{abc}) flow as a simple three-dimensional flow~\cite{tavelli2016staggered}.
@@ -290,18 +299,22 @@ It also has an exact solution under the assumption of incompressibility
 Here, $C = \nicefrac{100}{\gamma}$ is an arbitrary constant.
 We use a viscosity of $\mu = 0.01$ and Cauchy boundary conditions.
 
-As a final example of standard flow scenarios, we consider the lid-driven cavity flow which initial conditions are given by a fluid at rest, with $\Qrho = 0, \pressure(\bm{x}) = \nicefrac{100}{\gamma}$.
+As a final example of standard flow scenarios, we consider the lid-driven cavity flow which initial conditions are given by a fluid at rest, with $\Qrho = 1, \pressure(\bm{x}) = \nicefrac{100}{\gamma}$.
 
-We consider a domain of size $\SI{\pi}{m} \times \SI{\pi}{\m} \text{?}$ which is surrounded by no-slip walls.
-The flow is driven entirely by the upper wall which has a velocity of $v_x = \SI{1}{\m/s}$.
-\begin{equation}\label{eq:atmosphere-constants}
-    \gamma = 1.4 ,\qquad \Pr =  0.71 ,\qquad R = 287.058 ,\qquad p_0 = 10000, \qquad g = 9.81,
-\end{equation}
+We consider a domain of size $\SI{2\pi}{m} \times \SI{2\pi}{\m}$ which is surrounded by no-slip walls.
+The flow is driven entirely by the upper wall which has a velocity of $v_x = \SI{1}{\m/\s}$.
+The simulation runs for $\SI{10}{\s}$
+
 Our atmospheric flow scenarios are described in terms of the potential energy
 \begin{equation}
   \potT = T \left( \frac{p_0}{p} \right)^{R/c_p},
 \end{equation}
-with the reference pressure $p_o = \SI{10e5}{\Pa}$.
+with reference pressure $p_o = \SI{10e5}{\Pa}$~\cite{muller2010adaptive,giraldo2008study}.
+For all remaining scenarions, we use the constants
+\begin{equation}\label{eq:atmosphere-constants}
+    \gamma = 1.4 ,\qquad \Pr =  0.71 ,\qquad R = 287.058 ,\qquad p_0 = 10000, \qquad g = 9.8.
+\end{equation}
+
 
 We compute the initial background density and pressure by inserting the assumption of a constant background energy in \cref{eq:hydrostatic-balance}.
 The background atmosphere is then perturbed.
@@ -331,7 +344,7 @@ We use the constants
   A = 0.5 \quad a = \SI{250}{\m} \quad x_c = \SI{500}{\m} \quad z_c = \SI{350}{\m}.
 \end{equation}
 We use a constant viscosity of $\mu = 0.1$.
-For our second scenario, the cold bubble on top of a warm bubble, we use the pertubation of the form
+For our second scenario, the cold bubble on top of a warm bubble, we use the pertubations
 \begin{equation}
   \label{eq:bubbles-pertubation}
   \pertubationPotT =
@@ -350,6 +363,12 @@ We have two bubbles, with constants
   \end{alignedat}
 \end{equation}
 Similar to~\cite{muller2010adaptive} and to the previous scenario, we use a constant viscosity of $\mu = 0.1$ to regularize the solution.
+To ensure that the atmosphere stays in hydrostatic balance~\cite{giraldo2008study}, we need to impose the viscous heat flux\todo{Show full bc?}
+\begin{equation}
+  \label{eq:atmosphere-bc}
+  \viscFlux_{\QE} = \kappa \pdv{\overline{T}}{z}% =
+%\kappa \frac{R \overline{\theta} \left(\frac{\overline{p}{\left (z \right )}}{p_{0}}\right)^{\frac{R}{c_{p}}} \frac{d}{d z} \overline{p}{\left (z \right )}}{c_{p} \overline{p}{\left (z \right )}}.
+\end{equation}
 
 We start with a coarse mesh that is then subdivided up to two times in an adaptive manner.
 For this we use the criterion of \cref{eq:refinement-criterion} with parameters xxx and xxx.
@@ -361,8 +380,24 @@ Finally, we consider the radialsymmetric detonation wave of xxx, which uses the 
 Its initial conditions are given by xxx.
 We evaluate this scenario both with a viscosity xxx and with zero viscosity.
 
+TODO, Show following results:
+\begin{itemize}
+\item Simple cfd: Taylor Green, ABC, Lid Driven Cavity
+\item Two Bubbles with and without amr
+\item Limited Reactive euler/and maybe ns
+\end{itemize}
+
 \section{Conclusion}
-Insert conclusion here.
+We presented a \muscl{}-limited \aderdg{}-scheme with \amr{} for the reactive Navier-Stokes equations.
+Our implementation is capable of simulating different scenarios:
+\begin{itemize}
+  % Convergence test?
+\item We evaluated our method for standard \textsc{cfd} scenarios and achieved competitive results for all used scenarios.
+  This is true for both two-dimensional scenarios (Taylor-Green vortex and lid-driven cavity) and for the three-dimensional \textsc{abc}-flow.
+\item Furthermore, our method allows us to simulate flows in hydrostatic equilibrium correctly.
+\item We showed that our \amr{}-criterion is able to vastly reduce the number of grid cells while preserving the quality of the results.
+\item Our results of for the reactive detonation waves showed that our implementation is capable of simulating chemical reactions with a limited scheme, at least for a non-stiff source term.
+\end{itemize}
 
 \printbibliography{}
 \end{document}
