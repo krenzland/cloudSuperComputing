@@ -101,7 +101,7 @@ The abstract should briefly summarize the contents of the paper in
      0\\
    \end{pmatrix}
 }%
-We solve the reactive compressible Navier-Stokes equations in the conservative form% \pcref{eq:conservation-law-gradient}
+We \todo{LR: General introduction is missing. Where do we see our paper, what has been done before? Here we should also introduce and describe the ExaHyPE-Engine as base of the paper} solve the reactive compressible Navier-Stokes equations in the conservative form% \pcref{eq:conservation-law-gradient}
 \begin{equation}
  \label{eq:equation-set} 
 %  \begin{array}{l}
@@ -139,11 +139,11 @@ We solve the reactive compressible Navier-Stokes equations in the conservative f
 \end{equation}
 with vector of conserved quantitites $\Q$, flux $\flux(\Q, \gradQ)$ and source $\source(\Q)$.
 The conserved quantities
-\begin{equation}
+\begin{equation} 
   \label{eq:conserved-variables}
  \Q = \left( \Qrho, \Qj, \QE, \QZ \right),
 \end{equation}
-are the density $\Qrho$, the two or three-dimensional momentum $\Qj$, the energy density $\QE$ and the mass fraction of the chemical reactant $\QZ$.
+are the density $\Qrho$, the two or three-dimensional momentum $\Qj$, the energy density $\QE$ and the mass fraction of the chemical reactant $\QZ$ \todo{TODO: Reference to Dumbser is missing -> What are we doing differently?}.
 In \cref{eq:equation-set}, the rows are the conservation of mass, the conservation of momentum, the conservation of energy and the continuity equation of the reactant.
 
 The pressure $\pressure$ is given by the equation of state of an ideal reacting gas\todo{Describe gravitation?}
@@ -218,7 +218,7 @@ In the rest of the paper, we make the following contributions:
 \section{Methods}
 \todo{Write \aderdg{}/\exahype{} section! Riemann solver + timestep}
 Maybe numerics (dg+muscl?), at least ref.
-Exahype?!
+Exahype?! \todo{LR: Die Engine würde ich vor der Formel beschreibung machen: Also erst was macht die Engine, dann wie haben wir sie angewandt.}
 
 We use the \aderdg{}-scheme as proposed in \cite{dumbser2008unified} together with a Rusanov-style flux~\cite{gassner2008discontinuous,fambri2017space} that is adapted for \pde{}s with diffusive terms. 
 
@@ -259,13 +259,13 @@ Chebyshev's inequality
   \label{eq:chebychev}
   \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2},
 \end{equation}
-with probability $\mathbb{P}$ guarantees that we neither refine nor delete all cells.
+with probability $\mathbb{P}$ guarantees that we neither refine nor delete all cells. \todo{LR: Was gibt es an compressible NS mit dynamic AMR, wie unterscheiden wir uns im Refinement Kriterium?}
 This inequality holds for arbitrary distributions under the weak assumption that their mean $\mu$ and standard deviation $\sigma$ are finite~\cite{wasserman2004all}.
 
 We use a \muscl{}-hancock based finite volume limiting as proposed in~\cite{dumbser2016simple}.
 Briefly, we first compute a candidate solution with our \aderdg{}-scheme and check whether it is valid.
 A solution is considered to be invalid if it is a non-finite floating point number or if it is unphysical, i.e.\ if the pressure or density are not positive.
-\todo{dmp?}
+\todo{dmp? LR: Just mention .. if the pressure or density are not positive. Simultenously we validate against the discrete maximum principle, defined by Dumser et al ref}
 In case of an invalid solution, we recompute the timestep with a limited \muscl{} finite volume method\todo{Source for the fv method}.
 
 \section{Results}
