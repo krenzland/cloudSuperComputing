@@ -85,15 +85,14 @@ The abstract should briefly summarize the contents of the paper in
 \end{abstract}
 \section{Introduction}
 \subsection{The ExaHyPE-Engine}
-The ExaHyPE project (www.exahype.eu) develops an engine to solve arbitrary hyperbolic partial differential equations (PDEs) on expected exascale high performance computing architectures.
-A user of the engine is provided with a simple code interface which mirrors the parts required to formulate a well posed Cauchy problem for a system of hyperbolic PDEs.
+The ExaHyPE project (\url{www.exahype.eu}) develops an engine to solve arbitrary hyperbolic partial differential equations (\pde{}s) on expected exascale high performance computing architectures.
+A user of the engine is provided with a simple code interface which mirrors the parts required to formulate a well posed Cauchy problem for a system of hyperbolic \pde{}s.
 The actual numerical scheme, domain decomposition and parallelisation techniques are left as black box to the user.
 Internally the ExaHyPE-Engine implements a high order ADER-DG scheme on Legendre basis nodes \todo{LR: ref}.
-The mesh is incorporated from the the Peano framework\todo{LR: ref}, which is based on spacetrees for Cartesian meshes.
-The framework provides a distributed (MPI) and shared memory (Intel TBB) parallelisation tailored to dynamic adaptive mesh refinement (AMR) \ref{LR: ref}.
-As the ADER-DG scheme is highly volatile as soon as shocks develop we additionally provide \textit{a posteriori} finite volume limiting, recently developed by Dumbser et al. \todo{LR: ref}.
-We want to emphasize the recent work by D.E. Charrier et al. \todo{LR: ref: Stop talking to me} which describes our communication avoiding implementation of the whole numerical scheme.
-
+The mesh is incorporated from the the Peano framework~\cite{weinzierl2011}, which is based on spacetrees for Cartesian meshes.
+The framework provides a distributed (\mpi{}) and shared memory (Intel \textsc{tbb}) parallelization tailored to dynamic adaptive mesh refinement (\amr{})~\todo{LR: ref}.
+As the ADER-DG scheme is highly volatile as soon as shocks develop we additionally provide \textit{a posteriori} finite volume limiting, recently developed by \citeauthor{dumbser2016simple} in~\cite{dumbser2016simple}.
+We want to emphasize the recent work~\cite{charrier2018stop} by \citeauthor{charrier2018stop} which describes our communication-avoiding implementation of the whole numerical scheme.
 \newcommand{\diffCoeff}{\varepsilon}
 \newcommand{\hyperFluxDef}{
   \begin{pmatrix}
