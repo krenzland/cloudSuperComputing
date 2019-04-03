@@ -225,12 +225,13 @@ In the rest of the paper, we make the following contributions:
 \end{itemize}
 
 \section{Methods}
-\todo{Write \aderdg{}/\exahype{} section! Riemann solver + timestep}
+\todo{Write \aderdg{}/\exahype{} section! Riemann solver + timestep. LR: Was sollen wir da deiner Meinung nach noch erwähnen?}
 Maybe numerics (dg+muscl?), at least ref.
-Exahype?! \todo{LR: Die Engine würde ich vor der Formel beschreibung machen: Also erst was macht die Engine, dann wie haben wir sie angewandt.}
-
+Exahype?! 
 We use the \aderdg{}-scheme as proposed in \cite{dumbser2008unified} together with a Rusanov-style flux~\cite{gassner2008discontinuous,fambri2017space} that is adapted for \pde{}s with diffusive terms. 
+\todo{LR: Hier würde ich noch ein paar einleitende Worte hinzufügen}
 
+Rules for dynamic AMR can be stated by the user with element wise checks against a custom defined set of criteria. We use an element local error estimate based on the total variation of the numerical solution. 
 Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a function that maps the discrete solution at a point $\bm{x}$ to an arbitrary indicator variable.
 The total variation (\textsc{tv}) of this function is defined by
 \begin{equation}
