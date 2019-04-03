@@ -86,10 +86,10 @@ The abstract should briefly summarize the contents of the paper in
 \section{Introduction}
 \subsection{The ExaHyPE-Engine}
 The ExaHyPE project (\url{www.exahype.eu}) develops an engine to solve arbitrary hyperbolic partial differential equations (\pde{}s) on expected exascale high performance computing architectures.
-A user of the engine is provided with a simple code interface which mirrors the parts required to formulate a well posed Cauchy problem for a system of hyperbolic \pde{}s.
+A user of the engine is provided with a simple code interface which mirrors the parts required to formulate a well posed Cauchy problem for a system of hyperbolic \pde{}s of first order.
 The actual numerical scheme, domain decomposition and parallelisation techniques are left as black box to the user.
-Internally the ExaHyPE-Engine implements a high order ADER-DG scheme on Legendre basis nodes \todo{LR: ref}.
-The mesh is incorporated from the the Peano framework~\cite{weinzierl2011}, which is based on spacetrees for Cartesian meshes.
+Internally the ExaHyPE-Engine implements a high order ADER-DG scheme on Legendre basis nodes.
+The mesh is incorporated from the Peano framework~\cite{weinzierl2011}, which is based on spacetrees for Cartesian meshes.
 The framework provides a distributed (\mpi{}) and shared memory (Intel \textsc{tbb}) parallelization tailored to dynamic adaptive mesh refinement (\amr{})~\todo{LR: ref}.
 As the ADER-DG scheme is highly volatile as soon as shocks develop we additionally provide \textit{a posteriori} finite volume limiting, recently developed by \citeauthor{dumbser2016simple} in~\cite{dumbser2016simple}.
 We want to emphasize the recent work~\cite{charrier2018stop} by \citeauthor{charrier2018stop} which describes our communication-avoiding implementation of the whole numerical scheme.
@@ -152,7 +152,7 @@ The conserved quantities
   \label{eq:conserved-variables}
  \Q = \left( \Qrho, \Qj, \QE, \QZ \right),
 \end{equation}
-are the density $\Qrho$, the two or three-dimensional momentum $\Qj$, the energy density $\QE$ and the mass fraction of the chemical reactant $\QZ$ \todo{TODO: Reference to Dumbser is missing -> What are we doing differently?}.
+are the density $\Qrho$, the two or three-dimensional momentum $\Qj$, the energy density $\QE$ and the mass fraction of the chemical reactant $\QZ$.
 In \cref{eq:equation-set}, the rows are the conservation of mass, the conservation of momentum, the conservation of energy and the continuity equation of the reactant.
 
 The pressure $\pressure$ is given by the equation of state of an ideal reacting gas\todo{Describe gravitation?}
@@ -219,7 +219,7 @@ We only consider the case of $\reactionTimescale \geq 10^{-2}$ which corresponds
 
 In the rest of the paper, we make the following contributions:
 \begin{itemize}
-\item We present an efficient, explicit \aderdg{}-scheme with shared and distributed memory parallelization for our equation set.
+\item We present an efficient, explicit \aderdg{}-scheme with shared and distributed memory parallelization for our equation set \todo{LR: das ist kein Beitrag von uns}.
 \item We show an \textsc{amr}-criterion that is based on the detection of outlier cells w.r.t.\ their total variation.
 \item We evaluate our implementation with standard \textsc{cfd} scenarios, atmospheric and reactive flows.
 \end{itemize}
