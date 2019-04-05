@@ -85,15 +85,15 @@ The abstract should briefly summarize the contents of the paper in
 \end{abstract}
 \section{Introduction}
 \subsection{The ExaHyPE-Engine}
-The ExaHyPE project (\url{www.exahype.eu}) develops an engine to solve arbitrary hyperbolic partial differential equations (\pde{}s) on expected exascale high performance computing architectures.
+The \exahype{} project (\url{www.exahype.eu}) develops an engine to solve arbitrary hyperbolic partial differential equations (\pde{}s) on upcoming exascale high performance computing architectures.
 A user of the engine is provided with a simple code interface which mirrors the parts required to formulate a well posed Cauchy problem for a system of hyperbolic \pde{}s of first order.
 The actual numerical scheme, domain decomposition and parallelisation techniques are left as black box to the user.
-Internally the ExaHyPE-Engine implements a high order ADER-DG scheme on Legendre basis nodes.
+Internally the \exahypeengine{} implements a high order \aderdg{} scheme on Legendre basis nodes.
 The mesh is incorporated from the Peano framework~\cite{weinzierl2011}, which is based on spacetrees for Cartesian meshes.
 The framework provides a distributed (\mpi{}) and shared memory (Intel \textsc{tbb}) parallelization tailored to dynamic adaptive mesh refinement (\amr{})~\todo{LR: ref}.
 As the ADER-DG scheme is highly volatile as soon as shocks develop we additionally provide \textit{a posteriori} finite volume limiting, recently developed by \citeauthor{dumbser2016simple} in~\cite{dumbser2016simple}.
 We want to emphasize the recent work~\cite{charrier2018stop} by \citeauthor{charrier2018stop} which describes our communication-avoiding implementation of the whole numerical scheme.
-\newcommand{\diffCoeff}{\varepsilon}
+\newcommand{\diffCoeff}{\varepsilon}%
 \newcommand{\hyperFluxDef}{
   \begin{pmatrix}
     \Qj \\
@@ -101,7 +101,7 @@ We want to emphasize the recent work~\cite{charrier2018stop} by \citeauthor{char
     \Qv \cdot (\bm{I} \QE + \bm{I} \pressure) \\
     \Qj \QZZ
   \end{pmatrix}
-}
+}%
 \newcommand{\viscFluxDef}{
   \begin{pmatrix}
     0\\
@@ -155,7 +155,7 @@ The conserved quantities
 are the density $\Qrho$, the two or three-dimensional momentum $\Qj$, the energy density $\QE$ and the mass fraction of the chemical reactant $\QZ$.
 In \cref{eq:equation-set}, the rows are the conservation of mass, the conservation of momentum, the conservation of energy and the continuity equation of the reactant.
 
-The pressure $\pressure$ is given by the equation of state of an ideal reacting gas\todo{Describe gravitation?}
+The pressure $\pressure$ is given by the equation of state of an ideal reacting gas
 \begin{equation}
   \label{eq:eos}
   \pressure = (\gamma - 1) \left(\QE - \frac{1}{2} \left(\Qv \cdot \Qj \right)  - q_0 \QZ - gz \right).
@@ -194,7 +194,7 @@ Many realistic atmospheric flows can be described by a pertubation over a backgr
   \label{eq:hydrostatic-balance}
   \pdv{}{z} \backgroundPressure{\left (z \right )} = -g \backgroundRho(z),
 \end{equation}
-i.e.\ a state where the pressure gradient is exactly balanced with the gravitational source term.
+i.e.\ a state, where the pressure gradient is exactly in balance with the gravitational source term.
 The momentum equation is dominated by the background flow in this case.
 This leads to numerical instabilities.
 To avoid this, we split the pressure $\pressure = \backgroundPressure + \pressure'$ into a sum of the background pressure $\backgroundPressure(z)$ and pertubation $\pressure'(\bm{x}, t)$.
@@ -219,19 +219,23 @@ We only consider the case of $\reactionTimescale \geq 10^{-2}$ which corresponds
 
 In the rest of the paper, we make the following contributions:
 \begin{itemize}
-\item We present an efficient, explicit \aderdg{}-scheme with shared and distributed memory parallelization for our equation set \todo{LR: das ist kein Beitrag von uns}.
+\item
+  We utilize an efficient and  explicit \aderdg{}-scheme with shared and distributed memory parallelization for our equation set.
 \item We show an \textsc{amr}-criterion that is based on the detection of outlier cells w.r.t.\ their total variation.
 \item We evaluate our implementation with standard \textsc{cfd} scenarios, atmospheric and reactive flows.
 \end{itemize}
 
 \section{Methods}
-\todo{Write \aderdg{}/\exahype{} section! Riemann solver + timestep. LR: Was sollen wir da deiner Meinung nach noch erwähnen?}
+\todo{Write \aderdg{}/\exahype{} section! Riemann solver + timestep. LR: Was sollen wir da deiner Meinung nach noch erwähnen?
+
+LK: CFL Condition ist wictig, wg.\ skalierung, Riemann solver weil wir eben nicht mixed-elements machen und keinen gradienten speichern müssen. Außerdem mehr oder weniger general purpose flux.
+}
 Maybe numerics (dg+muscl?), at least ref.
 Exahype?! 
 We use the \aderdg{}-scheme as proposed in \cite{dumbser2008unified} together with a Rusanov-style flux~\cite{gassner2008discontinuous,fambri2017space} that is adapted for \pde{}s with diffusive terms. 
 \todo{LR: Hier würde ich noch ein paar einleitende Worte hinzufügen}
 
-Rules for dynamic AMR can be stated by the user with element wise checks against a custom defined set of criteria. We use an element local error estimate based on the total variation of the numerical solution. 
+Rules for dynamic \amr{} can be stated by the user with element wise checks against a custom defined set of criteria. We use an element local error estimate based on the total variation of the numerical solution. 
 Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a function that maps the discrete solution at a point $\bm{x}$ to an arbitrary indicator variable.
 The total variation (\textsc{tv}) of this function is defined by
 \begin{equation}
@@ -243,7 +247,7 @@ The total variation (\textsc{tv}) of this function is defined by
 \end{equation}
 for each cell.
 The operator $\Vert \cdot \Vert_1$ denotes the discrete $l_1$ norm in this equation.
-We compute the integral efficiently with Gaussian quadrature over the collocated quadrature points.
+We compute the integral efficiently with Gaussian quadrature over the collocated quadrature points.\todo{If using muscl, add sentence about finite differences estimate}
 \newcommand{\mean}{\mu}%
 \newcommand{\std}{\sigma}%
 \newcommand{\variance}{\std^2}%
@@ -258,8 +262,8 @@ This criterion can be described formally by
   \label{eq:refinement-criterion}
   \operatorname{evaluate-refinement}(\Q, \mu, \sigma) =
   \begin{cases}
-    \text{refine} & \text{if } \tv(\Q) \geq \mu + \Trefine \sigma \\
-    \text{delete} & \text{if } \tv(\Q) < \mu + \Tdelete \sigma \\
+    \text{refine} & \text{if } \tv(\Q) \geq \mu + \Trefine \sigma, \\
+    \text{delete} & \text{if } \tv(\Q) < \mu + \Tdelete \sigma, \\
     \text{keep} & \text{otherwise}.
     \end{cases}
 \end{equation}
