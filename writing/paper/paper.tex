@@ -98,19 +98,17 @@ We want to emphasize the recent work~\cite{charrier2018stop} by \citeauthor{char
   \begin{pmatrix}
     \Qj \\
     \Qv  \otimes \Qj + \bm{I} \pressure  \\
-    \Qv \cdot (\bm{I} \QE + \bm{I} \pressure) \\
-    \Qj \QZZ
+    \Qv \cdot (\bm{I} \QE + \bm{I} \pressure)
   \end{pmatrix}
 }%
 \newcommand{\viscFluxDef}{
   \begin{pmatrix}
     0\\
      \stressT (\Q, \gradQ)  \\
-     \Qv \cdot \stressT (\Q, \gradQ) - \kappa \gradient{T}\\
-     0\\
+     \Qv \cdot \stressT (\Q, \gradQ) - \kappa \gradient{T}
    \end{pmatrix}
 }%
-We \todo{LR: General introduction is missing. Where do we see our paper, what has been done before? Here we should also introduce and describe the ExaHyPE-Engine as base of the paper} solve the reactive compressible Navier-Stokes equations in the conservative form% \pcref{eq:conservation-law-gradient}
+We \todo{LR: General introduction is missing. Where do we see our paper, what has been done before? Here we should also introduce and describe the ExaHyPE-Engine as base of the paper} solve the compressible Navier-Stokes equations in the conservative form% \pcref{eq:conservation-law-gradient}
 \begin{equation}
  \label{eq:equation-set} 
 %  \begin{array}{l}
@@ -126,8 +124,7 @@ We \todo{LR: General introduction is missing. Where do we see our paper, what ha
   \begin{pmatrix}
     \Qrho\\
     \Qj\\
-    \QE\\
-    \QZ
+    \QE
     \end{pmatrix}}_{\Q}
   +
   \divergence{
@@ -142,8 +139,7 @@ We \todo{LR: General introduction is missing. Where do we see our paper, what ha
   \begin{pmatrix}
     \source[\Qrho\phantom{\Qrho}]\\
     \source[\Qj]\\
-    \source[\QE]\\
-    \source[\QZ]
+    \source[\QE]
     \end{pmatrix}}_{\source(\Q, \bm{x}, t)}
 \end{equation}
 with vector of conserved quantitites $\Q$, flux $\flux(\Q, \gradQ)$ and source $\source(\Q)$.
@@ -152,16 +148,15 @@ The conserved quantities
   \label{eq:conserved-variables}
  \Q = \left( \Qrho, \Qj, \QE, \QZ \right),
 \end{equation}
-are the density $\Qrho$, the two or three-dimensional momentum $\Qj$, the energy density $\QE$ and the mass fraction of the chemical reactant $\QZ$.
-In \cref{eq:equation-set}, the rows are the conservation of mass, the conservation of momentum, the conservation of energy and the continuity equation of the reactant.
+are the density $\Qrho$, the two or three-dimensional momentum $\Qj$, the energy density $\QE$.
+In \cref{eq:equation-set}, the rows are the conservation of mass, the conservation of momentum, the conservation of energy.
 
-The pressure $\pressure$ is given by the equation of state of an ideal reacting gas
+The pressure $\pressure$ is given by the equation of state of an ideal gas
 \begin{equation}
   \label{eq:eos}
-  \pressure = (\gamma - 1) \left(\QE - \frac{1}{2} \left(\Qv \cdot \Qj \right)  - q_0 \QZ - gz \right).
+  \pressure = (\gamma - 1) \left(\QE - \frac{1}{2} \left(\Qv \cdot \Qj \right) - gz \right).
 \end{equation}
-The term $q_0 \QZ$ is the chemical energy with a heat release $q_0$~\cite{helzel2000modified}, the term $gz$ is the geopotential height with the gravity of Earth $g$~\cite{giraldo2008study}.
-We set $\QZZ$ or $q_0$ to zero for scenarios without a reactive component.
+The term $gz$ is the geopotential height with the gravity of Earth $g$~\cite{giraldo2008study}.
 The temperature $T$ relates to the pressure by the thermal equation of state
 \begin{equation}
   \label{eq:temperature}
@@ -209,20 +204,12 @@ We split the density $\Qrho = \backgroundRho + \Qrho'$ in the same manner and ar
   -g \bm{k} \Qrho'.
 \end{equation}
 
-\todo{Notation?}For reactive problems, we use the simple reaction model
-\begin{equation}
-  \label{eq:reaction-model}
-  \source[\QZ] = - \frac{1}{\reactionTimescale} \left[T > \reactionTemperature \right]\QZ
-\end{equation}
-where $\reactionTimescale$ is the time scale of the reaction and $\reactionTemperature$ is the critical temperature~\cite{hidalgo2011ader,helzel2000modified}.
-We only consider the case of $\reactionTimescale \geq 10^{-2}$ which corresponds to a non-stiff source.
-
 In the rest of the paper, we make the following contributions:
 \begin{itemize}
 \item
   We utilize an efficient and  explicit \aderdg{}-scheme with shared and distributed memory parallelization for our equation set.
 \item We show an \textsc{amr}-criterion that is based on the detection of outlier cells w.r.t.\ their total variation.
-\item We evaluate our implementation with standard \textsc{cfd} scenarios, atmospheric and reactive flows.
+\item We evaluate our implementation with standard \textsc{cfd} scenarios and atmospheric.
 \end{itemize}
 
 \section{Methods}
@@ -283,7 +270,7 @@ A solution is considered to be invalid if it is a non-finite floating point numb
 In case of an invalid solution, we recompute the timestep with a limited \muscl{} finite volume method\todo{Source for the fv method}.
 
 \section{Results}
-We use a diverse mix of benchmarking scenarios that consist of standard \textsc{cfd} scenarios, and atmospheric and reactive flows.
+We use a diverse mix of benchmarking scenarios that consist of standard \textsc{cfd} scenarios, and atmospheric flows.
 
 \todo{Constants of fluids?}
 A simple scenario is the Taylor-Green vortex.
@@ -398,20 +385,16 @@ For this we use the criterion of \cref{eq:refinement-criterion} with parameters 
 We compare this with a simulation obtained by a fully refined grid.
 
 Clouds with 2+ AMR Levels (if working?)
-Reactive Detonation Waves (maybe with stiff source term and/or fixed bcs)
-Finally, we consider the radialsymmetric detonation wave of xxx, which uses the coupled advection-reaction equation.
-Its initial conditions are given by xxx.
 We evaluate this scenario both with a viscosity xxx and with zero viscosity.
 
 TODO, Show following results:
 \begin{itemize}
 \item Simple cfd: Taylor Green, ABC, Lid Driven Cavity
 \item Two Bubbles with and without amr
-\item Limited Reactive euler/and maybe ns
 \end{itemize}
 
 \section{Conclusion}
-We presented a \muscl{}-limited \aderdg{}-scheme with \amr{} for the reactive Navier-Stokes equations.
+We presented a \muscl{}-limited \aderdg{}-scheme with \amr{} for the Navier-Stokes equations.
 Our implementation is capable of simulating different scenarios:
 \begin{itemize}
   % Convergence test?
@@ -419,7 +402,6 @@ Our implementation is capable of simulating different scenarios:
   This is true for both two-dimensional scenarios (Taylor-Green vortex and lid-driven cavity) and for the three-dimensional \textsc{abc}-flow.
 \item Furthermore, our method allows us to simulate flows in hydrostatic equilibrium correctly.
 \item We showed that our \amr{}-criterion is able to vastly reduce the number of grid cells while preserving the quality of the results.
-\item Our results of for the reactive detonation waves showed that our implementation is capable of simulating chemical reactions with a limited scheme, at least for a non-stiff source term.
 \end{itemize}
 
 \printbibliography{}
