@@ -209,7 +209,7 @@ We split the density $\Qrho = \backgroundRho + \Qrho'$ in the same manner and ar
   -g \bm{k} \Qrho'.
 \end{equation}
 
-\todo{Notation? Introduce $T$}For reactive problems, we use the simple reaction model
+\todo{Notation?}For reactive problems, we use the simple reaction model
 \begin{equation}
   \label{eq:reaction-model}
   \source[\QZ] = - \frac{1}{\reactionTimescale} \left[T > \reactionTemperature \right]\QZ
@@ -335,7 +335,7 @@ Our atmospheric flow scenarios are described in terms of the potential energy
 with reference pressure $p_o$~\cite{muller2010adaptive,giraldo2008study}.
 For all remaining scenarions, we use the constants
 \begin{equation}\label{eq:atmosphere-constants}
-    \gamma = 1.4 ,\qquad \Pr =  0.71 ,\qquad R = 287.058 ,\qquad p_0 = \SI{10e5}{\Pa}, \qquad g = 9.8.
+    \gamma = 1.4 ,\qquad \Pr =  0.71 ,\qquad R = 287.058 ,\qquad p_0 = \SI{10e5}{\Pa}, \qquad g = \SI{9.8}{m/s^2}.
 \end{equation}
 
 
@@ -364,7 +364,7 @@ For our first scenario, the cosine bubble, we use a pertubation of the form
 where $A$ denotes the maximal perturbation and $a$ is the size of the bubble.
 We use the constants
 \begin{equation}\label{eq:cosine-bubble}
-  A = 0.5 \quad a = \SI{250}{\m} \quad x_c = \SI{500}{\m} \quad z_c = \SI{350}{\m}.
+  A = \SI{0.5}{\K} \quad a = \SI{250}{\m} \quad x_c = \SI{500}{\m} \quad z_c = \SI{350}{\m}.
 \end{equation}
 We use a constant viscosity of $\mu = 0.1$.
 For our second scenario, the cold bubble on top of a warm bubble, we use the pertubations
@@ -381,8 +381,8 @@ We have two bubbles, with constants
 \begin{equation}
   \label{eq:bubbles-values}
 \begin{alignedat}{6}
-  & \text{warm:} \qquad && A = 0.5, \quad&& a = \SI{150}{\m}, \quad&& s = \SI{50}{\m}, \quad&& x_c = \SI{500}{\m,} \quad&& z_c = \SI{300}{\m},\\
-  & \text{cold:} \qquad && A = -0.15, \quad&& a = \SI{0}{\m}, \quad&& s = \SI{50}{\m}, \quad&& x_c = \SI{560}{\m}, \quad&& z_c = \SI{640}{\m}.
+  & \text{warm:} \qquad && A = \SI{0.5}{\K}, \quad&& a = \SI{150}{\m}, \quad&& s = \SI{50}{\m}, \quad&& x_c = \SI{500}{\m,} \quad&& z_c = \SI{300}{\m},\\
+  & \text{cold:} \qquad && A = \SI{-0.15}{\K}, \quad&& a = \SI{0}{\m}, \quad&& s = \SI{50}{\m}, \quad&& x_c = \SI{560}{\m}, \quad&& z_c = \SI{640}{\m}.
   \end{alignedat}
 \end{equation}
 Similar to~\cite{muller2010adaptive} and to the previous scenario, we use a constant viscosity of $\mu = 0.1$ to regularize the solution.

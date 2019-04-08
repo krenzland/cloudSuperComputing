@@ -6,7 +6,7 @@
 * Pro Zelle Total Variation also Kriterium
 * Chebyshev
 # Scenarios
-* Wolke mit 2 + AMR Level (Well bananced ?)
+* Wolke mit 2 + AMR Level (Well balanced?)
 * ABC-Flow + Taylor Green
 * Cavity Flow
 * Reactive Detonation Waves
