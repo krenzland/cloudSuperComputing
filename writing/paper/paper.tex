@@ -85,7 +85,8 @@ The abstract should briefly summarize the contents of the paper in
 \end{abstract}
 \section{Introduction}
 In this paper we use the \aderdg{} method of~\cite{dumbser2008unified} to simulate various computational fluid dynamics (\textsc{cfd}) scenarios with a focus on hydrostatic flows\todo{LK: Heißt das so?}.
-To include viscosity, we use the numerical flux of \citeauthor{gassner2008discontinuous}~\cite{gassner2008discontinuous} to include the parabolic terms of the compressible Navier-Stokes equations.
+To include viscosity\todo{MB meint (zu recht), dass die viscosity unmotiviert ist.
+  Lieber noch so 10--15 Zeilen drüber schreiben.}, we use the numerical flux of \citeauthor{gassner2008discontinuous}~\cite{gassner2008discontinuous} to include the parabolic terms of the compressible Navier-Stokes equations.
 This flux has already been applied to the \aderdg{} method in~\cite{dumbser2010arbitrary}.
 \todo{Einordnung, Kontext zu giraldo, etc$\ldots$}
 
@@ -94,7 +95,9 @@ A user of the engine is provided with a simple code interface which mirrors the 
 The underlying \aderdg{} method, parallelization techniques and dynamic adaptive mesh refinement are available for simulations while the implementations are left as a black box to the user.
 An introduction to the communication-avoiding implementation of the whole numerical scheme can be found in the recent work~\cite{charrier2018stop} by \citeauthor{charrier2018stop}.
 
-We make the following contributions:
+We make the following contributions\todo{Feedback von MB: Besser hervorheben, warum diese Sachen interessant/neu sind.
+Dumbser macht in seinen NS-DG papern keine komplexen Source terme, keine hydrostatic flows, etc.
+}:
 \begin{itemize}%
 \item We extend the \exahypeengine{} to allow diffusive terms following the aforementioned numerical scheme.
 \item We use this to provide an implementation of the compressible Navier-Stokes equations.
