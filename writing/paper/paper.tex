@@ -1,21 +1,22 @@
 \documentclass[runningheads]{llncs}
 \title{Cloud Supercomputing}
 \author{Lukas Krenz\inst{1} \and{} Leonhard Rannabauer\inst{1} \and{} Michael Bader\inst{1}}
-\institute{Technical University of Munich}
+\institute{Technical University of Munich} % todo emails and stuff
 \usepackage[utf8]{inputenc}
 %\usepackage[T1]{fontenc}
 \usepackage[american]{babel}
 \usepackage[autostyle, english = american]{csquotes}
 \usepackage[%
-  % backend=biber,
-  % url=false,
+  backend=biber,
+  url=false,
+  doi=false,
   % style=alphabetic,
   % backref=true,
   % hyperref=true,
-  % maxnames=4,
+  maxnames=3,
   % minnames=3,
   % maxbibnames=99,
-  % firstinits,
+  firstinits=true,
   % uniquename=init
   ]{biblatex}
 \DefineBibliographyStrings{english}{%
@@ -407,6 +408,13 @@ Our implementation is capable of simulating different scenarios:
 \item We showed that our \amr{}-criterion is able to vastly reduce the number of grid cells while preserving the quality of the results.
 \end{itemize}
 \todo{LK: Flesh this out a tiny bit, mention properties of \amr{} criterion}
+
+\subsection*{Acknowledgements}
+Lukas Krenz was funded by ChEESE (823844), Leonhard Rannabauer was funded by ExaHyPE (671698).
+\todo{LK: Standard sentence is: This research was funded by the European Union’s Horizon 2020 Research and Innovation Programme under theproject ExaHyPE, grant no.  671698 (call FETHPC-1-2014).
+
+Also LRZ?}
+
 
 \printbibliography{}
 \end{document}
