@@ -79,12 +79,22 @@
 \begin{document}
 \maketitle
 \begin{abstract}
+
+\begin{itemize}
+\item Implementation of compressible Navier Stokes with a high-order \aderdg{}-method and a low order finite volume \muscl{}-scheme.
+\item Implementation in \exahypeengine{}, a scalable \pde{} framework.
+\item Outlier and total variation based adaptive mesh refinement that reduced number of grid cells drastically and preserves solution quality.
+\item Simulation of challenging flows over hydrostatic background atmosphere.
+\item Competitive results for both classical cfd scenarios and hydrostatic scenarios in two and three dimensions.
+\end{itemize}
+  
 The abstract should briefly summarize the contents of the paper in
 150--250 words.
 
 \keywords{\aderdg{}  \and Navier-Stokes \and Another keyword.}
 \end{abstract}
 \section{Introduction}
+
 Insert references to Giraldo SE/DG bubbles~\cite{giraldo2008study}, 3D bubbles~\cite{giraldo2013implicit,kelly2012continuous}, bubble amr (müller~\cite{muller2010adaptive}).
 
 In this paper we use the \aderdg{} method of~\cite{dumbser2008unified} to simulate various computational fluid dynamics (\textsc{cfd}) scenarios with a focus on hydrostatic flows\todo{LK: Heißt das so?}.
