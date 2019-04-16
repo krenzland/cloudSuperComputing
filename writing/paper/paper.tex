@@ -86,7 +86,7 @@ The abstract should briefly summarize the contents of the paper in
 \end{abstract}
 \section{Introduction}
 In this paper we use the \aderdg{} method of~\cite{dumbser2008unified} to simulate various computational fluid dynamics (\textsc{cfd}) scenarios with a focus on hydrostatic flows\todo{LK: Heißt das so?}.
-To include viscosity\todo{MB meint (zu recht), dass die viscosity unmotiviert ist.
+To include viscosity\todo{MB: viscosity ist unmotiviert ist.
   Lieber noch so 10--15 Zeilen drüber schreiben.}, we use the numerical flux of \citeauthor{gassner2008discontinuous}~\cite{gassner2008discontinuous} to include the parabolic terms of the compressible Navier-Stokes equations.
 This flux has already been applied to the \aderdg{} method in~\cite{dumbser2010arbitrary}.
 \todo{Einordnung, Kontext zu giraldo, etc$\ldots$}
@@ -217,12 +217,13 @@ We split the density $\Qrho = \backgroundRho + \Qrho'$ in the same manner and ar
   =
   -g \bm{k} \Qrho'.
 \end{equation}
+\todo{Note that similar splitting is performed in giraldo}
 \section{Numerics}
 
 \todo{LR: Hier würde ich noch ein paar einleitende Worte hinzufügen}
 \todo{LK: CFL? Riemannsolver (no gradients)}
 We use the \aderdg{}-scheme as proposed in \cite{dumbser2008unified} together with a Rusanov-style flux~\cite{gassner2008discontinuous,fambri2017space} that is adapted for \pde{}s with diffusive terms. 
-In addition, we use a \muscl{} finite volume method with the same flux and the xxx \todo{LK: Which one is best? Cite.} limiter.
+In addition, we use a \muscl{} finite volume method with the same flux and the van Albada \todo{LK: Which one is best? Cite vanalbada} limiter.
 
 The user can state dynamic \amr{} rules by supplying custom criteria that are evaluated point-wise.
 We use an element local error estimate based on the total variation of the numerical solution. 
@@ -264,7 +265,7 @@ Chebyshev's inequality
   \label{eq:chebychev}
   \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2},
 \end{equation}
-with probability $\mathbb{P}$ guarantees that we neither refine nor delete all cells.
+with probability $\mathbb{P}$ guarantees that we neither refine nor delete all cells.\todo{Mention that all cells of a smaller level need to be \textbf{marked} as erase to trigger coarsening.}
 \todo{LR: Was gibt es an compressible NS mit dynamic AMR, wie unterscheiden wir uns im Refinement Kriterium?}
 This inequality holds for arbitrary distributions under the weak assumption that their mean $\mu$ and standard deviation $\sigma$ are finite~\cite{wasserman2004all}.
 
