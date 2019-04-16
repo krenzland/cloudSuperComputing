@@ -82,28 +82,30 @@
 The abstract should briefly summarize the contents of the paper in
 150--250 words.
 
-\keywords{First keyword  \and Second keyword \and Another keyword.}
+\keywords{\aderdg{}  \and Navier-Stokes \and Another keyword.}
 \end{abstract}
 \section{Introduction}
+Insert references to Giraldo SE/DG bubbles~\cite{giraldo2008study}, 3D bubbles~\cite{giraldo2013implicit,kelly2012continuous}, bubble amr (müller~\cite{muller2010adaptive}).
+
 In this paper we use the \aderdg{} method of~\cite{dumbser2008unified} to simulate various computational fluid dynamics (\textsc{cfd}) scenarios with a focus on hydrostatic flows\todo{LK: Heißt das so?}.
 To include viscosity\todo{MB: viscosity ist unmotiviert ist.
   Lieber noch so 10--15 Zeilen drüber schreiben.}, we use the numerical flux of \citeauthor{gassner2008discontinuous}~\cite{gassner2008discontinuous} to include the parabolic terms of the compressible Navier-Stokes equations.
 This flux has already been applied to the \aderdg{} method in~\cite{dumbser2010arbitrary}.
 \todo{Einordnung, Kontext zu giraldo, etc$\ldots$}
 
-We utilize the \exahypeengine{} (\url{www.exahype.eu}) which is an engine that can solve arbitrary hyperbolic partial differential equations.
+We utilize the \exahypeengine{} (\url{www.exahype.eu}) which is a framework that can solve arbitrary hyperbolic partial differential equations.
 A user of the engine is provided with a simple code interface which mirrors the parts required to formulate a well posed Cauchy problem for a system of hyperbolic \pde{}s of first order.
-The underlying \aderdg{} method, parallelization techniques and dynamic adaptive mesh refinement are available for simulations while the implementations are left as a black box to the user.
+The underlying \aderdg{} method\todo{\muscl{}?}, parallelization techniques and dynamic adaptive mesh refinement are available for simulations while the implementations are left as a black box to the user.
 An introduction to the communication-avoiding implementation of the whole numerical scheme can be found in the recent work~\cite{charrier2018stop} by \citeauthor{charrier2018stop}.
 
 We make the following contributions\todo{Feedback von MB: Besser hervorheben, warum diese Sachen interessant/neu sind.
 Dumbser macht in seinen NS-DG papern keine komplexen Source terme, keine hydrostatic flows, etc.
 }:
 \begin{itemize}%
-\item We extend the \exahypeengine{} to allow diffusive terms following the aforementioned numerical scheme.
+\item We extend the \exahypeengine{} to allow viscous terms following the aforementioned numerical scheme.
 \item We use this to provide an implementation of the compressible Navier-Stokes equations.
 \item We show an \textsc{amr}-criterion that is based on the detection of outlier cells w.r.t.\ their total variation.
-\item We evaluate our implementation with standard \textsc{cfd} scenarios and atmospheric flows.
+\item We evaluate our implementation with standard \textsc{cfd} scenarios and atmospheric flows and inspect the effectiveness of our proposed \amr{}-criterion.
 \end{itemize}
 
 \section{Equation Set}
@@ -157,11 +159,15 @@ The compressible Navier-Stokes equations in the conservative form are defined as
     \end{pmatrix}}_{\source(\Q, \bm{x}, t)}
 \end{equation}
 with vector of conserved quantities $\Q$, flux $\flux(\Q, \gradQ)$ and source $\source(\Q)$.
+Note that the flux can be split into a hyperbolic part $\hyperFlux(\Q)$,
+which is identical to the flux of the Euler equations,
+and a viscous part $\viscFlux(\Q, \gradQ)$.
 The conserved quantities
-\begin{equation} 
-  \label{eq:conserved-variables}
- \Q = \left( \Qrho, \Qj, \QE, \QZ \right),
-\end{equation}
+\(\Q\)
+% \begin{equation} 
+%   \label{eq:conserved-variables}
+%  \Q = \left( \Qrho, \Qj, \QE, \QZ \right),
+% \end{equation}
 are the density $\Qrho$, the two or three-dimensional momentum $\Qj$ and the energy density $\QE$.
 The rows of \cref{eq:equation-set} are the conservation of mass, the conservation of momentum and the conservation of energy.
 
@@ -181,7 +187,7 @@ where $R$ is the specific gas constant of a fluid.
 We model the diffusivity by the stress tensor
 \begin{equation}
   \label{eq:stress-tensor}
-  \stressT(Q, \nabla Q) =
+  \stressT(\Q, \gradQ) =
   \mu
   \left(
   \left(\nicefrac{2}{3} \divergence{\Qv} \right) -
@@ -196,7 +202,7 @@ The heat diffusion is governed by the coefficient
 \end{equation}
 where the ratio of specific heats $\gamma$, the heat capacity at constant pressure $c_p$ and the Prandtl number $\Pr$ depend on the fluid.
 
-Many realistic atmospheric flows can be described by a perturbation over a background state that is in hydrostatic equilibrium
+Many realistic atmospheric flows can be described by a perturbation over a background state that is in hydrostatic equilibrium\todo{Mention source}
 \newcommand{\backgroundPressure}{\overline{\pressure}}
 \newcommand{\backgroundRho}{\overline{\Qrho}}
 \begin{equation}
@@ -217,17 +223,20 @@ We split the density $\Qrho = \backgroundRho + \Qrho'$ in the same manner and ar
   =
   -g \bm{k} \Qrho'.
 \end{equation}
-\todo{Note that similar splitting is performed in giraldo}
+Note that a smilar splitting is performed in~\cite{muller2010adaptive,giraldo2008study}.
+\todo{Mention differences in splitting methods}
 \section{Numerics}
 
 \todo{LR: Hier würde ich noch ein paar einleitende Worte hinzufügen}
 \todo{LK: CFL? Riemannsolver (no gradients)}
-We use the \aderdg{}-scheme as proposed in \cite{dumbser2008unified} together with a Rusanov-style flux~\cite{gassner2008discontinuous,fambri2017space} that is adapted for \pde{}s with diffusive terms. 
-In addition, we use a \muscl{} finite volume method with the same flux and the van Albada \todo{LK: Which one is best? Cite vanalbada} limiter.
+We use an \aderdg{}-scheme and a \muscl{} finite volume method.
+Both can be considered as instances of the more general \textsc{PnPm} schemes of~\cite{dumbser2008unified}.
+We use a Rusanov-style flux that is adapted to \pde{}s with viscous terms~\cite{gassner2008discontinuous,fambri2017space}.
+The finite volume scheme is stabilized with the van Albada limiter\todo{LK: Which one is best? Cite vanalbada}.
 
 The user can state dynamic \amr{} rules by supplying custom criteria that are evaluated point-wise.
 We use an element local error estimate based on the total variation of the numerical solution. 
-Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a function that maps the discrete solution at a point $\bm{x}$ to an arbitrary indicator variable.
+Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a sufficiently smooth function that maps the discrete solution at a point $\bm{x}$ to an arbitrary indicator variable.
 The total variation (\textsc{tv}) of this function is defined by
 \begin{equation}
   \label{eq:tv}
@@ -244,7 +253,7 @@ We compute the integral efficiently with Gaussian quadrature over the collocated
 \newcommand{\std}{\sigma}%
 \newcommand{\variance}{\std^2}%
 \newcommand{\Trefine}{T_\text{refine}}%
-\newcommand{\Tdelete}{T_\text{delete}}%
+\newcommand{\Tdelete}{T_\text{erase}}%
 How can we decide whether a cell is important or not?
 To resolve this conundrum, we compute the mean and the population standard deviation of the total variation of all cells.
 It is important to note that we use the method of~\cite{chan1982updating} to compute the modes in a parallel and numerical stable manner.
@@ -255,7 +264,7 @@ This criterion can be described formally by
   \operatorname{evaluate-refinement}(\Q, \mu, \sigma) =
   \begin{cases}
     \text{refine} & \text{if } \tv(\Q) \geq \mu + \Trefine \sigma, \\
-    \text{delete} & \text{if } \tv(\Q) < \mu + \Tdelete \sigma, \\
+    \text{erase} & \text{if } \tv(\Q) < \mu + \Tdelete \sigma, \\
     \text{keep} & \text{otherwise}.
     \end{cases}
 \end{equation}
@@ -265,9 +274,10 @@ Chebyshev's inequality
   \label{eq:chebychev}
   \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2},
 \end{equation}
-with probability $\mathbb{P}$ guarantees that we neither refine nor delete all cells.\todo{Mention that all cells of a smaller level need to be \textbf{marked} as erase to trigger coarsening.}
+with probability $\mathbb{P}$ guarantees that we neither mark all cells for refinement nor for erasement.
 \todo{LR: Was gibt es an compressible NS mit dynamic AMR, wie unterscheiden wir uns im Refinement Kriterium?}
-This inequality holds for arbitrary distributions under the weak assumption that their mean $\mu$ and standard deviation $\sigma$ are finite~\cite{wasserman2004all}.
+This inequality holds for arbitrary distributions under the weak assumption that they have a finite mean $\mu$ and a finite standard deviation $\sigma$~\cite{wasserman2004all}.
+Note that subcells are coarsened only if all subcells belonging to the coarse cell are marked for erasion.
 
 We use a \muscl{} based finite volume limiting as proposed in~\cite{dumbser2016simple}.
 Briefly, we first compute a candidate solution with our \aderdg{}-scheme and check whether it is valid.
@@ -294,7 +304,7 @@ It has an analytical solution in the incompressible limit which is given by
   \end{split}
 \end{align}
 The constant $C = \nicefrac{100}{\gamma}$ governs the speed of sound and thus the Mach number~\cite{dumbser2016high}, the viscosity is set to $\mu = 0.1$.
-We use a domain of size $(\SI{2 \pi}{\m} \times \SI{2 \pi}{\m})$ and impose the analytical solution at the boundary.
+We use a domain of size $(\SI{2 \pi}{\m} \times \SI{2 \pi}{\m})$ and impose the analytical solution at the boundary\todo{tEnd, mach=0.1}.
 
 We use the Arnold-Beltrami-Childress (\textsc{abc}) flow as a simple three-dimensional flow~\cite{tavelli2016staggered}.
 It also has an exact solution in the domain of \( \left[ -\SI{\pi}{\m}, \SI{\pi}{\m} \right]^3 \) under the assumption of incompressibility
@@ -313,9 +323,9 @@ It also has an exact solution in the domain of \( \left[ -\SI{\pi}{\m}, \SI{\pi}
   \end{split}
 \end{align}
 The constant $C = \nicefrac{100}{\gamma}$ is chosen as before.
-We use a viscosity of $\mu = 0.01$ and analytical boundary conditions.
+We use a viscosity of $\mu = 0.01$ and analytical boundary conditions\todo{tEnd}.
 
-As a final example of standard flow scenarios, we consider the lid-driven cavity flow where the fluid is at rest initially, with $\Qrho = 1$ and $ \pressure(\bm{x}) = \nicefrac{100}{\gamma}$.
+As a final example of standard flow scenarios, we consider the lid-driven cavity flow where the fluid is initially at rest, with $\Qrho = 1$ and $ \pressure(\bm{x}) = \nicefrac{100}{\gamma}$.
 We consider a domain of size $\SI{1}{m} \times \SI{1}{\m}$ which is surrounded by no-slip walls.
 The flow is driven entirely by the upper wall which has a velocity of $v_x = \SI{1}{\m/\s}$.
 The simulation runs for $\SI{10}{\s}$
@@ -339,7 +349,7 @@ Let
   \label{eq:radius}
   r^2 = (x - x_0)^2 + (z - z_0)^2
 \end{equation}
-denote the difference between spatial positions $x,z$ and the center of a bubble $x_c, z_c$.
+denote the difference between spatial positions $x,z$ and the center of a bubble $x_c, z_c$\todo{3D}.
 For our first scenario, the cosine bubble, we use a pertubation of the form
 % \begin{equation}
 %   \label{eq:cos-pertubation-alt}
@@ -354,12 +364,12 @@ For our first scenario, the cosine bubble, we use a pertubation of the form
     \end{cases}
 \end{align}
 where $A$ denotes the maximal perturbation and $a$ is the size of the bubble.
-We use the constants
+We use the constants\todo{3d bubble is higher}
 \begin{equation}\label{eq:cosine-bubble}
   A = \SI{0.5}{\K} \quad a = \SI{250}{\m} \quad x_c = \SI{500}{\m} \quad z_c = \SI{350}{\m}.
 \end{equation}
-We use a constant viscosity of $\mu = 0.1$.
-For our second scenario, the cold bubble on top of a warm bubble, we use the perturbations
+We use a constant viscosity of $\mu = 0.1$\todo{tend = 400 for 3d and 600 for 2d}.
+For our second scenario, the colliding bubbles, we use perturbations of the form
 \begin{equation}
   \label{eq:bubbles-pertubation}
   \pertubationPotT =
@@ -378,12 +388,14 @@ We have two bubbles, with constants
   \end{alignedat}
 \end{equation}
 Similar to~\cite{muller2010adaptive} and to the previous scenario, we use a constant viscosity of $\mu = 0.1$ to regularize the solution.
-To ensure that the atmosphere stays in hydrostatic balance~\cite{giraldo2008study}, we need to impose the viscous heat flux\todo{LK: Show full bc?}
+To ensure that the atmosphere stays in hydrostatic balance~\cite{giraldo2008study}, we need to impose the viscous heat flux
 \begin{equation}
   \label{eq:atmosphere-bc}
   \viscFlux_{\QE} = \kappa \pdv{\overline{T}}{z}.% =
 %\kappa \frac{R \overline{\theta} \left(\frac{\overline{p}{\left (z \right )}}{p_{0}}\right)^{\frac{R}{c_{p}}} \frac{d}{d z} \overline{p}{\left (z \right )}}{c_{p} \overline{p}{\left (z \right )}}.
 \end{equation}
+where $\overline{T}(z)$ is the background temperature at position $z$ which can be computed from \cref{eq:hydrostatic-balance,eq:eos}.
+We furthermore set the density and energy at the boundary such that it corresponds to the background atmosphere.
 
 % We start with a coarse mesh that is then subdivided up to two times in an adaptive manner.
 % For this we use the criterion of \cref{eq:refinement-criterion} with parameters xxx and xxx.
@@ -393,9 +405,9 @@ Show following results:
 \begin{itemize}
 \item Simple cfd: Taylor Green, ABC, Lid Driven Cavity
 \item Two Bubbles with \amr{} (2 levels if possible) and no \amr{} (comparison)
-\item Two Bubbles (Euler eqs, FV\todo{Fix parameters})  
+\item Two Bubbles (Euler eqs, FV)  
 \item Two Bubbles with limiting instead of visc.\ if working  
-\item Cosine bubble in 2D and possibly 3D, if working \todo{move bubble downwards for 3d}
+\item Cosine bubble in 2D and possibly 3D, if working
 \end{itemize}
 
 \section{Conclusion}
@@ -405,7 +417,7 @@ Our implementation is capable of simulating different scenarios:
   % Convergence test?
 \item We evaluated our method for standard \textsc{cfd} scenarios and achieved competitive results for all used scenarios.
   This is true for both two-dimensional scenarios (Taylor-Green vortex and lid-driven cavity) and for the three-dimensional \textsc{abc}-flow.
-\item Furthermore, our method allows us to simulate flows in hydrostatic equilibrium correctly.
+\item Furthermore, our method allows us to simulate flows in hydrostatic equilibrium correctly as our results for the cosine and colliding bubble scenarios showed.
 \item We showed that our \amr{}-criterion is able to vastly reduce the number of grid cells while preserving the quality of the results.
 \end{itemize}
 \todo{LK: Flesh this out a tiny bit, mention properties of \amr{} criterion}
