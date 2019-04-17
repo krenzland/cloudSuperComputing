@@ -99,9 +99,6 @@ def plot_contour(df, fig, ax, var, num_sample=500, levels=5, axis_off='off', col
 
     rr = griddata((x,y), r, (xx[None,:], yy[:,None]), method='cubic')
 
-    fs = figsize(scale=1.0)
-    size = (fs[0], fs[0])
-
     ax.axis(axis_off)
     
     ax.set_xlabel('$x$')
@@ -110,7 +107,8 @@ def plot_contour(df, fig, ax, var, num_sample=500, levels=5, axis_off='off', col
     if colored:
         c = ax.contour(xx, yy, rr, levels=levels, cmap='viridis', linewidths=linewidths)
     else:
-        c = ax.contour(xx, yy, rr, levels=levels, colors='black', linewidths=linewidths)
+        c = ax.contour(xx, yy, rr, levels=levels, colors='black', linewidths=linewidths,
+                       antialiased=True)
     
     return fig, ax, c
 
