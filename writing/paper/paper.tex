@@ -94,29 +94,28 @@ The abstract should briefly summarize the contents of the paper in
 \keywords{\aderdg{}  \and Navier-Stokes \and Another keyword.}
 \end{abstract}
 \section{Introduction}
-The accurate simulation of fluid dynamics is crucial for detailed weather prediction.
-\todo{Most results here are quite old.}
-Because these dynamics are approximated well with the compressible Navier-Stokes equations, this is the equation set of our choice.
-There are some examples, where higher order methods have been used for the simulation of clouds, such as~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
-Even though these methods use a discretization with a (theoretical) unlimited space-order, they use either Runge-Kutta time integrators or semi-implicit methods.
+The accurate simulation of clouds is crucial for detailed weather prediction.
+Because cloud dynamics can be approximated well with the compressible Navier-Stokes equations, this is the equation set of our choice.
+These equations are often space-discretized by higher order Galerkin methods, as seen for example in~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
+Even though all of these implementations use a discretization with a (theoretical) unlimited space-order, they use Runge-Kutta time integrators or semi-implicit methods.
 It is well known that Runge-Kutta methods become more ineffecient for very high orders.
-Furthermore, they and the implicit methods are more communication-intensive and thus require a larger overhead.
+Furthermore, they and the implicit methods are more communication-intensive and thus require a larger overhead and are more complicated to scale.
 
-We thus follow a different approach in this paper and use the \aderdg{} method of~\cite{dumbser2008unified} to simulate various computational fluid dynamics (\textsc{cfd}) scenarios with a focus on hydrostatic flows.
-\todo{LK: Heißt das hydrostatic?}
-%\todo{MB: viscosity ist unmotiviert ist.
- % Lieber noch so 10--15 Zeilen drüber schreiben.}
+We follow a different approach in this paper and use the \aderdg{} method of~\cite{dumbser2008unified} to simulate various computational fluid dynamics (\textsc{cfd}) scenarios with a focus on flows with stratified flows.
+\todo{LK: Ist hier stratified flows korrekt?}
+\todo{MB: viscosity ist unmotiviert ist.
+    Lieber noch so 10--15 Zeilen drüber schreiben.}
 Due to the viscous components of the Navier-Stokes equations, it is not straightforward to apply the \dg{} method.
 For high-order \dg{} methods, viscosity not only models the physical reality of the problem but also helps us by smoothing out oscillations and discontinuities, thus stabilizing the simulation.
 To include viscosity, we use the numerical flux for the compressible Navier-Stokes equations of \citeauthor{gassner2008discontinuous}~\cite{gassner2008discontinuous}.
 This flux has already been applied to the \aderdg{} method in~\cite{dumbser2010arbitrary}.
 In contrast to this paper, we focus on the simulation of complex flows with a gravitational source term and a realistic background atmosphere.
+Additionally, we use adaptive mesh refinement (\textsc{amr}) to increase the spatial resolution in areas of interest.
+This has been shown to work well for the simulation of cloud dynamics~\cite{muller2010adaptive}.
 %\todo{Einordnung, Kontext zu giraldo, etc$\ldots$}
-
 %Insert references to Giraldo SE/DG bubbles~\cite{giraldo2008study}, 3D bubbles~\cite{giraldo2013implicit,kelly2012continuous}, bubble amr (müller~\cite{muller2010adaptive}).
 
-
-We base our work on the \exahypeengine{} (\url{www.exahype.eu}) which is a framework that can solve arbitrary hyperbolic partial differential equations.
+We base our work on the \exahypeengine{} (\url{www.exahype.eu}), which is a framework that can solve arbitrary hyperbolic partial differential equations.
 A user of the engine is provided with a simple code interface which mirrors the parts required to formulate a well posed Cauchy problem for a system of hyperbolic \pde{}s of first order.
 The underlying \aderdg{} method\todo{\muscl{}?}, parallelization techniques and dynamic adaptive mesh refinement are available for simulations while the implementations are left as a black box to the user.
 An introduction to the communication-avoiding implementation of the whole numerical scheme can be found in the recent work~\cite{charrier2018stop} by \citeauthor{charrier2018stop}.
@@ -127,7 +126,9 @@ Dumbser macht in seinen NS-DG papern keine komplexen Source terme, keine hydrost
 \begin{itemize}%
 \item We extend the \exahypeengine{} to allow viscous terms following the aforementioned numerical scheme.
 \item We use this to provide an implementation of the compressible Navier-Stokes equation.
-\item We show an \textsc{amr}-criterion that is based on the detection of outlier cells w.r.t.\ their total variation.
+  In addition, we tailor the equation set to stratified flows with gravitational source term.
+\item We present a general \textsc{amr}-criterion that is based on the detection of outlier cells w.r.t.\ their total variation.
+  Furthermore, we show how to utilize this criterion for stratified flows.
 \item We evaluate our implementation with standard \textsc{cfd} scenarios and atmospheric flows and inspect the effectiveness of our proposed \amr{}-criterion.
 \end{itemize}
 
