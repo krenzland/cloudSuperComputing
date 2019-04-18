@@ -57,7 +57,7 @@ def plot_taylor_green(fig_path, solution_path, target, order=5):
         #ax.scatter(coord_cut, vel_approx_cut, c='black', marker=marker, s=1., lw=6, facecolors='none',
         #          label=f'$v_{coord_label} ({other})$')
         ax.plot(coord_cut, vel_approx_cut, 'o', c='black', marker=marker,lw=6, mfc='none',
-                label=f'$v_{coord_label} ({other})$')
+                label='$v_{coord_label} ({other})$'.format(coord_label=coord_label, other=other))
 
     ax.set_xlabel('$x, z$')
     ax.set_ylabel('$v_x(z), v_z(x)$')
@@ -66,7 +66,7 @@ def plot_taylor_green(fig_path, solution_path, target, order=5):
     fig.subplots_adjust(left=0.2, bottom=0.2, right=0.85)
     fig.legend(loc='upper right', bbox_to_anchor=(1.01,1), handletextpad=10e-100, )
     sns.despine(fig,ax)
-    fig.savefig(fig_path + f'{target}_taylor_green_vel.pdf', transparent=True)
+    fig.savefig(fig_path + '{target}_taylor_green_vel.pdf'.format(target=target), transparent=True)
 
     fig, ax = plt.subplots(figsize=figsize(scale=0.5, target=target))
     coord_cut, p_approx_cut, p_ana_cut, vel_approx_cut, vel_ana_cut = eval_cut(df, 'x', time, mu=0.01,
@@ -80,13 +80,13 @@ def plot_taylor_green(fig_path, solution_path, target, order=5):
     ax.set_xticklabels([0, '$\pi$', '$2\pi$'])
     sns.despine(fig,ax)
     fig.subplots_adjust(left=0.2, bottom=0.2)
-    fig.savefig(fig_path + f'{target}_taylor_green_pressure.pdf', transparent=True)
+    fig.savefig(fig_path + '{}_taylor_green_pressure.pdf'.format(target), transparent=True)
 
 def main():
     set_plot_defaults()
     fig_path='output/'
     plot_taylor_green(fig_path=fig_path,
-                      solution_path='/home/lukas/Documents/MA-results/taylor-green/solution-2.vtu',
+                      solution_path='/import/home/ga24dib/src/ExaHyPE-OptNS/ApplicationExamples/CompressibleNavierStokes/output/solution_cartesian-6.vtu',
                       target='paper')
         
 if __name__ == '__main__':

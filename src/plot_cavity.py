@@ -80,7 +80,7 @@ def plot_cavity(fig_path, solution_path, target):
     ax.set_xticks(xticks)
     ax.set_xticklabels(xticks)
 
-    fig.savefig(fig_path + f'{target}_lid_driven_cavity.pdf', transparent=True)
+    fig.savefig(fig_path + '{}_lid_driven_cavity.pdf'.format(target), transparent=True)
 
     # Contour
     fig, ax = plt.subplots(figsize=quadratic_figsize(scale=0.5, target=target))
@@ -112,13 +112,13 @@ def plot_cavity(fig_path, solution_path, target):
     ax.set_yticks(ticks)
     ax.set_yticklabels(ticks)
     # https://github.com/matplotlib/matplotlib/issues/8388 ?
-    fig.savefig(fig_path + f'{target}_lid_driven_cavity_stream.pdf', transparent=True)
+    fig.savefig(fig_path + '{}_lid_driven_cavity_stream.pdf'.format(target), transparent=True)
 
 def main():
     set_plot_defaults()
     fig_path='output/'
     plot_cavity(fig_path=fig_path,
-                solution_path='/home/lukas/Documents/MA-results/lid-driven-cavity/solution-3.vtu',
+                solution_path='/work_fast/krenz/cavity/solution-6.vtu',
                 target='paper')
         
 if __name__ == '__main__':
