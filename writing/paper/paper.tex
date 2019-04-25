@@ -94,9 +94,12 @@ The abstract should briefly summarize the contents of the paper in
 \keywords{\aderdg{}  \and Navier-Stokes \and Another keyword.}
 \end{abstract}
 \section{Introduction}
-The accurate simulation of clouds is crucial for detailed weather prediction.
-Because cloud dynamics can be approximated well with the compressible Navier-Stokes equations, this is the equation set of our choice.
-These equations are often space-discretized by higher order Galerkin methods, as seen for example in~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
+Numerical weather prediction (\textsc{nwp}) contains processes of different spatio-temporal scales.
+An important part of future \textsc{nwp} models will be the the resolution of convective processes~\cite{bauer2015quiet}.
+This part requires both suitable physical models and effective computational realisations. 
+We focus on the simulation of cloud formation processes with simple benchmark scenarios~\cite{giraldo2008study}.
+These relatively small scale effects are well approximated with the compressible Navier-Stoks equations.
+They are often space-discretized by higher order Galerkin methods, as seen for example in~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
 Even though all of these implementations use a discretization with a (theoretical) unlimited space-order, they use Runge-Kutta time integrators or semi-implicit methods.
 It is well known that Runge-Kutta methods become more ineffecient for very high orders.
 Furthermore, they and the implicit methods are more communication-intensive and thus require a larger overhead and are more complicated to scale.
@@ -127,9 +130,11 @@ Dumbser macht in seinen NS-DG papern keine komplexen Source terme, keine hydrost
 \item We extend the \exahypeengine{} to allow viscous terms following the aforementioned numerical scheme.
 \item We use this to provide an implementation of the compressible Navier-Stokes equation.
   In addition, we tailor the equation set to stratified flows with gravitational source term.
+  We want to emphasize here that we use a standard formulation of the Navier-Stokes equations as seen in the field of computational fluid mechanics and only use small modifcations of the governing equations, in contrast to a equation set that is tailored exactly to the application area.
 \item We present a general \textsc{amr}-criterion that is based on the detection of outlier cells w.r.t.\ their total variation.
   Furthermore, we show how to utilize this criterion for stratified flows.
 \item We evaluate our implementation with standard \textsc{cfd} scenarios and atmospheric flows and inspect the effectiveness of our proposed \amr{}-criterion.
+  We thus inspect, whether our proposed general implementation can achieve results that are competitive with the state-of-the-art models that rely on heavily specified equations and numerics.
 \end{itemize}
 
 \section{Equation Set}
@@ -148,6 +153,11 @@ Dumbser macht in seinen NS-DG papern keine komplexen Source terme, keine hydrost
      \Qv \cdot \stressT (\Q, \gradQ) - \kappa \gradient{T}
    \end{pmatrix}
 }%
+
+\begin{equation}
+  \label{eq:ns-short}
+ \pdv{}{t} \bm{Q} + \divergence{\bm{F}(\bm{Q}, \gradient{\bm{Q}})} = \bm{S}(\bm{Q}) 
+\end{equation}
 The compressible Navier-Stokes equations in the conservative form are defined as% \pcref{eq:conservation-law-gradient}
 \begin{equation}
  \label{eq:equation-set} 
