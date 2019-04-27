@@ -77,29 +77,29 @@
 
 
 \begin{document}
-\maketitlet 
+\maketitle 
 \begin{abstract}
   In the context of simulation of convective proceess for numerical weather prediction, we present an application of the compressible Navier Stokes equations on cloud formation processes.
-  While established methods have to use tailored numerics towards the specific simulation, our generic scheme shows competitive results for both classical cfd and hydrostatic scenarios.
+  While established methods have to use tailored numerics towards the specific simulation, our generic scheme shows competitive results for both classical \textsc{cfd} and stratified scenarios.
   Our scheme exploits an underlying parallelized implementation of the \aderdg{} method with dynamic adaptive mesh refinement. 
-  We improve our method by a PDE independent general refinement criterion, based on the local total variation of the numerical solution.
+  We improve our method by a  \pde{} independent general refinement criterion, based on the local total variation of the numerical solution.
   All together our method can be seen as a perfect candidate for large scale cloud simulation runs on current and future super computers.
-\begin{itemize}
-\item Implementation of compressible Navier Stokes with a high-order \aderdg{}-method and a low order finite volume \muscl{}-scheme.
-\item Implementation in \exahypeengine{}, a scalable \pde{} framework.
-\item Outlier and total variation based adaptive mesh refinement that reduced number of grid cells drastically and preserves solution quality.
-\item Simulation of challenging flows over hydrostatic background atmosphere.
-\item Competitive results for both classical cfd scenarios and hydrostatic scenarios in two and three dimensions.
-\end{itemize}
+% \begin{itemize}
+% \item Implementation of compressible Navier Stokes with a high-order \aderdg{}-method and a low order finite volume \muscl{}-scheme.
+% \item Implementation in \exahypeengine{}, a scalable \pde{} framework.
+% \item Outlier and total variation based adaptive mesh refinement that reduced number of grid cells drastically and preserves solution quality.
+% \item Simulation of challenging flows over hydrostatic background atmosphere.
+% \item Competitive results for both classical cfd scenarios and hydrostatic scenarios in two and three dimensions.
+% \end{itemize}
 
   
-The abstract should briefly summarize the contents of the paper in
-150--250 words.
+%The abstract should briefly summarize the contents of the paper in
+%150--250 words.
 
 \keywords{\aderdg{}  \and Navier-Stokes \and Another keyword.}
 \end{abstract}
 \section{Introduction}
-In this paper we address the resolution of convective processes in the context of numerical weather prediction (\textsc{nwp}), on modern super computer systems.
+In this paper we address the resolution of convective processes in the context of numerical weather prediction (\textsc{nwp}) on modern super computer systems.
 The simulation of these process, with suitable physical models and on large scale clusters is expected to play an important role in future \textsc{nwp}~\cite{bauer2015quiet}.
 %% Numerical weather prediction (\textsc{nwp}) contains processes of different spatio-temporal scales.
 %% An important part of future \textsc{nwp} models will be the the resolution of convective processes~\cite{bauer2015quiet}.
@@ -113,9 +113,6 @@ It is well known that Runge-Kutta methods become more ineffecient for very high 
 Furthermore, they and the implicit methods are more communication-intensive and thus require a larger overhead and are more complicated to scale.
 
 We follow a different approach in this paper and use the \aderdg{} method of~\cite{dumbser2008unified} to simulate various computational fluid dynamics (\textsc{cfd}) scenarios with a focus on flows with stratified flows.
-\todo{LK: Ist hier stratified flows korrekt?}
-\todo{MB: viscosity ist unmotiviert ist.
-    Lieber noch so 10--15 Zeilen drüber schreiben.}
 Due to the viscous components of the Navier-Stokes equations, it is not straightforward to apply the \dg{} method.
 For high-order \dg{} methods, viscosity not only models the physical reality of the problem but also helps us by smoothing out oscillations and discontinuities, thus stabilizing the simulation.
 To include viscosity, we use the numerical flux for the compressible Navier-Stokes equations of \citeauthor{gassner2008discontinuous}~\cite{gassner2008discontinuous}.
@@ -131,9 +128,7 @@ A user of the engine is provided with a simple code interface which mirrors the 
 The underlying \aderdg{} method\todo{\muscl{}?}, parallelization techniques and dynamic adaptive mesh refinement are available for simulations while the implementations are left as a black box to the user.
 An introduction to the communication-avoiding implementation of the whole numerical scheme can be found in the recent work~\cite{charrier2018stop} by \citeauthor{charrier2018stop}.
 
-We make the following contributions\todo{Feedback von MB: Besser hervorheben, warum diese Sachen interessant/neu sind.
-Dumbser macht in seinen NS-DG papern keine komplexen Source terme, keine hydrostatic flows, etc.
-}:
+We make the following contributions:
 \begin{itemize}%
 \item We extend the \exahypeengine{} to allow viscous terms following the aforementioned numerical scheme.
 \item We use this to provide an implementation of the compressible Navier-Stokes equation.
@@ -279,6 +274,7 @@ The finite volume scheme is stabilized with the van Albada limiter\todo{LK: Whic
 
 The user can state dynamic \amr{} rules by supplying custom criteria that are evaluated point-wise.
 We use an element local error estimate based on the total variation of the numerical solution. 
+\todo{Mention intuition, i.e.\ tvd stuff}
 Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a sufficiently smooth function that maps the discrete solution at a point $\bm{x}$ to an arbitrary indicator variable.
 The total variation (\textsc{tv}) of this function is defined by
 \begin{equation}
@@ -291,7 +287,7 @@ The total variation (\textsc{tv}) of this function is defined by
 for each cell.
 The operator $\Vert \cdot \Vert_1$ denotes the discrete $l_1$ norm in this equation.
 We compute the integral efficiently with Gaussian quadrature over the collocated quadrature points.
-\todo{LK: If using limiting, add sentence about tv computation for fv}
+%\todo{LK: If using limiting, add sentence about tv computation for fv}
 \newcommand{\mean}{\mu}%
 \newcommand{\std}{\sigma}%
 \newcommand{\variance}{\std^2}%
@@ -325,7 +321,7 @@ Note that subcells are coarsened only if all subcells belonging to the coarse ce
 We use a \muscl{} based finite volume limiting as proposed in~\cite{dumbser2016simple}.
 Briefly, we first compute a candidate solution with our \aderdg{}-scheme and check whether it is valid.
 A solution is considered to be invalid if it is a non-finite floating point number or if it is unphysical, i.e.\ if the pressure or density are not positive.
-\todo{LK: Mention dmp if using, mention tv-indicator for limiting if using}
+%\todo{LK: Mention dmp if using, mention tv-indicator for limiting if using}
 In case of an invalid solution, we recompute the timestep with a our \muscl{} finite volume method.\todo{Source for the fv method}
 
 \section{Results}
@@ -468,7 +464,7 @@ Our implementation is capable of simulating different scenarios:
 \subsection*{Acknowledgements}
 Lukas Krenz was funded by ChEESE (823844), Leonhard Rannabauer was funded by ExaHyPE (671698).
 \todo{LK: Standard sentence is: This research was funded by the European Union’s Horizon 2020 Research and Innovation Programme under theproject ExaHyPE, grant no.  671698 (call FETHPC-1-2014).
-
+Special thanks goes to Dominic E.\ Charrier who provided help with the implementation in the \exahypeegine{}.
 Also LRZ?}
 
 
