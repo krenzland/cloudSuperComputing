@@ -3,7 +3,7 @@ import vtk.util.numpy_support as vutil
 import numpy as np
 import pandas as pd
 
-def read_solution(path, order=None, size=10, limiting=False, advection=False):
+def read_solution(path, order=None, size=10, limiting=False, advection=False, dimensions=2):
     reader = vtk.vtkXMLUnstructuredGridReader()
     reader.SetFileName(path)
     reader.Update()
@@ -43,7 +43,7 @@ def read_solution(path, order=None, size=10, limiting=False, advection=False):
             rho, v_x, v_y, v_z, p, potT = np.longfloat(output.GetPointData().GetArray(0).GetTuple(i))
             data[i, :] = np.array([x, y, z, rho, v_x, v_y, v_z, p, potT])       
 
-    if number_of_coords == 2:
+    if number_of_coords == 2 and dimensions == 2:
         if advection:
             columns = ['x', 'y', 'z', 'rho', 'v_x', 'v_y', 'p', 'Z', 'potT', 'refinementStatus']
         else:

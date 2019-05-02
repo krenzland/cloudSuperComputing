@@ -24,7 +24,7 @@ def plot_cosine_bubble(fig_path, solution_path, target, order=4):
     ax.set_ylabel("$\Theta\'$")
     fig.subplots_adjust(left=0.2)
 
-    fig.savefig(fig_path + f'{target}_cosine_bubble_pertubation.pdf', transparent=True)
+    fig.savefig(fig_path + '{target}_cosine_bubble_pertubation.pdf'.format(target=target), transparent=True)
 
     fig, ax = plt.subplots(figsize=quadratic_figsize(0.5, target=target))
     df['potTPertubation'] = df['potT'] - 300
@@ -43,14 +43,14 @@ def plot_cosine_bubble(fig_path, solution_path, target, order=4):
     cb.locator = ticker.MaxNLocator(nbins=5)
     cb.update_ticks()
 
-    fig.savefig(fig_path + f'{target}_cosine_bubble_contour_t700.pdf', transparent=True)
+    fig.savefig(fig_path + '{target}_cosine_bubble_contour_t700.pdf'.format(target=target), transparent=True)
 
 
 def main():
     set_plot_defaults()
     fig_path = 'output/'
     plot_cosine_bubble(fig_path=fig_path,
-                       solution_path='/home/lukas/tmp/benchmark_results_cosine/solution_cartesian-10.vtu',
+                       solution_path='/work_fast/krenz/cosine_bubble_opt/solution_cart-9.vtu',
                        target='paper')
 
 if __name__ == '__main__':

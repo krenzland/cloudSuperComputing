@@ -37,7 +37,8 @@ def analytical_solution_abc(x,y,z,time,mu,var):
         return analytical_solution_w_abc(x,y,z,time,mu)
 
 def plot_abc(fig_path, solution_path, target, order=2):
-    df, time, order, dim, dx, n_points = read_solution(solution_path, order=order)
+    df, time, order, dim, dx, n_points = read_solution(solution_path, order=order, dimensions=3)
+    print(df.columns)
     time, order, dim, dx, n_points
     
     analytical_solution = analytical_solution_abc
@@ -50,7 +51,7 @@ def plot_abc(fig_path, solution_path, target, order=2):
     fig, axs = plt.subplots(ncols=3, figsize=fs, sharey=True)
 
     markers = ['o', 'x', 'X']
-    marker = markers[0]
+    marker = markers[1]
 
     for ax, coord in zip(axs, ['x', 'y', 'z']):
     #_, _, c = plot_contour(df_cut, fig, ax, var, levels=4, coords=others, num_sample=500,colored=False)
@@ -62,39 +63,39 @@ def plot_abc(fig_path, solution_path, target, order=2):
         if coord == 'x':
             ax.set_ylabel('$p$')
 
-        ax.set_xlabel(f'${coord}$')
+        ax.set_xlabel(str(coord))
         ax.set_xticks([-np.pi, 0, np.pi])
         ax.set_xticklabels(['$-\pi$', '$0$', '$\pi$'])
         sns.despine(fig,ax)
         fig.subplots_adjust(left=0.1, bottom=0.2, top=0.95, right=0.95)
 
-    fig.savefig(fig_path + f'{target}_abc_flow_pressure.pdf', transparent=True)
+    fig.savefig(fig_path + '{target}_abc_flow_pressure.pdf'.format(target=target), transparent=True)
 
-    fig, axs = plt.subplots(ncols=3, figsize=figsize(1.0, target=target), sharey=True)
+    fig, axs = plt.subplots(ncols=3, figsize=figsize(0.5, target=target), sharey=True)
 
     for ax, coord, vel_var in zip(axs, ['x', 'y', 'z'], ['v', 'v', 'v']):
     #_, _, c = plot_contour(df_cut, fig, ax, var, levels=4, coords=others, num_sample=500,colored=False)
         coord_cut, p_approx_cut, p_ana_cut, vel_approx_cut, vel_ana_cut = eval_cut(df, coord, time, mu=0.01,
                                                                         analytical_solution=analytical_solution,
-                                                                        dim=dim, every_nth=4, vel_var=vel_var)
+                                                                        dim=dim, every_nth=6, vel_var=vel_var)
         ax.plot(coord_cut, vel_ana_cut,  c='gray', linestyle='solid', zorder=-1)
         ax.scatter(coord_cut, vel_approx_cut, c='black', marker=marker, label=coord, s=1., lw=6, facecolors='none',)
         if coord == 'x':
             ax.set_ylabel('$v_x$')
 
-        ax.set_xlabel(f'${coord}$')
+        ax.set_xlabel(str(coord))
         ax.set_xticks([-np.pi, 0, np.pi])
         ax.set_xticklabels(['$-\pi$', '$0$', '$\pi$'])
         sns.despine(fig,ax)
-        fig.subplots_adjust(left=0.1, bottom=0.11, top=0.95, right=0.95)
+        fig.subplots_adjust(left=0.2, bottom=0.31, top=0.95, right=0.95)
 
-    fig.savefig(fig_path + f'{target}_abc_flow_velocity.pdf', transparent=True)  
+    fig.savefig(fig_path + '{target}_abc_flow_velocity.pdf'.format(target=target), transparent=True)  
 
 def main():
     set_plot_defaults()
     fig_path='output/'
     plot_abc(fig_path=fig_path,
-                      solution_path='/home/lukas/Documents/MA-results/abc-order-2/solution-1.vtu',
+                      solution_path='/work_fast/krenz/abc_flow/solution_cartesian-0.vtu',
                       target='paper')
         
 if __name__ == '__main__':

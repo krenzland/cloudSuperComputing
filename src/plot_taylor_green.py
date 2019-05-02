@@ -86,7 +86,7 @@ def main():
     set_plot_defaults()
     fig_path='output/'
     plot_taylor_green(fig_path=fig_path,
-                      solution_path='/import/home/ga24dib/src/ExaHyPE-OptNS/ApplicationExamples/CompressibleNavierStokes/output/solution_cartesian-6.vtu',
+                      solution_path='/work_fast/krenz/taylor_green/solution_cartesian-5.vtu',
                       target='paper')
         
 if __name__ == '__main__':
