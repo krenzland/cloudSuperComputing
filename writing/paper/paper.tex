@@ -246,7 +246,8 @@ Many realistic atmospheric flows can be described by a perturbation over a backg
   \label{eq:hydrostatic-balance}
   \pdv{}{z} \backgroundPressure{\left (z \right )} = -g \backgroundRho(z),
 \end{equation}
-i.e.\ a state, where the pressure gradient is exactly in balance with the gravitational source term.
+i.e.\ a state, where the pressure gradient is exactly in balance with the gravitational source term $\source[\Qj] = - \bm{k} \Qrho g$.
+The vector $\bm{k}$ is the unit vector pointing in $z$-direction.
 The momentum equation is dominated by the background flow in this case.
 Because this can lead to numerical instabilities, problems of this kind are challenging and require some care.
 To lessen the impact of this, we split the pressure $\pressure = \backgroundPressure + \pressure'$ into a sum of the background pressure $\backgroundPressure(z)$ and perturbation $\pressure'(\bm{x}, t)$.
@@ -274,7 +275,7 @@ The finite volume scheme is stabilized with the van Albada limiter\todo{LK: Whic
 
 The user can state dynamic \amr{} rules by supplying custom criteria that are evaluated point-wise.
 We use an element local error estimate based on the total variation of the numerical solution. 
-\todo{Mention intuition, i.e.\ tvd stuff}
+We use the fact that the total variation of a numerical solution is a perfect indicator for edges of a wavefront.
 Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a sufficiently smooth function that maps the discrete solution at a point $\bm{x}$ to an arbitrary indicator variable.
 The total variation (\textsc{tv}) of this function is defined by
 \begin{equation}
@@ -314,9 +315,9 @@ Chebyshev's inequality
   \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2},
 \end{equation}
 with probability $\mathbb{P}$ guarantees that we neither mark all cells for refinement nor for erasement.
-\todo{LR: Was gibt es an compressible NS mit dynamic AMR, wie unterscheiden wir uns im Refinement Kriterium?}
 This inequality holds for arbitrary distributions under the weak assumption that they have a finite mean $\mu$ and a finite standard deviation $\sigma$~\cite{wasserman2004all}.
 Note that subcells are coarsened only if all subcells belonging to the coarse cell are marked for erasion.
+In contrast to already published criteria which are either designed solely for the simulation of clouds~\cite{muller2010adaptive} or computationally expensive~\cite{fambri2017space}, our criterion works for arbitrary \pde{}s and yet, is easy to compute and intuitive.
 
 We use a \muscl{} based finite volume limiting as proposed in~\cite{dumbser2016simple}.
 Briefly, we first compute a candidate solution with our \aderdg{}-scheme and check whether it is valid.
@@ -326,6 +327,11 @@ In case of an invalid solution, we recompute the timestep with a our \muscl{} fi
 
 \section{Results}
 We use a diverse mix of benchmarking scenarios that consist of standard \textsc{cfd} scenarios and atmospheric flows.
+
+For the \textsc{cfd} scenarios, we use the following constants of fluids:
+\begin{equation}
+  \gamma = 1.4, \quad \Pr = 0.7, \quad c_v = 1.0.
+\end{equation}
 
 \todo{LK: Constants of fluids?}
 A simple scenario is the Taylor-Green vortex.
@@ -342,11 +348,13 @@ It has an analytical solution in the incompressible limit which is given by
   \pressure(\bm{x}, t) &= \exp(-4 \mu t) \, \nicefrac{1}{4} \left( \cos(2x) + \cos(2y) \right) + C.
   \end{split}
 \end{align}
-The constant $C = \nicefrac{100}{\gamma}$ governs the speed of sound and thus the Mach number~\cite{dumbser2016high}, the viscosity is set to $\mu = 0.1$.
-We use a domain of size $(\SI{2 \pi}{\m} \times \SI{2 \pi}{\m})$ and impose the analytical solution at the boundary\todo{tEnd, mach=0.1}.
+The constant $C = \nicefrac{100}{\gamma}$ governs the speed of sound and thus the Mach number $\text{Ma} = 0.1$~\cite{dumbser2016high}, the viscosity is set to $\mu = 0.1$.
+We use a domain of size $(\SI{2 \pi}{\m} \times \SI{2 \pi}{\m})$ and impose the analytical solution at the boundary.
+A comparison at time $t = 1.0$ of the analytical solution for the pressure with our approximation (figure xxx) shows an excellent agreement.\todo{fig, check time, fix order/cells.}
+We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
 
-We use the Arnold-Beltrami-Childress (\textsc{abc}) flow as a simple three-dimensional flow~\cite{tavelli2016staggered}.
-It also has an exact solution in the domain of \( \left[ -\SI{\pi}{\m}, \SI{\pi}{\m} \right]^3 \) under the assumption of incompressibility
+The Arnold-Beltrami-Childress (\textsc{abc}) flow is similar to the Taylor-Green vortex but posses an analyitcal solution fir three-dimensions as well~\cite{tavelli2016staggered}.
+It is defined in the domain \( \left[ -\SI{\pi}{\m}, \SI{\pi}{\m} \right]^3 \) as
 \begin{align}
   \label{eq:abc-flow}
   \begin{split}
@@ -361,15 +369,19 @@ It also has an exact solution in the domain of \( \left[ -\SI{\pi}{\m}, \SI{\pi}
   + C.
   \end{split}
 \end{align}
+again under the assumption of incompressibility.
 The constant $C = \nicefrac{100}{\gamma}$ is chosen as before.
-We use a viscosity of $\mu = 0.01$ and analytical boundary conditions\todo{tEnd}.
+We use a viscosity of $\mu = 0.01$ and analytical boundary conditions.
+Figure xxx show a good agreement between the analytical solution and our approximation with an \aderdg{}-scheme of order $2$ with a mesh consisting of $27^3$ cells at time $t = \SI{0.1}{\s}$\todo{Figure}.
 
 As a final example of standard flow scenarios, we consider the lid-driven cavity flow where the fluid is initially at rest, with $\Qrho = 1$ and $ \pressure(\bm{x}) = \nicefrac{100}{\gamma}$.
 We consider a domain of size $\SI{1}{m} \times \SI{1}{\m}$ which is surrounded by no-slip walls.
 The flow is driven entirely by the upper wall which has a velocity of $v_x = \SI{1}{\m/\s}$.
 The simulation runs for $\SI{10}{\s}$
+Again, our results have an excellent agreement with the reference solution of~\cite{ghia1982high}.
+We used an \aderdg{}-method of order $3$ with a mesh of size $27^2$\todo{check!}.
 
-Our atmospheric flow scenarios are described in terms of the potential energy
+Our stratified flow scenarios are described in terms of the potential energy
 \begin{equation}
   \potT = T \left( \frac{p_0}{p} \right)^{R/c_p},
 \end{equation}
@@ -382,19 +394,14 @@ for all remaining scenarios.
 
 We compute the initial background density and pressure by inserting the assumption of a constant background energy in \cref{eq:hydrostatic-balance}.
 The background atmosphere is then perturbed.
-\todo{LK: Mention bcs briefly?}
 Let
 \begin{equation}
   \label{eq:radius}
-  r^2 = (x - x_0)^2 + (z - z_0)^2
+  r^2 = \Vert \bm{x} - \bm{x_c} \Vert_2 %(x - x_0)^2 + (z - z_0)^2
 \end{equation}
-denote the difference between spatial positions $x,z$ and the center of a bubble $x_c, z_c$\todo{3D}.
+denote the euclidian distance between the spatial positions $\bm{x} = x, z$ and the center of a bubble $\bm{x_c} = x_c, z_c$.
+In case of three-dimensional scenarios the vectors $\bm{x}$ and $\bm{x_c}$ also contain a y coordinate.
 For our first scenario, the cosine bubble, we use a pertubation of the form
-% \begin{equation}
-%   \label{eq:cos-pertubation-alt}
-%   \pertubationPotT = 
-%     \nicefrac{A}{2} \left( 1 + \cos(\pi r) \right) \left[ r \leq a \right]
-% \end{equation}
 \begin{align}
   \label{eq:cos-pertubation}
   \pertubationPotT &= \begin{cases}
@@ -407,7 +414,9 @@ We use the constants\todo{3d bubble is higher}
 \begin{equation}\label{eq:cosine-bubble}
   A = \SI{0.5}{\K} \quad a = \SI{250}{\m} \quad x_c = \SI{500}{\m} \quad z_c = \SI{350}{\m}.
 \end{equation}
-We use a constant viscosity of $\mu = 0.1$\todo{tend = 400 for 3d and 600 for 2d}.
+For the three-dimensional bubble, we set $y_c = x_c = \SI{500}{\m}$ and lower the bubble to $z_c = \SI{260}{\m}$
+We use a constant viscosity of $\mu = 0.1$ and a simulation time of $\SI{400}{\s}$ for 3d and $\SI{600}{\s}$ for 2d.
+
 For our second scenario, the colliding bubbles, we use perturbations of the form
 \begin{equation}
   \label{eq:bubbles-pertubation}
@@ -427,27 +436,18 @@ We have two bubbles, with constants
   \end{alignedat}
 \end{equation}
 Similar to~\cite{muller2010adaptive} and to the previous scenario, we use a constant viscosity of $\mu = 0.1$ to regularize the solution.
-To ensure that the atmosphere stays in hydrostatic balance~\cite{giraldo2008study}, we need to impose the viscous heat flux
+To ensure that the atmosphere stays in hydrostatic balance, we need to impose the viscous heat flux
 \begin{equation}
   \label{eq:atmosphere-bc}
   \viscFlux_{\QE} = \kappa \pdv{\overline{T}}{z}.% =
 %\kappa \frac{R \overline{\theta} \left(\frac{\overline{p}{\left (z \right )}}{p_{0}}\right)^{\frac{R}{c_{p}}} \frac{d}{d z} \overline{p}{\left (z \right )}}{c_{p} \overline{p}{\left (z \right )}}.
 \end{equation}
-where $\overline{T}(z)$ is the background temperature at position $z$ which can be computed from \cref{eq:hydrostatic-balance,eq:eos}.
+where $\overline{T}(z)$ is the background temperature at position $z$ which can be computed from \cref{eq:hydrostatic-balance,eq:eos}~\cite{giraldo2008study}.
 We furthermore set the density and energy at the boundary such that it corresponds to the background atmosphere.
 
 % We start with a coarse mesh that is then subdivided up to two times in an adaptive manner.
 % For this we use the criterion of \cref{eq:refinement-criterion} with parameters xxx and xxx.
 % We compare this with a simulation obtained by a fully refined grid.
-
-Show following results:
-\begin{itemize}
-\item Simple cfd: Taylor Green, ABC, Lid Driven Cavity
-\item Two Bubbles with \amr{} (2 levels if possible) and no \amr{} (comparison)
-\item Two Bubbles (Euler eqs, FV)  
-\item Two Bubbles with limiting instead of visc.\ if working  
-\item Cosine bubble in 2D and possibly 3D, if working
-\end{itemize}
 
 \section{Conclusion}
 We presented our implementation of a \muscl{}-limited \aderdg{}-scheme with \amr{} for the Navier-Stokes equations.
@@ -464,7 +464,7 @@ Our implementation is capable of simulating different scenarios:
 \subsection*{Acknowledgements}
 Lukas Krenz was funded by ChEESE (823844), Leonhard Rannabauer was funded by ExaHyPE (671698).
 \todo{LK: Standard sentence is: This research was funded by the European Union’s Horizon 2020 Research and Innovation Programme under theproject ExaHyPE, grant no.  671698 (call FETHPC-1-2014).
-Special thanks goes to Dominic E.\ Charrier who provided help with the implementation in the \exahypeegine{}.
+Special thanks goes to Dominic E.\ Charrier who provided help with the implementation in the %\exahypeegine{}.
 Also LRZ?}
 
 
