@@ -79,10 +79,11 @@
 \begin{document}
 \maketitle 
 \begin{abstract}
-  In the context of simulation of convective proceess for numerical weather prediction, we present an application of the compressible Navier Stokes equations on cloud formation processes.
-  While established methods have to use tailored numerics towards the specific simulation, our generic scheme shows competitive results for both classical \textsc{cfd} and stratified scenarios.
-  Our scheme exploits an underlying parallelized implementation of the \aderdg{} method with dynamic adaptive mesh refinement. 
-  We improve our method by a  \pde{} independent general refinement criterion, based on the local total variation of the numerical solution.
+  We present an application of the compressible Navier Stokes equations for cloud formation processes.
+  The scheme exploits an underlying parallelized implementation of the \aderdg{} method with dynamic adaptive mesh refinement. 
+  We improve our method by a \pde{} independent general refinement criterion, based on the local total variation of the numerical solution.
+  Our generic scheme shows competitive results for both classical \textsc{cfd} and stratified scenarios.
+  While established methods use tailored numerics towards the specific simulation, our scheme works scenario independent.
   All together our method can be seen as a perfect candidate for large scale cloud simulation runs on current and future super computers.
 % \begin{itemize}
 % \item Implementation of compressible Navier Stokes with a high-order \aderdg{}-method and a low order finite volume \muscl{}-scheme.
@@ -99,20 +100,25 @@
 \keywords{\aderdg{}  \and Navier-Stokes \and Another keyword.}
 \end{abstract}
 \section{Introduction}
-In this paper we address the resolution of convective processes in the context of numerical weather prediction (\textsc{nwp}) on modern super computer systems.
-The simulation of these process, with suitable physical models and on large scale clusters is expected to play an important role in future \textsc{nwp}~\cite{bauer2015quiet}.
+In this paper we address the resolution of basic cloud formation processes on modern super computer systems.
+%%of convective processes in the context of numerical weather prediction (\textsc{nwp}) on modern super computer systems.
+The simulation of cloud formations, as part of convective processes, is expected to play an important role in future numerical weather prediction~\cite{bauer2015quiet}.
 %% Numerical weather prediction (\textsc{nwp}) contains processes of different spatio-temporal scales.
 %% An important part of future \textsc{nwp} models will be the the resolution of convective processes~\cite{bauer2015quiet}.
-%% This part requires both suitable physical models and effective computational realisations. 
-We focus on the simulation of cloud formation processes with simple benchmark scenarios~\cite{giraldo2008study}.
+This requires both suitable physical models and effective computational realisations. 
+Here we focus on the simulation of simple benchmark scenarios~\cite{giraldo2008study}.
 These relatively small scale effects are well approximated with the compressible Navier-Stokes equations.
-The general approach is to use a space-discretized by higher order Galerkin method, as seen for example in~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
+We use the \aderdg{} method of~\cite{dumbser2008unified}, which allows us to simulate the Naview-Stokes equations with a space-time-discretization of arbitrary high order.
+In contrast to Runge-Kutta time integrators or semi-implicit methods, an increase of the order of \aderdg{} only results in larger computational kernels and does not affect the complexity of the scheme.
+Additionally \aderdg{} is a communication avoiding scheme and reduces the overhead on larger scale.
+We see our scheme in the regime of already established methods for cloud simulations, as seen for example in~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
+%%The general approach is to use a space-discretized by higher order Galerkin method, as seen for example in~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
 %%They are often space-discretized by higher order Galerkin methods, as seen for example in~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
-Even though all of these implementations use a discretization with a (theoretical) unlimited space-order, they use Runge-Kutta time integrators or semi-implicit methods.
-It is well known that Runge-Kutta methods become more ineffecient for very high orders.
-Furthermore, they and the implicit methods are more communication-intensive and thus require a larger overhead and are more complicated to scale.
+%%Even though all of these implementations use a discretization with a (theoretical) unlimited space-order, they use Runge-Kutta time integrators or semi-implicit methods.
+%%It is well known that Runge-Kutta methods become more ineffecient for very high orders.
+%%Furthermore, they and the implicit methods are more communication-intensive and thus require a larger overhead and are more complicated to scale.
+%%We follow a different approach in this paper and use the \aderdg{} method of~\cite{dumbser2008unified} to simulate various computational fluid dynamics (\textsc{cfd}) scenarios with a focus on flows with stratified flows.
 
-We follow a different approach in this paper and use the \aderdg{} method of~\cite{dumbser2008unified} to simulate various computational fluid dynamics (\textsc{cfd}) scenarios with a focus on flows with stratified flows.
 Due to the viscous components of the Navier-Stokes equations, it is not straightforward to apply the \dg{} method.
 For high-order \dg{} methods, viscosity not only models the physical reality of the problem but also helps us by smoothing out oscillations and discontinuities, thus stabilizing the simulation.
 To include viscosity, we use the numerical flux for the compressible Navier-Stokes equations of \citeauthor{gassner2008discontinuous}~\cite{gassner2008discontinuous}.
