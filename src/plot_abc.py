@@ -77,7 +77,7 @@ def plot_abc(fig_path, solution_path, target, order=2):
     #_, _, c = plot_contour(df_cut, fig, ax, var, levels=4, coords=others, num_sample=500,colored=False)
         coord_cut, p_approx_cut, p_ana_cut, vel_approx_cut, vel_ana_cut = eval_cut(df, coord, time, mu=0.01,
                                                                         analytical_solution=analytical_solution,
-                                                                        dim=dim, every_nth=6, vel_var=vel_var)
+                                                                        dim=dim, every_nth=6, vel_var='v')
         ax.plot(coord_cut, vel_ana_cut,  c='gray', linestyle='solid', zorder=-1)
         ax.scatter(coord_cut, vel_approx_cut, c='black', marker=marker, label=coord, s=1., lw=6, facecolors='none',)
         if coord == 'x':

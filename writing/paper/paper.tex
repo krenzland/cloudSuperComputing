@@ -360,7 +360,8 @@ We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
     \includegraphics{paper_taylor_green_vel}
-    \caption{\label{fig:taylor-green}Taylor green, velocity slices.}
+    \caption{\label{fig:taylor-green}Our result (markers) of the Taylor-Green vortex vs.\ the analytical solution (lines) \cref{eq:taylor-green}.
+    The plot shows two velocity slices, the respective other coordinate is held constant at a value of $\pi$.}
 
     %\includegraphics{paper_abc_flow_velocity}
     %\caption{\label{fig:abc-flow}\textsc{abc}-flow. We show the velocity in $x$-direction for slices through the domain, where all but the mentioned coordinates are held constant at a value of zero.
@@ -393,12 +394,13 @@ Our results (\cref{fig:abc-flow}) show a good agreement between the analytical s
 
 \begin{figure}[tb]
 \centering
+% or .473 size each, and \\quad inbetween
 \begin{minipage}{.5\textwidth}
   \centering
     \includegraphics{paper_abc_flow_velocity}
     \captionof{figure}{\label{fig:abc-flow}Our approximation (markers) of the \textsc{abc}-flow vs.\ analytical solution (lines, \cref{eq:abc-flow}).
-    All other axes are held constant at a value of 0.}
-\end{minipage}%
+    All other axes are held constant at a value of 0. We show every 6th value.}
+\end{minipage}~%
 \begin{minipage}{.5\textwidth}
   \centering
     \includegraphics[width=\textwidth]{paper_two_bubbles_fv}
@@ -483,7 +485,7 @@ We further emphasize that our \amr{}-criterion accurately tracks the position of
 This is the main advantage of our gradient-based method in contrast to methods working directly with the value of the solution, as for example~\cite{muller2010adaptive}.
 Overall, our result for this benchmark shows an excellent agreement to the previous solutions of~\cite{muller2010adaptive}.
 
-In addition, we simulated the same scenario with our \muscl{} method, using $3^2$ patches with $80^2$ finite volume cells each\todo{check}.
+In addition, we simulated the same scenario with our \muscl{} method, using $7^2$ patches with $90^2$ finite volume cells each.
 As we use limiting, we do not need any viscosity.
 The results of this method (\cref{fig:two-bubbles-fv}) also agree with the reference but contain fewer details.
 Note that the numerical dissipativity of the finite volume scheme has a smoothing effect that is similar to the smoothing caused by viscosity.
