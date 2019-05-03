@@ -85,32 +85,18 @@
 \begin{document}
 \maketitle 
 \begin{abstract}
-  We present a high-order discontinuous Galerkin (DG) solver of the compressible Navier Stokes equations for cloud formation processes.
+  We present a high-order discontinuous Galerkin (\dg{}) solver of the compressible Navier Stokes equations for cloud formation processes.
   The scheme exploits an underlying parallelized implementation of the \aderdg{} method with dynamic adaptive mesh refinement. 
-  We improve our method by a \pde-independent general refinement criterion, based on the local total variation of the numerical solution.
+  We improve our method by a \pde{}-independent general refinement criterion, based on the local total variation of the numerical solution.
   Our generic scheme shows competitive results for both classical \textsc{cfd} and stratified scenarios.
   While established methods use tailored numerics towards the specific simulation, our scheme works scenario independent.
   All together our method can be seen as a perfect candidate for large scale cloud simulation runs on current and future super computers.
-% \begin{itemize}
-% \item Implementation of compressible Navier Stokes with a high-order \aderdg{}-method and a low order finite volume \muscl{}-scheme.
-% \item Implementation in \exahypeengine{}, a scalable \pde{} framework.
-% \item Outlier and total variation based adaptive mesh refinement that reduced number of grid cells drastically and preserves solution quality.
-% \item Simulation of challenging flows over hydrostatic background atmosphere.
-% \item Competitive results for both classical cfd scenarios and hydrostatic scenarios in two and three dimensions.
-% \end{itemize}
-
-  
-%The abstract should briefly summarize the contents of the paper in
-%150--250 words.
 
 \keywords{\aderdg{}  \and Navier-Stokes \and Adaptive Mesh Refinement.}
 \end{abstract}
 \section{Introduction}
 In this paper we address the resolution of basic cloud formation processes on modern super computer systems.
-%%of convective processes in the context of numerical weather prediction (\textsc{nwp}) on modern super computer systems.
 The simulation of cloud formations, as part of convective processes, is expected to play an important role in future numerical weather prediction~\cite{bauer2015quiet}.
-%% Numerical weather prediction (\textsc{nwp}) contains processes of different spatio-temporal scales.
-%% An important part of future \textsc{nwp} models will be the the resolution of convective processes~\cite{bauer2015quiet}.
 This requires both suitable physical models and effective computational realizations. 
 Here we focus on the simulation of simple benchmark scenarios~\cite{giraldo2008study}.
 They contain relatively small scale effects which are well approximated with the compressible Navier-Stokes equations.
@@ -118,12 +104,6 @@ We use the \aderdg{} method of~\cite{dumbser2008unified}, which allows us to sim
 In contrast to Runge-Kutta time integrators or semi-implicit methods, an increase of the order of \aderdg{} only results in larger computational kernels and does not affect the complexity of the scheme.
 Additionally, \aderdg{} is a communication avoiding scheme and reduces the overhead on larger scale.
 We see our scheme in the regime of already established methods for cloud simulations, as seen for example in~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
-%%The general approach is to use a space-discretized by higher order Galerkin method, as seen for example in~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
-%%They are often space-discretized by higher order Galerkin methods, as seen for example in~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
-%%Even though all of these implementations use a discretization with a (theoretical) unlimited space-order, they use Runge-Kutta time integrators or semi-implicit methods.
-%%It is well known that Runge-Kutta methods become more ineffecient for very high orders.
-%%Furthermore, they and the implicit methods are more communication-intensive and thus require a larger overhead and are more complicated to scale.
-%%We follow a different approach in this paper and use the \aderdg{} method of~\cite{dumbser2008unified} to simulate various computational fluid dynamics (\textsc{cfd}) scenarios with a focus on flows with stratified flows.
 
 Due to the viscous components of the Navier-Stokes equations, it is not straightforward to apply the \aderdg{} formalism of~\cite{dumbser2008unified}, which addresses hyperbolic systems of partial differentials equations (\pde{}s) in first-order formulation.
 To include viscosity, we use the numerical flux for the compressible Navier-Stokes equations of \citeauthor{gassner2008discontinuous}~\cite{gassner2008discontinuous}.
@@ -410,7 +390,7 @@ Our results (\cref{fig:abc-flow}) show a good agreement between the analytical s
   \centering
     \includegraphics[width=\textwidth]{paper_two_bubbles_fv}
     \captionof{figure}{\label{fig:two-bubbles-fv}%
-    Colliding bubbles with \muscl{}. Contour values for potential temperature pertubation are $-0.05, 0.05, 0.1, \ldots 0.45$.}
+    Colliding bubbles with \muscl{}. Contour values for potential temperature perturbation are $-0.05, 0.05, 0.1, \ldots 0.45$.}
 \end{minipage}
 \end{figure}
 
@@ -515,7 +495,7 @@ Our results (\cref{fig:cosine-3d}) capture the overall dynamics of the scenario 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.90\textwidth]{paper_two_bubbles}
-  \caption{\label{fig:two-bubbles-ader}Colliding Bubbles \aderdg{}. Contour values for potential temperature pertubation are $-0.05, 0.05, 0.1, \ldots 0.45$.}
+  \caption{\label{fig:two-bubbles-ader}Colliding Bubbles \aderdg{}. Contour values for potential temperature perturbation are $-0.05, 0.05, 0.1, \ldots 0.45$.}
 \end{figure}
 
 \begin{figure}[tb]
