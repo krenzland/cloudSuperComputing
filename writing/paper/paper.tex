@@ -43,7 +43,7 @@
 \usepackage{physics} % for derivatives
 \usepackage[separate-uncertainty]{siunitx}
 \usepackage{hyperref}
-\usepackage[noabbrev]{cleveref}
+\usepackage[]{cleveref}
 \newcommand{\creflastconjunction}{, and\nobreakspace} % use Oxford comma
 \usepackage{todonotes}
 \usepackage{multimedia}
@@ -244,7 +244,7 @@ The heat diffusion is governed by the coefficient
 \end{equation}
 where the ratio of specific heats $\gamma$, the heat capacity at constant pressure $c_p$ and the Prandtl number $\Pr$ depend on the fluid.
 
-Many realistic atmospheric flows can be described by a perturbation over a background state that is in hydrostatic equilibrium\todo{Mention source}
+Many realistic atmospheric flows can be described by a perturbation over a background state that is in hydrostatic equilibrium
 \newcommand{\backgroundPressure}{\overline{\pressure}}
 \newcommand{\backgroundRho}{\overline{\Qrho}}
 \begin{equation}
@@ -344,7 +344,7 @@ We use a domain of size $(\SI{2 \pi}{\m} \times \SI{2 \pi}{\m})$ and impose the 
 A comparison at time $t = 10.0$ of the analytical solution for the pressure with our approximation (figure xxx) shows an excellent agreement.\todo{fig, check time, fix order/cells.}
 We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
 
-\begin{figure}[htb]
+\begin{figure}[tb]
   \centering
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
@@ -465,7 +465,8 @@ For the second run we used \amr{} with two adaptive refinement levels and parame
 We specialize the \amr{}-criterion~\pcref{eq:refinement-criterion} to our stratified flows by using the potential temperature.
 This resulted in a mesh with cell sizes lengths of ca. $\SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.34}{\m}$.
 The resulting mesh can be observed in \cref{fig:two-bubbles-ader}.
-We observed that even though both results are nearly identical, the \amr{} run managed to use only 1953 cells, instead of 6561 cells for the fully refined solution. 
+We observe that the $L_2$ difference between the potential temperature of the \amr{} run, which uses 1953 cells, and the one of the fully refined run with 6561 cells, is only $1.87$.
+The relative error is \num{6.69e-6}.
 % points: 70308, 23619
 We further want to emphasize that our \amr{}-criterion is able to accurately track the position of the edges of cloud instead of only its position.
 This is the main advantage of our gradient-based method in contrast to methods working directly with the value of the solution, as for example~\cite{muller2010adaptive}.
@@ -504,13 +505,13 @@ Our results (\cref{fig:cosine-3d}) capture the overall dynamics of the scenario 
 We again use a constant viscosity of $\mu = 0.01$ for the 2D case, and a viscosity of $\mu = 0.02$ for the 3D case.
 The simulations run for a time of $\SI{600}{\s}$ and $\SI{400}{\s}$ for two and three-dimensional scenarios respectively.
 
-\begin{figure}[htb]
+\begin{figure}[tb]
   \centering
   \includegraphics[width=1.0\textwidth]{paper_two_bubbles}
   \caption{\label{fig:two-bubbles-ader}Colliding Bubbles \aderdg{}}
 \end{figure}
 
-\begin{figure}[htb]
+\begin{figure}[tb]
   \centering
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
@@ -529,13 +530,12 @@ The simulations run for a time of $\SI{600}{\s}$ and $\SI{400}{\s}$ for two and 
 
 \section{Conclusion}
 We presented our implementation of an \aderdg{}-method and a \muscl{}-scheme with \amr{} for the Navier-Stokes equations.
-Our implementation is capable of simulating different scenarios:\todo{LK: Flesh this out a tiny bit, mention properties of \amr{} criterion}
-\begin{itemize}
-\item We evaluated our method for standard \textsc{cfd} scenarios and achieved competitive results for all used scenarios.
-  This is true for both two-dimensional scenarios (Taylor-Green vortex and lid-driven cavity) and for the three-dimensional \textsc{abc}-flow.
-\item Furthermore, our method allows us to simulate flows in hydrostatic equilibrium correctly as our results for the cosine and colliding bubble scenarios showed.
-\item We showed that our \amr{}-criterion is able to vastly reduce the number of grid cells while preserving the quality of the results.
-\end{itemize}
+Our implementation is capable of simulating different scenarios: \todo{LK: Flesh this out a tiny bit, mention properties of \amr{} criterion}
+We evaluated our method for standard \textsc{cfd} scenarios and achieved competitive results for all used scenarios.
+This is true for both two-dimensional scenarios (Taylor-Green vortex and lid-driven cavity) and for the three-dimensional \textsc{abc}-flow.
+
+Furthermore, our method allows us to simulate flows in hydrostatic equilibrium correctly, as our results for the cosine and colliding bubble scenarios showed.
+We showed that our \amr{}-criterion is able to vastly reduce the number of grid cells while preserving the quality of the results.
 
 \subsection*{Acknowledgements}
 Leonhard Rannabauer was funded by the European Union’s Horizon 2020 Research and Innovation Programme under the project ExaHyPE, grant no.  671698 (call FETHPC-1-2014)
