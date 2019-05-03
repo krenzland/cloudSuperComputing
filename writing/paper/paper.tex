@@ -341,7 +341,7 @@ It has an analytical solution in the incompressible limit which is given by
 \end{align}
 The constant $C = \nicefrac{100}{\gamma}$ governs the speed of sound and thus the Mach number $\text{Ma} = 0.1$~\cite{dumbser2016high}, the viscosity is set to $\mu = 0.1$.
 We use a domain of size $(\SI{2 \pi}{\m} \times \SI{2 \pi}{\m})$ and impose the analytical solution at the boundary.
-A comparison at time $t = 10.0$ of the analytical solution for the pressure with our approximation (figure xxx) shows an excellent agreement.\todo{fig, check time, fix order/cells.}
+A comparison at time $t = 10.0$ of the analytical solution for the velocities with our approximation (\cref{fig:taylor-green}) shows an excellent agreement.
 We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
 
 \begin{figure}[tb]
@@ -390,7 +390,8 @@ Our results (\cref{fig:abc-flow}) show a good agreement between the analytical s
 \begin{minipage}{.5\textwidth}
   \centering
     \includegraphics{paper_abc_flow_velocity}
-    \captionof{figure}{\label{fig:abc-flow}Our approximation (lines) of the lid-driven cavity flow vs.\ reference solution (markers) of~\cite{ghia1982high}.}
+    \captionof{figure}{\label{fig:abc-flow}Our approximation (markers) of the \textsc{abc}-flow vs.\ analytical solution (lines, \cref{eq:abc-flow}).
+    All other axes are held constant at a value of 0.}
 \end{minipage}%
 \begin{minipage}{.5\textwidth}
   \centering
@@ -471,7 +472,7 @@ We further want to emphasize that our \amr{}-criterion is able to accurately tra
 This is the main advantage of our gradient-based method in contrast to methods working directly with the value of the solution, as for example~\cite{muller2010adaptive}.
 Overall, our result for this benchmark shows an excellent agreement to the previous solutions of~\cite{muller2010adaptive}.
 
-In addition, we simulated the same scenario with our \muscl{} method, using $3^2$ patches with $80^2$ finite volume cells each~\todo{check}.
+In addition, we simulated the same scenario with our \muscl{} method, using $3^2$ patches with $80^2$ finite volume cells each and no viscosity~\todo{check}.
 As we use limiting, we do not need any viscosity.
 The results of this method (\cref{fig:two-bubbles-fv}) also agree with the reference but contain fewer details.
 Note that the numerical dissapitivity of the finite volume scheme has a smoothing effect that is similar to the smoothing caused by viscosity.
