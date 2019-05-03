@@ -63,7 +63,7 @@ def plot_taylor_green(fig_path, solution_path, target, order=5):
     ax.set_ylabel('$v_x(z), v_z(x)$')
     ax.set_xticks([0, np.pi, 2*np.pi])
     ax.set_xticklabels([0, '$\pi$', '$2\pi$'])
-    fig.subplots_adjust(left=0.2, bottom=0.2, right=0.85)
+    fig.subplots_adjust(left=0.24, bottom=0.28, right=0.95)
     fig.legend(loc='upper right', bbox_to_anchor=(1.01,1), handletextpad=10e-100, )
     sns.despine(fig,ax)
     fig.savefig(fig_path + '{target}_taylor_green_vel.pdf'.format(target=target), transparent=True)
@@ -79,7 +79,7 @@ def plot_taylor_green(fig_path, solution_path, target, order=5):
     ax.set_xticks([0, np.pi, 2*np.pi])
     ax.set_xticklabels([0, '$\pi$', '$2\pi$'])
     sns.despine(fig,ax)
-    fig.subplots_adjust(left=0.2, bottom=0.2)
+    fig.subplots_adjust(left=0.3, bottom=0.3)
     fig.savefig(fig_path + '{}_taylor_green_pressure.pdf'.format(target), transparent=True)
 
 def main():

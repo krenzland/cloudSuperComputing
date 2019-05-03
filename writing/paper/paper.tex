@@ -274,7 +274,7 @@ Both can be considered as instances of the more general \textsc{PnPm} schemes of
 We use a Rusanov-style flux that is adapted to \pde{}s with viscous terms~\cite{gassner2008discontinuous,fambri2017space}.
 The finite volume scheme is stabilized with the van Albada limiter~\cite{van1997comparative}.
 The user can state dynamic \amr{} rules by supplying custom criteria that are evaluated point-wise.
-Our criterium uses an element local error estimate based on the total variation of the numerical solution.
+Our criterion uses an element local error estimate based on the total variation of the numerical solution.
 We exploit the fact that the total variation of a numerical solution is a perfect indicator for edges of a wavefront.
 Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a sufficiently smooth function that maps the discrete solution at a point $\bm{x}$ to an arbitrary indicator variable.
 The total variation (\textsc{tv}) of this function is defined by
@@ -425,7 +425,6 @@ Furthermore, to ensure that the atmosphere stays in hydrostatic balance, we need
 \begin{equation}
   \label{eq:atmosphere-bc}
   \viscFlux_{\QE} = \kappa \pdv{\overline{T}}{z}.% =
-%\kappa \frac{R \overline{\theta} \left(\frac{\overline{p}{\left (z \right )}}{p_{0}}\right)^{\frac{R}{c_{p}}} \frac{d}{d z} \overline{p}{\left (z \right )}}{c_{p} \overline{p}{\left (z \right )}}.
 \end{equation}
 at the boundary.
 In this equation, $\overline{T}(z)$ is the background temperature at position $z$, which can be computed from \cref{eq:hydrostatic-balance,eq:eos}~\cite{giraldo2008study}.
@@ -470,11 +469,11 @@ The relative error is \num{6.69e-6}.
 % points: 70308, 23619
 We further want to emphasize that our \amr{}-criterion is able to accurately track the position of the edges of cloud instead of only its position.
 This is the main advantage of our gradient-based method in contrast to methods working directly with the value of the solution, as for example~\cite{muller2010adaptive}.
-Overall, our result for this benchmark shows an excellent agreement to the previous solutions of~\cite{muller2010adaptive,giraldo2008study}\todo{Is coll.\ bubble contained in se study?}.
+Overall, our result for this benchmark shows an excellent agreement to the previous solutions of~\cite{muller2010adaptive}.
 
 In addition, we simulated the same scenario with our \muscl{} method, using $3^2$ patches with $80^2$ finite volume cells each~\todo{check}.
 As we use limiting, we do not need any viscosity.
-The results of this method (\cref{fig:two-bubbles-fv}) also agree with the reference.
+The results of this method (\cref{fig:two-bubbles-fv}) also agree with the reference but contain fewer details.
 Note that the numerical dissapitivity of the finite volume scheme has a smoothing effect that is similar to the smoothing caused by viscosity.
 
 For our second scenario, the cosine bubble, we use a pertubation of the form
@@ -491,19 +490,16 @@ We use the constants
   A = \SI{0.5}{\K} \quad a = \SI{250}{\m} \quad x_c = \SI{500}{\m} \quad z_c = \SI{350}{\m}.
 \end{equation}
 For the three-dimensional bubble, we set $y_c = x_c = \SI{500}{\m}$ and lower the bubble to $z_c = \SI{260}{\m}$.
-This corresponds to the parameters used in~\cite{kelly2012continuous}.
-For the 2D case, we use a constant viscosity of $\mu = 0.01$, an \aderdg{}-method of order 5 with two levels of dynamic \amr{}, resulting again in cell sizes of roughly $\SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.34}{\m}$.
+This corresponds to the parameters used in~\cite{kelly2012continuous}\footnote{Note that the parameters presented in~\cite{kelly2012continuous} do not agree with their results, we instead use the same parameters as for 2D simulations.}.
+For the 2D case, we use a constant viscosity of $\mu = 0.01$ and an \aderdg{}-method of order 5 with two levels of dynamic \amr{}, resulting again in cell sizes of roughly $\SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.34}{\m}$.
 We use slightly different \amr{} parameters of $\Trefine = 1.5$ and $\Tdelete = -0.5$ and let the simulation run for \SI{600}{\s}.
 Note that, as seen in \cref{fig:cosine-2d}, our \amr{}-criterion tracks the wavefront of the cloud accurately.
-This result shows an excellent agreement to the ones achieved in~\cite{giraldo2008study}\todo{correct source?}.
+This result shows an excellent agreement to the ones achieved in~\cite{giraldo2008study,muller2010adaptive}.
 
 For the 3D case, we use an \aderdg{}-scheme of order 3 with a static mesh with cell sizes of \SI{40}{\m}. and a shorter simulation duration of \SI{400}{\s}.
 Due to the relatively coarse resolution and the hence increased aliasing errors, we need to increase the viscosity to $\mu = 0.02$.
 This corresponds to a larger amount of smoothing.
 Our results (\cref{fig:cosine-3d}) capture the overall dynamics of the scenario well, similar to the reference solution of~\cite{kelly2012continuous}.
-
-We again use a constant viscosity of $\mu = 0.01$ for the 2D case, and a viscosity of $\mu = 0.02$ for the 3D case.
-The simulations run for a time of $\SI{600}{\s}$ and $\SI{400}{\s}$ for two and three-dimensional scenarios respectively.
 
 \begin{figure}[tb]
   \centering
@@ -539,7 +535,7 @@ We showed that our \amr{}-criterion is able to vastly reduce the number of grid 
 
 \subsection*{Acknowledgements}
 Leonhard Rannabauer was funded by the European Union’s Horizon 2020 Research and Innovation Programme under the project ExaHyPE, grant no.  671698 (call FETHPC-1-2014)
-Lukas Krenz  the European Union’s Horizon 2020 Research and Innovation Programme under the project ChEESE, grant no.\ 823844.
+Lukas Krenz  was funded by the European Union’s Horizon 2020 Research and Innovation Programme under the project ChEESE, grant no.\ 823844.
 Special thanks goes to Dominic E.\ Charrier who provided help with the implementation in the \exahypeengine{}.
 \todo{Are those ack.\ correct, esp. call no.\ for Cheese? Also thank lrz?}
 
