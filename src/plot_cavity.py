@@ -74,7 +74,7 @@ def plot_cavity(fig_path, solution_path, target):
     ax.set_ylabel('$v_x(z), v_z(x)$')
     fig.legend(loc='upper left', bbox_to_anchor=(0.2,1))
     sns.despine(fig, ax)
-    fig.subplots_adjust(left=0.2, bottom=0.2)
+    fig.subplots_adjust(left=0.2, bottom=0.27)
 
     xticks = [-0.5, -0.25,0,0.25,0.5]
     ax.set_xticks(xticks)
@@ -82,6 +82,7 @@ def plot_cavity(fig_path, solution_path, target):
 
     fig.savefig(fig_path + '{}_lid_driven_cavity.pdf'.format(target), transparent=True)
 
+    return
     # Contour
     fig, ax = plt.subplots(figsize=quadratic_figsize(scale=0.5, target=target))
     start_points = np.array([[-0.48, -0.48],
