@@ -1,7 +1,7 @@
 \documentclass[runningheads]{llncs}
-\title{Cloud Supercomputing}
+\title{A High-Order Discontinuous Galerkin Solver with Dynamic Adaptive Mesh Refinement to Simulate Cloud Formation Processes }
 \author{Lukas Krenz\inst{1} \and{} Leonhard Rannabauer\inst{1} \and{} Michael Bader\inst{1}}
-\institute{Technical University of Munich} % todo emails and stuff
+\institute{Department of Informatics, Technical University of Munich} % todo emails and stuff
 \usepackage[utf8]{inputenc}
 %\usepackage[T1]{fontenc}
 \usepackage[american]{babel}
@@ -340,14 +340,14 @@ It has an analytical solution in the incompressible limit which is given by
   \pressure(\bm{x}, t) &= \exp(-4 \mu t) \, \nicefrac{1}{4} \left( \cos(2x) + \cos(2y) \right) + C.
   \end{split}
 \end{align}
-The constant $C = \nicefrac{100}{\gamma}$ governs the speed of sound and thus the Mach number $\text{Ma} = 0.1$~\cite{dumbser2016high}, the viscosity is set to $\mu = 0.1$. \todo{grammar broken.}
+The constant $C = \nicefrac{100}{\gamma}$ governs the speed of sound and thus the Mach number $\text{Ma} = 0.1$~\cite{dumbser2016high}. The viscosity is set to $\mu = 0.1$. 
 
 We simulate on the domain $[0,2\pi]^2$ 
 %We use a domain of size 
 %$(\SI{2 \pi}{\m} \times \SI{2 \pi}{\m})$ 
 %% keine Meter-Angaben bei analytischen Testcases
 and impose the analytical solution at the boundary.
-A comparison at time $t = 10.0$ of the analytical solution for the pressure with our approximation (figure xxx) shows an excellent agreement.\todo{fig, check time, fix order/cells.}
+A comparison at time $t = 10.0$ of the analytical solution for the pressure with our approximation (\cref{fig:taylor-green}) shows excellent agreement.
 We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
 
 \begin{figure}[tb]
@@ -396,7 +396,8 @@ Our results (\cref{fig:abc-flow}) show a good agreement between the analytical s
 \begin{minipage}{.5\textwidth}
   \centering
     \includegraphics{paper_abc_flow_velocity}
-    \captionof{figure}{\label{fig:abc-flow}Our approximation (lines) of the lid-driven cavity flow vs.\ reference solution (markers) of~\cite{ghia1982high}.}
+    \captionof{figure}{\label{fig:abc-flow}Our approximation (markers) of the \textsc{abc}-flow vs.\ analytical solution (lines, \cref{eq:abc-flow}).
+    All other axes are held constant at a value of 0.}
 \end{minipage}%
 \begin{minipage}{.5\textwidth}
   \centering
