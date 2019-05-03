@@ -49,9 +49,9 @@
 \usepackage{multimedia}
 \graphicspath{{../figures/}}
 \let\boundary\undefined%
-\crefformat{equation}{\eqA{}eq.~\eqB #2#1#3)}
+\crefformat{equation}{\eqA{}Eq.~\eqB #2#1#3)}
 % TODO: Fix for more than two equations!
-\crefmultiformat{equation}{eqs.~\eqMultiA#2#1#3\eqMultiB}%
+\crefmultiformat{equation}{Eqs.~\eqMultiA#2#1#3\eqMultiB}%
 { and \eqMultiA#2#1#3\eqMultiB}{, \eqMultiA#2#1#3\eqMultiB}{ and~\eqMultiA#2#1#3\eqMultiB}
 \newcommand{\eqA}{}
 \newcommand{\eqB}{(}
@@ -80,9 +80,9 @@
 \begin{document}
 \maketitle 
 \begin{abstract}
-  We present an application of the compressible Navier Stokes equations for cloud formation processes.
+  We present a high-order discontinuous Galerkin (DG) solver of the compressible Navier Stokes equations for cloud formation processes.
   The scheme exploits an underlying parallelized implementation of the \aderdg{} method with dynamic adaptive mesh refinement. 
-  We improve our method by a \pde{} independent general refinement criterion, based on the local total variation of the numerical solution.
+  We improve our method by a \pde-independent general refinement criterion, based on the local total variation of the numerical solution.
   Our generic scheme shows competitive results for both classical \textsc{cfd} and stratified scenarios.
   While established methods use tailored numerics towards the specific simulation, our scheme works scenario independent.
   All together our method can be seen as a perfect candidate for large scale cloud simulation runs on current and future super computers.
@@ -120,26 +120,26 @@ We see our scheme in the regime of already established methods for cloud simulat
 %%Furthermore, they and the implicit methods are more communication-intensive and thus require a larger overhead and are more complicated to scale.
 %%We follow a different approach in this paper and use the \aderdg{} method of~\cite{dumbser2008unified} to simulate various computational fluid dynamics (\textsc{cfd}) scenarios with a focus on flows with stratified flows.
 
-Due to the viscous components of the Navier-Stokes equations, it is not straightforward to apply the \dg{} method.
-For high-order \dg{} methods, viscosity not only models the physical reality of the problem but also helps us by smoothing out oscillations and discontinuities, thus stabilizing the simulation.
+Due to the viscous components of the Navier-Stokes equations, it is not straightforward to apply the \aderdg{} formalism of~\cite{dumbser2008unified}, which addresses hyperbolic systems of partial differentials equations (\pde{}s) in first-order formulation.
 To include viscosity, we use the numerical flux for the compressible Navier-Stokes equations of \citeauthor{gassner2008discontinuous}~\cite{gassner2008discontinuous}.
 This flux has already been applied to the \aderdg{} method in~\cite{dumbser2010arbitrary}.
 In contrast to this paper, we focus on the simulation of complex flows with a gravitational source term and a realistic background atmosphere.
 Additionally, we use adaptive mesh refinement (\textsc{amr}) to increase the spatial resolution in areas of interest.
 This has been shown to work well for the simulation of cloud dynamics~\cite{muller2010adaptive}.
+Regarding the issue of limiting in high-order \dg{} methods, we note that viscosity not only models the correct physics of the problem but also smoothes oscillations and discontinuities, thus stabilizing the simulation.
 %Insert references to Giraldo SE/DG bubbles~\cite{giraldo2008study}, 3D bubbles~\cite{giraldo2013implicit,kelly2012continuous}, bubble amr (müller~\cite{muller2010adaptive}).
 
-We base our work on the \exahypeengine{} (\url{www.exahype.eu}), which is a framework that can solve arbitrary hyperbolic partial differential equations.
-A user of the engine is provided with a simple code interface which mirrors the parts required to formulate a well posed Cauchy problem for a system of hyperbolic \pde{}s of first order.
+We base our work on the \exahypeengine{} (\url{www.exahype.eu}), which is a framework that can solve arbitrary hyperbolic \pde\ systems.
+A user of the engine is provided with a simple code interface which mirrors the parts required to formulate a well-posed Cauchy problem for a system of hyperbolic \pde{}s of first order.
 The underlying \aderdg{} method\todo{\muscl{}?}, parallelization techniques and dynamic adaptive mesh refinement are available for simulations while the implementations are left as a black box to the user.
-An introduction to the communication-avoiding implementation of the whole numerical scheme can be found in the recent work~\cite{charrier2018stop} by \citeauthor{charrier2018stop}.
+An introduction to the communication-avoiding implementation of the whole numerical scheme can be found in~\cite{charrier2018stop}.% by \citeauthor{charrier2018stop}.
 
-We make the following contributions:%
+To summarize, we make the following contributions in this paper:%
 \begin{itemize}%
 \item We extend the \exahypeengine{} to allow viscous terms following the aforementioned numerical scheme.
-\item We use this to provide an implementation of the compressible Navier-Stokes equation.
+\item We thus provide an implementation of the compressible Navier-Stokes equations.
   In addition, we tailor the equation set to stratified flows with gravitational source term.
-  We want to emphasize here that we use a standard formulation of the Navier-Stokes equations as seen in the field of computational fluid mechanics and only use small modifcations of the governing equations, in contrast to a equation set that is tailored exactly to the application area.
+  We emphasize that we use a standard formulation of the Navier-Stokes equations as seen in the field of computational fluid mechanics and only use small modifcations of the governing equations, in contrast to a equation set that is tailored exactly to the application area.
 \item We present a general \textsc{amr}-criterion that is based on the detection of outlier cells w.r.t.\ their total variation.
   Furthermore, we show how to utilize this criterion for stratified flows.
 \item We evaluate our implementation with standard \textsc{cfd} scenarios and atmospheric flows and inspect the effectiveness of our proposed \amr{}-criterion.
@@ -166,7 +166,7 @@ We make the following contributions:%
 %   \label{eq:ns-short}
 %  \pdv{}{t} \bm{Q} + \divergence{\bm{F}(\bm{Q}, \gradient{\bm{Q}})} = \bm{S}(\bm{Q}) 
 % \end{equation}
-The compressible Navier-Stokes equations in the conservative form are defined as% \pcref{eq:conservation-law-gradient}
+The compressible Navier-Stokes equations in the conservative form are given as% \pcref{eq:conservation-law-gradient}
 \begin{equation}
  \label{eq:equation-set} 
 %  \begin{array}{l}
@@ -200,7 +200,7 @@ The compressible Navier-Stokes equations in the conservative form are defined as
     \source[\QE]
     \end{pmatrix}}_{\source(\Q, \bm{x}, t)}
 \end{equation}
-with vector of conserved quantities $\Q$, flux $\flux(\Q, \gradQ)$ and source $\source(\Q)$.
+with the vector of conserved quantities $\Q$, flux $\flux(\Q, \gradQ)$ and source $\source(\Q)$.
 Note that the flux can be split into a hyperbolic part $\hyperFlux(\Q)$,
 which is identical to the flux of the Euler equations,
 and a viscous part $\viscFlux(\Q, \gradQ)$.
@@ -231,10 +231,10 @@ We model the diffusivity by the stress tensor
   \label{eq:stress-tensor}
   \stressT(\Q, \gradQ) =
   \mu
-  \left(
+  \bigl(
   \left(\nicefrac{2}{3} \divergence{\Qv} \right) -
   \left( \gradient{\Qv} + \gradient{\Qv}^\intercal \right)
-  \right),
+  \bigr),
 \end{equation}
 with constant viscosity $\mu$.
 The heat diffusion is governed by the coefficient
@@ -268,34 +268,35 @@ We split the density $\Qrho = \backgroundRho + \Qrho'$ in the same manner and ar
 \end{equation}
 Note that a similar and more complex splitting is performed in~\cite{muller2010adaptive,giraldo2008study}.
 In contrast to this, we use the true compressible Navier-Stokes equations with minimal modifications.
+
 \section{Numerics}
-We use an \aderdg{}-scheme and a \muscl{} finite volume method.
+The \exahypeengine{} implements an \aderdg{}-scheme and a \muscl{} finite volume method.
 Both can be considered as instances of the more general \textsc{PnPm} schemes of~\cite{dumbser2008unified}.
 We use a Rusanov-style flux that is adapted to \pde{}s with viscous terms~\cite{gassner2008discontinuous,fambri2017space}.
 The finite volume scheme is stabilized with the van Albada limiter~\cite{van1997comparative}.
 The user can state dynamic \amr{} rules by supplying custom criteria that are evaluated point-wise.
-Our criterion uses an element local error estimate based on the total variation of the numerical solution.
+Our criterion uses an element-local error estimate based on the total variation of the numerical solution.
 We exploit the fact that the total variation of a numerical solution is a perfect indicator for edges of a wavefront.
 Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a sufficiently smooth function that maps the discrete solution at a point $\bm{x}$ to an arbitrary indicator variable.
 The total variation (\textsc{tv}) of this function is defined by
 \begin{equation}
   \label{eq:tv}
   \tv \left[ f(\bm{x}) \right] =
-  \Vert
+  \left\Vert
 \intdcell{ \vert \gradient{f \left( \bm{x} \right)} \vert }
-\Vert_1
+\right\Vert_1
 \end{equation}
 for each cell.
-The operator $\Vert \cdot \Vert_1$ denotes the discrete $l_1$ norm in this equation.
+The operator $\Vert \cdot \Vert_1$ denotes the discrete $L_1$ norm in this equation.
 We compute the integral efficiently with Gaussian quadrature over the collocated quadrature points.
 \newcommand{\mean}{\mu}%
 \newcommand{\std}{\sigma}%
 \newcommand{\variance}{\std^2}%
 \newcommand{\Trefine}{T_\text{refine}}%
-\newcommand{\Tdelete}{T_\text{erase}}%
+\newcommand{\Tdelete}{T_\text{coarsen}}%
 How can we decide whether a cell is important or not?
 To resolve this conundrum, we compute the mean and the population standard deviation of the total variation of all cells.
-It is important to note that we use the method of~\cite{chan1982updating} to compute the modes in a parallel and numerical stable manner.
+It is important that we use the method of~\cite{chan1982updating} to compute the modes in a parallel and numerical stable manner.
 A cell is then considered to contain significant information if its deviates from the mean more than a given threshold.
 This criterion can be described formally by
 \begin{equation}
@@ -303,7 +304,7 @@ This criterion can be described formally by
   \operatorname{evaluate-refinement}(\Q, \mu, \sigma) =
   \begin{cases}
     \text{refine} & \text{if } \tv(\Q) \geq \mu + \Trefine \sigma, \\
-    \text{erase} & \text{if } \tv(\Q) < \mu + \Tdelete \sigma, \\
+    \text{coarsen} & \text{if } \tv(\Q) < \mu + \Tdelete \sigma, \\
     \text{keep} & \text{otherwise}.
     \end{cases}
 \end{equation}
@@ -311,16 +312,16 @@ The parameters $\Trefine > \Tdelete$ can be chosen freely\todo{LK: Do we need th
 Chebyshev's inequality
 \begin{equation}
   \label{eq:chebychev}
-  \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2},
+  \mathbb{P}\bigl(\vert X - \mu \vert \geq c \sigma \bigr) \leq \frac{1}{c^2},
 \end{equation}
-with probability $\mathbb{P}$ guarantees that we neither mark all cells for refinement nor for erasement.
+with probability $\mathbb{P}$ guarantees that we neither mark all cells for refinement nor for coarsening.
 This inequality holds for arbitrary distributions under the weak assumption that they have a finite mean $\mu$ and a finite standard deviation $\sigma$~\cite{wasserman2004all}.
-Note that subcells are coarsened only if all subcells belonging to the coarse cell are marked for erasion.
+Note that subcells are coarsened only if all subcells belonging to the coarse cell are marked for coarsening.
 In contrast to already published criteria which are either designed solely for the simulation of clouds~\cite{muller2010adaptive} or computationally expensive~\cite{fambri2017space}, our criterion works for arbitrary \pde{}s and yet, is easy to compute and intuitive.
 
 \section{Results}
-We use a diverse mix of benchmarking scenarios that consist of standard \textsc{cfd} scenarios and atmospheric flows.
-
+We use a mix of various benchmarking scenarios that consist of standard \textsc{cfd} scenarios and atmospheric flows.
+%
 For the standard \textsc{cfd} testing scenarios, we use the following constants of fluids:
 \begin{equation}
   \gamma = 1.4, \quad \Pr = 0.7, \quad c_v = 1.0.
@@ -339,8 +340,13 @@ It has an analytical solution in the incompressible limit which is given by
   \pressure(\bm{x}, t) &= \exp(-4 \mu t) \, \nicefrac{1}{4} \left( \cos(2x) + \cos(2y) \right) + C.
   \end{split}
 \end{align}
-The constant $C = \nicefrac{100}{\gamma}$ governs the speed of sound and thus the Mach number $\text{Ma} = 0.1$~\cite{dumbser2016high}, the viscosity is set to $\mu = 0.1$.
-We use a domain of size $(\SI{2 \pi}{\m} \times \SI{2 \pi}{\m})$ and impose the analytical solution at the boundary.
+The constant $C = \nicefrac{100}{\gamma}$ governs the speed of sound and thus the Mach number $\text{Ma} = 0.1$~\cite{dumbser2016high}, the viscosity is set to $\mu = 0.1$. \todo{grammar broken.}
+
+We simulate on the domain $[0,2\pi]^2$ 
+%We use a domain of size 
+%$(\SI{2 \pi}{\m} \times \SI{2 \pi}{\m})$ 
+%% keine Meter-Angaben bei analytischen Testcases
+and impose the analytical solution at the boundary.
 A comparison at time $t = 10.0$ of the analytical solution for the pressure with our approximation (figure xxx) shows an excellent agreement.\todo{fig, check time, fix order/cells.}
 We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
 
@@ -349,7 +355,7 @@ We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
     \includegraphics{paper_lid_driven_cavity}
-    \caption{\label{fig:cavity-flow}Our approximation (lines) of the lid-driven cavity flow vs.\ reference solution (markers) of~\cite{ghia1982high}.}
+    \caption{\label{fig:cavity-flow}Our approximation (solid lines) of the lid-driven cavity flow vs.\ reference solution (crosses) of~\cite{ghia1982high}.}
   \end{subfigure}~%
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
@@ -364,8 +370,8 @@ We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
   \label{fig:cdf-results}
 \end{figure}
 
-The Arnold-Beltrami-Childress (\textsc{abc}) flow is similar to the Taylor-Green vortex but posesses an analytical solution for three-dimensions as well~\cite{tavelli2016staggered}.
-It is defined in the domain \( \left[ -\SI{\pi}{\m}, \SI{\pi}{\m} \right]^3 \) as
+The Arnold-Beltrami-Childress (\textsc{abc}) flow is similar to the Taylor-Green vortex but possesses an analytical solution for three-dimensions as well~\cite{tavelli2016staggered}.
+It is defined in the domain \( \left[ -\pi, \pi \right]^3 \) as
 \begin{align}
   \label{eq:abc-flow}
   \begin{split}
@@ -407,17 +413,16 @@ The simulation runs for $\SI{10}{\s}$
 Again, our results (\cref{fig:cavity-flow}) have an excellent agreement with the reference solution of~\cite{ghia1982high}.
 We used an \aderdg{}-method of order $3$ with a mesh of size $27^2$.
 
-Our stratified flow scenarios are described in terms of the potential temperature
+With  the constants
+\begin{equation}\label{eq:atmosphere-constants}
+    \gamma = 1.4 ,\quad \Pr =  0.71 ,\quad R = 287.058 ,\quad p_0 = \SI{10e5}{\Pa}, \quad g = \SI{9.8}{m/s^2},
+\end{equation}
+all following stratified flow scenarios are described in terms of the potential temperature
 \begin{equation}
-  \potT = T \left( \frac{p_0}{p} \right)^{R/c_p},
+  \potT = T \left( \frac{p_o}{p} \right)^{R/c_p},
 \end{equation}
 with reference pressure $p_o$~\cite{muller2010adaptive,giraldo2008study}.
-We use the constants
-\begin{equation}\label{eq:atmosphere-constants}
-    \gamma = 1.4 ,\qquad \Pr =  0.71 ,\qquad R = 287.058 ,\qquad p_0 = \SI{10e5}{\Pa}, \qquad g = \SI{9.8}{m/s^2},
-\end{equation}
-for all remaining scenarios.
-
+%
 We compute the initial background density and pressure by inserting the assumption of a constant background energy in \cref{eq:hydrostatic-balance}.
 The background atmosphere is then perturbed.
 We set the density and energy at the boundary such that it corresponds to the background atmosphere.
@@ -429,13 +434,13 @@ Furthermore, to ensure that the atmosphere stays in hydrostatic balance, we need
 at the boundary.
 In this equation, $\overline{T}(z)$ is the background temperature at position $z$, which can be computed from \cref{eq:hydrostatic-balance,eq:eos}~\cite{giraldo2008study}.
 
-Let
-\begin{equation}
-  \label{eq:radius}
-  r^2 = \Vert \bm{x} - \bm{x_c} \Vert_2 %(x - x_0)^2 + (z - z_0)^2
-\end{equation}
-denote the Euclidian distance between the spatial positions $\bm{x} = x, z$ and the center of a bubble $\bm{x_c} = x_c, z_c$.
-In case of three-dimensional scenarios the vectors $\bm{x}$ and $\bm{x_c}$ also contain a y coordinate.
+%Let
+%\begin{equation}
+%  \label{eq:radius}
+%  r^2 = \Vert \bm{x} - \bm{x_c} \Vert_2 %(x - x_0)^2 + (z - z_0)^2
+%\end{equation}
+%denote the Euclidian distance between the spatial positions $\bm{x} = x, z$ and the center of a bubble $\bm{x_c} = x_c, z_c$.
+%In case of three-dimensional scenarios the vectors $\bm{x}$ and $\bm{x_c}$ also contain a $y$ coordinate.
 
 Our first scenario is the colliding bubbles scenario~\cite{muller2010adaptive}.
 We use perturbations of the form
@@ -447,7 +452,13 @@ We use perturbations of the form
     A \exp \left( - \frac{(r-a)^2}{s^2} \right) & r > a,
     \end{cases}
 \end{equation}
-where $s$ is the decay rate and $r$  is the radius to the center~\pcref{eq:radius}.
+where $s$ is the decay rate and $r$  is the radius to the center~\pcref{eq:radius}:
+\begin{equation}
+  \label{eq:radius}
+  r^2 = \Vert \bm{x} - \bm{x_c} \Vert_2 %(x - x_0)^2 + (z - z_0)^2
+\end{equation}
+i.e., $r$ denotes the Euclidian distance between the spatial positions $\bm{x} = (x, z)$ and the center of a bubble $\bm{x_c} = (x_c, z_c)$ -- for three-dimensional scenarios $\bm{x}$ and $\bm{x_c}$ also contain a $y$ coordinate.
+
 We have two bubbles, with constants
 \begin{equation}
   \label{eq:bubbles-values}
@@ -459,24 +470,24 @@ We have two bubbles, with constants
 Similar to~\cite{muller2010adaptive}, we use a constant viscosity of $\mu = 0.01$ to regularize the solution.
 Note that we use a different implementation of viscosity than~\cite{muller2010adaptive}.
 Hence, it is difficult to compare the parametrization directly.
-We ran this scenario twice, firstly without \amr{} and a mesh of size $\SI{1000/81}{\m} = \SI{12.35}{\m}$.
-For the second run we used \amr{} with two adaptive refinement levels and parameters $\Trefine = 2.5$ and $\Tdelete = -0.5$.
+We ran this scenario twice: once without \amr{} and a mesh of size $\SI{1000/81}{\m} = \SI{12.35}{\m}$ and 
+once with \amr{} with two adaptive refinement levels and parameters $\Trefine = 2.5$ and $\Tdelete = -0.5$.
 We specialize the \amr{}-criterion~\pcref{eq:refinement-criterion} to our stratified flows by using the potential temperature.
-This resulted in a mesh with cell sizes lengths of ca. $\SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.34}{\m}$.
+This resulted in a mesh with cell-size lengths of approx.\ $\SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.34}{\m}$.
 The resulting mesh can be observed in \cref{fig:two-bubbles-ader}.
 We observe that the $L_2$ difference between the potential temperature of the \amr{} run, which uses 1953 cells, and the one of the fully refined run with 6561 cells, is only $1.87$.
 The relative error is \num{6.69e-6}.
 % points: 70308, 23619
-We further want to emphasize that our \amr{}-criterion is able to accurately track the position of the edges of cloud instead of only its position.
+We further emphasize that our \amr{}-criterion accurately tracks the position of the edges of cloud instead of only its position.
 This is the main advantage of our gradient-based method in contrast to methods working directly with the value of the solution, as for example~\cite{muller2010adaptive}.
 Overall, our result for this benchmark shows an excellent agreement to the previous solutions of~\cite{muller2010adaptive}.
 
-In addition, we simulated the same scenario with our \muscl{} method, using $3^2$ patches with $80^2$ finite volume cells each~\todo{check}.
+In addition, we simulated the same scenario with our \muscl{} method, using $3^2$ patches with $80^2$ finite volume cells each\todo{check}.
 As we use limiting, we do not need any viscosity.
 The results of this method (\cref{fig:two-bubbles-fv}) also agree with the reference but contain fewer details.
-Note that the numerical dissapitivity of the finite volume scheme has a smoothing effect that is similar to the smoothing caused by viscosity.
+Note that the numerical dissipativity of the finite volume scheme has a smoothing effect that is similar to the smoothing caused by viscosity.
 
-For our second scenario, the cosine bubble, we use a pertubation of the form
+For our second scenario, the cosine bubble, we use a perturbation of the form
 \begin{align}
   \label{eq:cos-pertubation}
   \pertubationPotT &= \begin{cases}
@@ -490,7 +501,8 @@ We use the constants
   A = \SI{0.5}{\K} \quad a = \SI{250}{\m} \quad x_c = \SI{500}{\m} \quad z_c = \SI{350}{\m}.
 \end{equation}
 For the three-dimensional bubble, we set $y_c = x_c = \SI{500}{\m}$ and lower the bubble to $z_c = \SI{260}{\m}$.
-This corresponds to the parameters used in~\cite{kelly2012continuous}\footnote{Note that the parameters presented in~\cite{kelly2012continuous} do not agree with their results, we instead use the same parameters as for 2D simulations.}.
+This corresponds to the parameters used in~\cite{kelly2012continuous}\footnote{%
+We found that the parameters presented in the manuscript of~\cite{kelly2012continuous} only agree with the results, if we use the same parameters as for 2D simulations.}.
 For the 2D case, we use a constant viscosity of $\mu = 0.01$ and an \aderdg{}-method of order 5 with two levels of dynamic \amr{}, resulting again in cell sizes of roughly $\SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.34}{\m}$.
 We use slightly different \amr{} parameters of $\Trefine = 1.5$ and $\Tdelete = -0.5$ and let the simulation run for \SI{600}{\s}.
 Note that, as seen in \cref{fig:cosine-2d}, our \amr{}-criterion tracks the wavefront of the cloud accurately.
@@ -525,7 +537,7 @@ Our results (\cref{fig:cosine-3d}) capture the overall dynamics of the scenario 
 
 
 \section{Conclusion}
-We presented our implementation of an \aderdg{}-method and a \muscl{}-scheme with \amr{} for the Navier-Stokes equations.
+We presented an implementation of an \aderdg{}-method and a \muscl{}-scheme with \amr{} for the Navier-Stokes equations, based on the \exahypeengine.
 Our implementation is capable of simulating different scenarios: \todo{LK: Flesh this out a tiny bit, mention properties of \amr{} criterion}
 We evaluated our method for standard \textsc{cfd} scenarios and achieved competitive results for all used scenarios.
 This is true for both two-dimensional scenarios (Taylor-Green vortex and lid-driven cavity) and for the three-dimensional \textsc{abc}-flow.
@@ -534,10 +546,12 @@ Furthermore, our method allows us to simulate flows in hydrostatic equilibrium c
 We showed that our \amr{}-criterion is able to vastly reduce the number of grid cells while preserving the quality of the results.
 
 \subsection*{Acknowledgements}
-Leonhard Rannabauer was funded by the European Union’s Horizon 2020 Research and Innovation Programme under the project ExaHyPE, grant no.  671698 (call FETHPC-1-2014)
-Lukas Krenz  was funded by the European Union’s Horizon 2020 Research and Innovation Programme under the project ChEESE, grant no.\ 823844.
-Special thanks goes to Dominic E.\ Charrier who provided help with the implementation in the \exahypeengine{}.
-\todo{Are those ack.\ correct, esp. call no.\ for Cheese? Also thank lrz?}
+This work was funded by the European Union’s Horizon 2020 Research and Innovation Programme under grant agreements 
+No~671698 (project ExaHyPE, \url{www.exahype.eu}) and 
+No~823844 (ChEESE centre of excellence, \url{www.cheese-coe.eu}).
+Computing resources were provided by the Leibniz Supercomputing Centre (project XXX). \todo{Add project number(s)?}
+Special thanks go to Dominic E.\ Charrier for his support with the implementation in the \exahypeengine{}.
+
 
 
 \printbibliography{}
