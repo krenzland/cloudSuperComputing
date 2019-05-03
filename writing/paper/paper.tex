@@ -111,10 +111,10 @@ In this paper we address the resolution of basic cloud formation processes on mo
 The simulation of cloud formations, as part of convective processes, is expected to play an important role in future numerical weather prediction~\cite{bauer2015quiet}.
 %% Numerical weather prediction (\textsc{nwp}) contains processes of different spatio-temporal scales.
 %% An important part of future \textsc{nwp} models will be the the resolution of convective processes~\cite{bauer2015quiet}.
-This requires both suitable physical models and effective computational realisations. 
+This requires both suitable physical models and effective computational realizations. 
 Here we focus on the simulation of simple benchmark scenarios~\cite{giraldo2008study}.
 They contain relatively small scale effects which are well approximated with the compressible Navier-Stokes equations.
-We use the \aderdg{} method of~\cite{dumbser2008unified}, which allows us to simulate the Naview-Stokes equations with a space-time-discretization of arbitrary high order.
+We use the \aderdg{} method of~\cite{dumbser2008unified}, which allows us to simulate the Navier-Stokes equations with a space-time-discretization of arbitrary high order.
 In contrast to Runge-Kutta time integrators or semi-implicit methods, an increase of the order of \aderdg{} only results in larger computational kernels and does not affect the complexity of the scheme.
 Additionally, \aderdg{} is a communication avoiding scheme and reduces the overhead on larger scale.
 We see our scheme in the regime of already established methods for cloud simulations, as seen for example in~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
@@ -131,7 +131,7 @@ This flux has already been applied to the \aderdg{} method in~\cite{dumbser2010a
 In contrast to this paper, we focus on the simulation of complex flows with a gravitational source term and a realistic background atmosphere.
 Additionally, we use adaptive mesh refinement (\textsc{amr}) to increase the spatial resolution in areas of interest.
 This has been shown to work well for the simulation of cloud dynamics~\cite{muller2010adaptive}.
-Regarding the issue of limiting in high-order \dg{} methods, we note that viscosity not only models the correct physics of the problem but also smoothes oscillations and discontinuities, thus stabilizing the simulation.
+Regarding the issue of limiting in high-order \dg{} methods, we note that viscosity not only models the correct physics of the problem but also smooths oscillations and discontinuities, thus stabilizing the simulation.
 
 We base our work on the \exahypeengine{} (\url{www.exahype.eu}), which is a framework that can solve arbitrary hyperbolic \pde\ systems.
 A user of the engine is provided with a simple code interface which mirrors the parts required to formulate a well-posed Cauchy problem for a system of hyperbolic \pde{}s of first order.
@@ -143,7 +143,7 @@ To summarize, we make the following contributions in this paper:%
 \item We extend the \exahypeengine{} to allow viscous terms following the aforementioned numerical scheme.
 \item We thus provide an implementation of the compressible Navier-Stokes equations.
   In addition, we tailor the equation set to stratified flows with gravitational source term.
-  We emphasize that we use a standard formulation of the Navier-Stokes equations as seen in the field of computational fluid mechanics and only use small modifcations of the governing equations, in contrast to a equation set that is tailored exactly to the application area.
+  We emphasize that we use a standard formulation of the Navier-Stokes equations as seen in the field of computational fluid mechanics and only use small modifications of the governing equations, in contrast to a equation set that is tailored exactly to the application area.
 \item We present a general \textsc{amr}-criterion that is based on the detection of outlier cells w.r.t.\ their total variation.
   Furthermore, we show how to utilize this criterion for stratified flows.
 \item We evaluate our implementation with standard \textsc{cfd} scenarios and atmospheric flows and inspect the effectiveness of our proposed \amr{}-criterion.
@@ -457,7 +457,7 @@ where $s$ is the decay rate and $r$  is the radius to the center~\pcref{eq:radiu
   \label{eq:radius}
   r^2 = \Vert \bm{x} - \bm{x_c} \Vert_2
 \end{equation}
-i.e., $r$ denotes the Euclidian distance between the spatial positions $\bm{x} = (x, z)$ and the center of a bubble $\bm{x_c} = (x_c, z_c)$ -- for three-dimensional scenarios $\bm{x}$ and $\bm{x_c}$ also contain a $y$ coordinate.
+i.e., $r$ denotes the Euclidean distance between the spatial positions $\bm{x} = (x, z)$ and the center of a bubble $\bm{x_c} = (x_c, z_c)$ -- for three-dimensional scenarios $\bm{x}$ and $\bm{x_c}$ also contain a $y$ coordinate.
 
 We have two bubbles, with constants
 \begin{equation}
@@ -544,7 +544,7 @@ This is true for both two-dimensional scenarios (Taylor-Green vortex and lid-dri
 Furthermore, our method allows us to simulate flows in hydrostatic equilibrium correctly, as our results for the cosine and colliding bubble scenarios showed.
 We showed that our \amr{}-criterion is able to vastly reduce the number of grid cells while preserving the quality of the results.
 
-\subsection*{Acknowledgements}
+\subsection*{Acknowledgments}
 This work was funded by the European Union’s Horizon 2020 Research and Innovation Programme under grant agreements 
 No~671698 (project ExaHyPE, \url{www.exahype.eu}) and 
 No~823844 (ChEESE centre of excellence, \url{www.cheese-coe.eu}).
