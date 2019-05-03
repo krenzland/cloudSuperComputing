@@ -269,15 +269,13 @@ We split the density $\Qrho = \backgroundRho + \Qrho'$ in the same manner and ar
 Note that a similar and more complex splitting is performed in~\cite{muller2010adaptive,giraldo2008study}.
 In contrast to this, we use the true compressible Navier-Stokes equations with minimal modifications.
 \section{Numerics}
-\todo{LR: Hier würde ich noch ein paar einleitende Worte hinzufügen}
 We use an \aderdg{}-scheme and a \muscl{} finite volume method.
 Both can be considered as instances of the more general \textsc{PnPm} schemes of~\cite{dumbser2008unified}.
 We use a Rusanov-style flux that is adapted to \pde{}s with viscous terms~\cite{gassner2008discontinuous,fambri2017space}.
 The finite volume scheme is stabilized with the van Albada limiter\todo{Cite vanalbada}.
-
 The user can state dynamic \amr{} rules by supplying custom criteria that are evaluated point-wise.
-We use an element local error estimate based on the total variation of the numerical solution. 
-We use the fact that the total variation of a numerical solution is a perfect indicator for edges of a wavefront.
+Our criterium uses an element local error estimate based on the total variation of the numerical solution.
+We exploit the fact that the total variation of a numerical solution is a perfect indicator for edges of a wavefront.
 Let $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ be a sufficiently smooth function that maps the discrete solution at a point $\bm{x}$ to an arbitrary indicator variable.
 The total variation (\textsc{tv}) of this function is defined by
 \begin{equation}
