@@ -108,10 +108,10 @@ The simulation of cloud formations, as part of convective processes, is expected
 %% An important part of future \textsc{nwp} models will be the the resolution of convective processes~\cite{bauer2015quiet}.
 This requires both suitable physical models and effective computational realisations. 
 Here we focus on the simulation of simple benchmark scenarios~\cite{giraldo2008study}.
-These relatively small scale effects are well approximated with the compressible Navier-Stokes equations.
+They contain relatively small scale effects which are well approximated with the compressible Navier-Stokes equations.
 We use the \aderdg{} method of~\cite{dumbser2008unified}, which allows us to simulate the Naview-Stokes equations with a space-time-discretization of arbitrary high order.
 In contrast to Runge-Kutta time integrators or semi-implicit methods, an increase of the order of \aderdg{} only results in larger computational kernels and does not affect the complexity of the scheme.
-Additionally \aderdg{} is a communication avoiding scheme and reduces the overhead on larger scale.
+Additionally, \aderdg{} is a communication avoiding scheme and reduces the overhead on larger scale.
 We see our scheme in the regime of already established methods for cloud simulations, as seen for example in~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
 %%The general approach is to use a space-discretized by higher order Galerkin method, as seen for example in~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
 %%They are often space-discretized by higher order Galerkin methods, as seen for example in~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
@@ -273,7 +273,7 @@ In contrast to this, we use the true compressible Navier-Stokes equations with m
 We use an \aderdg{}-scheme and a \muscl{} finite volume method.
 Both can be considered as instances of the more general \textsc{PnPm} schemes of~\cite{dumbser2008unified}.
 We use a Rusanov-style flux that is adapted to \pde{}s with viscous terms~\cite{gassner2008discontinuous,fambri2017space}.
-The finite volume scheme is stabilized with the van Albada limiter\todo{Cite vanalbada}.
+The finite volume scheme is stabilized with the van Albada limiter~\cite{van1997comparative}.
 
 The user can state dynamic \amr{} rules by supplying custom criteria that are evaluated point-wise.
 We use an element local error estimate based on the total variation of the numerical solution. 
@@ -355,11 +355,14 @@ We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
   \end{subfigure}~%
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics{paper_abc_flow_velocity}
-    \caption{\label{fig:abc-flow}\textsc{abc}-flow. We show the velocity in $x$-direction for slices through the domain, where all but the mentioned coordinates are held constant at a value of zero.
-    The analytical solution is represented by lines, the numerical results by markers.}
+    \includegraphics{paper_taylor_green_vel}
+    \caption{\label{fig:taylor-green}Taylor green, velocity slices.}
+
+    %\includegraphics{paper_abc_flow_velocity}
+    %\caption{\label{fig:abc-flow}\textsc{abc}-flow. We show the velocity in $x$-direction for slices through the domain, where all but the mentioned coordinates are held constant at a value of zero.
+    %The analytical solution is represented by lines, the numerical results by markers.}
   \end{subfigure}
-  \caption{\textsc{cfd} scenarios}
+  \caption{Two dimensional \textsc{cfd} scenarios}
   \label{fig:cdf-results}
 \end{figure}
 
@@ -383,6 +386,21 @@ again under the assumption of incompressibility.
 The constant $C = \nicefrac{100}{\gamma}$ is chosen as before.
 We use a viscosity of $\mu = 0.01$ and analytical boundary conditions.
 Our results (\cref{fig:abc-flow}) show a good agreement between the analytical solution and our approximation with an \aderdg{}-scheme of order $3$ with a mesh consisting of $27^3$ cells at time $t = \SI{0.1}{\s}$.
+
+\begin{figure}[tb]
+\centering
+\begin{minipage}{.5\textwidth}
+  \centering
+    \includegraphics{paper_abc_flow_velocity}
+    \captionof{figure}{\label{fig:abc-flow}Our approximation (lines) of the lid-driven cavity flow vs.\ reference solution (markers) of~\cite{ghia1982high}.}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+  \centering
+    \includegraphics[width=\textwidth]{paper_two_bubbles_fv}
+    \captionof{figure}{\label{fig:two-bubbles-fv}%
+    Colliding bubbles with \muscl{}}
+\end{minipage}
+\end{figure}
 
 As a final example of standard flow scenarios, we consider the lid-driven cavity flow where the fluid is initially at rest, with $\Qrho = 1$ and $ \pressure(\bm{x}) = \nicefrac{100}{\gamma}$.
 We consider a domain of size $\SI{1}{m} \times \SI{1}{\m}$ which is surrounded by no-slip walls.
@@ -421,41 +439,9 @@ Let
 \end{equation}
 denote the Euclidian distance between the spatial positions $\bm{x} = x, z$ and the center of a bubble $\bm{x_c} = x_c, z_c$.
 In case of three-dimensional scenarios the vectors $\bm{x}$ and $\bm{x_c}$ also contain a y coordinate.
-For our first scenario, the cosine bubble, we use a pertubation of the form
-\begin{align}
-  \label{eq:cos-pertubation}
-  \pertubationPotT &= \begin{cases}
-    \nicefrac{A}{2} \left[ 1 + \cos(\pi r) \right] & r \leq a, \\
-    0 & r > a,
-    \end{cases}
-\end{align}
-where $A$ denotes the maximal perturbation and $a$ is the size of the bubble.
-We use the constants
-\begin{equation}\label{eq:cosine-bubble}
-  A = \SI{0.5}{\K} \quad a = \SI{250}{\m} \quad x_c = \SI{500}{\m} \quad z_c = \SI{350}{\m}.
-\end{equation}
-For the three-dimensional bubble, we set $y_c = x_c = \SI{500}{\m}$ and lower the bubble to $z_c = \SI{260}{\m}$.
-We use a constant viscosity of $\mu = 0.01$ and a simulation time of $\SI{400}{\s}$ for 3D and $\SI{600}{\s}$ for 2D\todo{viscosity for 3D?}.
-We specialize the \amr{}-criterion~\pcref{eq:refinement-criterion} to our stratified flows by using the potential temperature.
 
-
-\begin{figure}[htb]
-  \centering
-  \begin{subfigure}[t]{0.5\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{paper_cosine_bubble}
-    \caption{2D Cosine Bubble}
-  \end{subfigure}~%
-  \begin{subfigure}[t]{0.5\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{paper_cosine_bubble}
-    \caption{3D Cosine Bubble}
-  \end{subfigure}
-  \caption{Cosine Bubble Scenarios}
-  \label{fig:cosine-bubbles-results}
-\end{figure}
-
-For our second scenario, the colliding bubbles~\cite{muller2010adaptive}, we use perturbations of the form
+Our first scenario is the colliding bubbles scenario~\cite{muller2010adaptive}.
+We use perturbations of the form
 \begin{equation}
   \label{eq:bubbles-pertubation}
   \pertubationPotT =
@@ -473,10 +459,13 @@ We have two bubbles, with constants
   & \text{cold:} \qquad && A = \SI{-0.15}{\K}, \quad&& a = \SI{0}{\m}, \quad&& s = \SI{50}{\m}, \quad&& x_c = \SI{560}{\m}, \quad&& z_c = \SI{640}{\m}.
   \end{alignedat}
 \end{equation}
-Similar to~\cite{muller2010adaptive} and to the previous scenario, we use a constant viscosity of $\mu = 0.01$ to regularize the solution\todo{We use lower visc!}.
+Similar to~\cite{muller2010adaptive}, we use a constant viscosity of $\mu = 0.01$ to regularize the solution.
+Note that we use a different implementation of viscosity than~\cite{muller2010adaptive}.
+Hence, it is difficult to compare the parametrization directly.
 We ran this scenario twice, firstly without \amr{} and a mesh of size $\SI{1000/81}{\m} = \SI{12.35}{\m}$.
 For the second run we used \amr{} with two adaptive refinement levels and parameters $\Trefine = 2.5$ and $\Tdelete = -0.5$.
-This resulted in a mesh with cell sizes lengths of ca. $\SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.34}{\m}$ up to.
+We specialize the \amr{}-criterion~\pcref{eq:refinement-criterion} to our stratified flows by using the potential temperature.
+This resulted in a mesh with cell sizes lengths of ca. $\SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.34}{\m}$.
 The resulting mesh can be observed in \cref{fig:two-bubbles-ader}.
 We observed that even though both results are nearly identical, the \amr{} run managed to use only 1953 cells, instead of 6561 cells for the fully refined solution. 
 % points: 70308, 23619
@@ -488,38 +477,73 @@ In addition, we simulated the same scenario with our \muscl{} method, using $3^2
 As we use limiting, we do not need any viscosity.
 The results of this method (\cref{fig:two-bubbles-fv}) also agree with the reference.
 Note that the numerical dissapitivity of the finite volume scheme has a smoothing effect that is similar to the smoothing caused by viscosity.
+
+For our second scenario, the cosine bubble, we use a pertubation of the form
+\begin{align}
+  \label{eq:cos-pertubation}
+  \pertubationPotT &= \begin{cases}
+    \nicefrac{A}{2} \left[ 1 + \cos(\pi r) \right] & r \leq a, \\
+    0 & r > a,
+    \end{cases}
+\end{align}
+where $A$ denotes the maximal perturbation and $a$ is the size of the bubble.
+We use the constants
+\begin{equation}\label{eq:cosine-bubble}
+  A = \SI{0.5}{\K} \quad a = \SI{250}{\m} \quad x_c = \SI{500}{\m} \quad z_c = \SI{350}{\m}.
+\end{equation}
+For the three-dimensional bubble, we set $y_c = x_c = \SI{500}{\m}$ and lower the bubble to $z_c = \SI{260}{\m}$.
+This corresponds to the parameters used in~\cite{kelly2012continuous}.
+For the 2D case, we use a constant viscosity of $\mu = 0.01$, an \aderdg{}-method of order 5 with two levels of dynamic \amr{}, resulting again in cell sizes of roughly $\SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.34}{\m}$.
+We use slightly different \amr{} parameters of $\Trefine = 1.5$ and $\Tdelete = -0.5$ and let the simulation run for \SI{600}{\s}.
+Note that, as seen in \cref{fig:cosine-2d}, our \amr{}-criterion tracks the wavefront of the cloud accurately.
+This result shows an excellent agreement to the ones achieved in~\cite{giraldo2008study}\todo{correct source?}.
+
+For the 3D case, we use an \aderdg{}-scheme of order 3 with a static mesh with cell sizes of \SI{40}{\m}. and a shorter simulation duration of \SI{400}{\s}.
+Due to the relatively coarse resolution and the hence increased aliasing errors, we need to increase the viscosity to $\mu = 0.02$.
+This corresponds to a larger amount of smoothing.
+Our results (\cref{fig:cosine-3d}) capture the overall dynamics of the scenario well, similar to the reference solution of~\cite{kelly2012continuous}.
+
+We again use a constant viscosity of $\mu = 0.01$ for the 2D case, and a viscosity of $\mu = 0.02$ for the 3D case.
+The simulations run for a time of $\SI{600}{\s}$ and $\SI{400}{\s}$ for two and three-dimensional scenarios respectively.
+
 \begin{figure}[htb]
   \centering
-  \begin{subfigure}[t]{0.8\textwidth}
+  \includegraphics[width=1.0\textwidth]{paper_two_bubbles}
+  \caption{\label{fig:two-bubbles-ader}Colliding Bubbles \aderdg{}}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{paper_two_bubbles}
-    \caption{\label{fig:two-bubbles-ader}Colliding Bubbles \aderdg{}}
+    \includegraphics[width=\textwidth]{paper_cosine_bubble}
+    \caption{\label{fig:cosine-2d}2D Cosine Bubble}
   \end{subfigure}~%
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics{paper_lid_driven_cavity}
-    \caption{\label{fig:two-bubbles-fv}Colliding Bubbles \muscl{}}
+    \includegraphics[width=\textwidth]{paper_cosine_bubble_3d}
+    \caption{3D Cosine Bubble}
   \end{subfigure}
-  \caption{Cosine Bubble Scenarios}
-  \label{fig:two-bubbles-results}
+  \caption{\label{fig:cosine-3d}Cosine Bubble Scenarios}
+  \label{fig:cosine-bubbles-results}
 \end{figure}
+
 
 \section{Conclusion}
 We presented our implementation of an \aderdg{}-method and a \muscl{}-scheme with \amr{} for the Navier-Stokes equations.
-Our implementation is capable of simulating different scenarios:
+Our implementation is capable of simulating different scenarios:\todo{LK: Flesh this out a tiny bit, mention properties of \amr{} criterion}
 \begin{itemize}
 \item We evaluated our method for standard \textsc{cfd} scenarios and achieved competitive results for all used scenarios.
   This is true for both two-dimensional scenarios (Taylor-Green vortex and lid-driven cavity) and for the three-dimensional \textsc{abc}-flow.
 \item Furthermore, our method allows us to simulate flows in hydrostatic equilibrium correctly as our results for the cosine and colliding bubble scenarios showed.
 \item We showed that our \amr{}-criterion is able to vastly reduce the number of grid cells while preserving the quality of the results.
 \end{itemize}
-\todo{LK: Flesh this out a tiny bit, mention properties of \amr{} criterion}
 
 \subsection*{Acknowledgements}
-Lukas Krenz was funded by ChEESE (823844), Leonhard Rannabauer was funded by ExaHyPE (671698).
-\todo{LK: Standard sentence is: This research was funded by the European Union’s Horizon 2020 Research and Innovation Programme under the project ExaHyPE, grant no.  671698 (call FETHPC-1-2014).
-Special thanks goes to Dominic E.\ Charrier who provided help with the implementation in the %\exahypeegine{}.
-Also LRZ?}
+Leonhard Rannabauer was funded by the European Union’s Horizon 2020 Research and Innovation Programme under the project ExaHyPE, grant no.  671698 (call FETHPC-1-2014)
+Lukas Krenz  the European Union’s Horizon 2020 Research and Innovation Programme under the project ChEESE, grant no.\ 823844.
+Special thanks goes to Dominic E.\ Charrier who provided help with the implementation in the \exahypeengine{}.
+\todo{Are those ack.\ correct, esp. call no.\ for Cheese? Also thank lrz?}
 
 
 \printbibliography{}
