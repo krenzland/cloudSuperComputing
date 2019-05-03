@@ -135,7 +135,7 @@ Regarding the issue of limiting in high-order \dg{} methods, we note that viscos
 
 We base our work on the \exahypeengine{} (\url{www.exahype.eu}), which is a framework that can solve arbitrary hyperbolic \pde\ systems.
 A user of the engine is provided with a simple code interface which mirrors the parts required to formulate a well-posed Cauchy problem for a system of hyperbolic \pde{}s of first order.
-The underlying \aderdg{} method\todo{\muscl{}?}, parallelization techniques and dynamic adaptive mesh refinement are available for simulations while the implementations are left as a black box to the user.
+The underlying \aderdg{} method, parallelization techniques and dynamic adaptive mesh refinement are available for simulations while the implementations are left as a black box to the user.
 An introduction to the communication-avoiding implementation of the whole numerical scheme can be found in~\cite{charrier2018stop}.
 
 To summarize, we make the following contributions in this paper:%
@@ -410,7 +410,7 @@ Our results (\cref{fig:abc-flow}) show a good agreement between the analytical s
   \centering
     \includegraphics[width=\textwidth]{paper_two_bubbles_fv}
     \captionof{figure}{\label{fig:two-bubbles-fv}%
-    Colliding bubbles with \muscl{}}
+    Colliding bubbles with \muscl{}. Contour values for potential temperature pertubation are $-0.05, 0.05, 0.1, \ldots 0.45$.}
 \end{minipage}
 \end{figure}
 
@@ -473,7 +473,7 @@ Hence, it is difficult to compare the parametrization directly.
 We ran this scenario twice: once without \amr{} and a mesh of size $\SI{1000/81}{\m} = \SI{12.35}{\m}$ and 
 once with \amr{} with two adaptive refinement levels and parameters $\Trefine = 2.5$ and $\Tdelete = -0.5$.
 We specialize the \amr{}-criterion~\pcref{eq:refinement-criterion} to our stratified flows by using the potential temperature.
-This resulted in a mesh with cell-size lengths of approx.\ $\SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.34}{\m}$.
+This resulted in a mesh with cell-size lengths of approx.\ \SI{111.1}{\m}, \SI{37.04}{\m}, and \SI{12.34}{\m}.
 The resulting mesh can be observed in \cref{fig:two-bubbles-ader}.
 We observe that the $L_2$ difference between the potential temperature of the \amr{} run, which uses 1953 cells, and the one of the fully refined run with 6561 cells, is only $1.87$.
 The relative error is \num{6.69e-6}.
@@ -514,8 +514,8 @@ Our results (\cref{fig:cosine-3d}) capture the overall dynamics of the scenario 
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=1.0\textwidth]{paper_two_bubbles}
-  \caption{\label{fig:two-bubbles-ader}Colliding Bubbles \aderdg{}}
+  \includegraphics[width=0.90\textwidth]{paper_two_bubbles}
+  \caption{\label{fig:two-bubbles-ader}Colliding Bubbles \aderdg{}. Contour values for potential temperature pertubation are $-0.05, 0.05, 0.1, \ldots 0.45$.}
 \end{figure}
 
 \begin{figure}[tb]
@@ -523,7 +523,7 @@ Our results (\cref{fig:cosine-3d}) capture the overall dynamics of the scenario 
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
     \includegraphics[width=\textwidth]{paper_cosine_bubble}
-    \caption{\label{fig:cosine-2d}2D Cosine Bubble}
+    \caption{\label{fig:cosine-2d}2D Cosine Bubble.}%todo: Contour lines?
   \end{subfigure}~%
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
@@ -537,7 +537,7 @@ Our results (\cref{fig:cosine-3d}) capture the overall dynamics of the scenario 
 
 \section{Conclusion}
 We presented an implementation of an \aderdg{}-method and a \muscl{}-scheme with \amr{} for the Navier-Stokes equations, based on the \exahypeengine.
-Our implementation is capable of simulating different scenarios: \todo{LK: Flesh this out a tiny bit, mention properties of \amr{} criterion}
+Our implementation is capable of simulating different scenarios:
 We evaluated our method for standard \textsc{cfd} scenarios and achieved competitive results for all used scenarios.
 This is true for both two-dimensional scenarios (Taylor-Green vortex and lid-driven cavity) and for the three-dimensional \textsc{abc}-flow.
 
