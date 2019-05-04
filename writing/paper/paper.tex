@@ -89,8 +89,8 @@
   The scheme exploits an underlying parallelized implementation of the \aderdg{} method with dynamic adaptive mesh refinement. 
   We improve our method by a \pde{}-independent general refinement criterion, based on the local total variation of the numerical solution.
   Our generic scheme shows competitive results for both classical \textsc{cfd} and stratified scenarios.
-  While established methods use tailored numerics towards the specific simulation, our scheme works scenario independent.
-  All together our method can be seen as a perfect candidate for large scale cloud simulation runs on current and future super computers.
+  While established methods use numerics tailored towards the specific simulation, our scheme works scenario independent.
+  All together, our method can be seen as a perfect candidate for large scale cloud simulation runs on current and future super computers.
 
 \keywords{\aderdg{}  \and Navier-Stokes \and Adaptive Mesh Refinement.}
 \end{abstract}
@@ -397,7 +397,7 @@ Our results (\cref{fig:abc-flow}) show a good agreement between the analytical s
 As a final example of standard flow scenarios, we consider the lid-driven cavity flow where the fluid is initially at rest, with $\Qrho = 1$ and $ \pressure(\bm{x}) = \nicefrac{100}{\gamma}$.
 We consider a domain of size $\SI{1}{m} \times \SI{1}{\m}$ which is surrounded by no-slip walls.
 The flow is driven entirely by the upper wall which has a velocity of $v_x = \SI{1}{\m/\s}$.
-The simulation runs for $\SI{10}{\s}$
+The simulation runs for $\SI{10}{\s}$.
 Again, our results (\cref{fig:cavity-flow}) have an excellent agreement with the reference solution of~\cite{ghia1982high}.
 We used an \aderdg{}-method of order $3$ with a mesh of size $27^2$.
 
@@ -407,9 +407,9 @@ With  the constants
 \end{equation}
 all following stratified flow scenarios are described in terms of the potential temperature
 \begin{equation}
-  \potT = T \left( \frac{p_o}{p} \right)^{R/c_p},
+  \potT = T \left( \frac{p_0}{p} \right)^{R/c_p},
 \end{equation}
-with reference pressure $p_o$~\cite{muller2010adaptive,giraldo2008study}.
+with reference pressure $p_0$~\cite{muller2010adaptive,giraldo2008study}.
 %
 We compute the initial background density and pressure by inserting the assumption of a constant background energy in \cref{eq:hydrostatic-balance}.
 The background atmosphere is then perturbed.
@@ -419,8 +419,8 @@ Furthermore, to ensure that the atmosphere stays in hydrostatic balance, we need
   \label{eq:atmosphere-bc}
   \viscFlux_{\QE} = \kappa \pdv{\overline{T}}{z}.% =
 \end{equation}
-at the boundary.
-In this equation, $\overline{T}(z)$ is the background temperature at position $z$, which can be computed from \cref{eq:hydrostatic-balance,eq:eos}~\cite{giraldo2008study}.
+at the boundary~\cite{giraldo2008study}.
+In this equation, $\overline{T}(z)$ is the background temperature at position $z$, which can be computed from \cref{eq:hydrostatic-balance,eq:eos}.
 
 Our first scenario is the colliding bubbles scenario~\cite{muller2010adaptive}.
 We use perturbations of the form
@@ -432,10 +432,10 @@ We use perturbations of the form
     A \exp \left( - \frac{(r-a)^2}{s^2} \right) & r > a,
     \end{cases}
 \end{equation}
-where $s$ is the decay rate and $r$  is the radius to the center~\pcref{eq:radius}:
+where $s$ is the decay rate and $r$  is the radius to the center
 \begin{equation}
   \label{eq:radius}
-  r^2 = \Vert \bm{x} - \bm{x_c} \Vert_2
+  r^2 = \Vert \bm{x} - \bm{x_c} \Vert_2,
 \end{equation}
 i.e., $r$ denotes the Euclidean distance between the spatial positions $\bm{x} = (x, z)$ and the center of a bubble $\bm{x_c} = (x_c, z_c)$ -- for three-dimensional scenarios $\bm{x}$ and $\bm{x_c}$ also contain a $y$ coordinate.
 
@@ -454,10 +454,10 @@ We ran this scenario twice: once without \amr{} and a mesh of size $\SI{1000/81}
 once with \amr{} with two adaptive refinement levels and parameters $\Trefine = 2.5$ and $\Tdelete = -0.5$.
 We specialize the \amr{}-criterion~\pcref{eq:refinement-criterion} to our stratified flows by using the potential temperature.
 This resulted in a mesh with cell-size lengths of approx.\ \SI{111.1}{\m}, \SI{37.04}{\m}, and \SI{12.34}{\m}.
-The resulting mesh can be observed in \cref{fig:two-bubbles-ader}.
+The resulting mesh can be seen in \cref{fig:two-bubbles-ader}.
 We observe that the $L_2$ difference between the potential temperature of the \amr{} run, which uses 1953 cells, and the one of the fully refined run with 6561 cells, is only $1.87$.
 The relative error is \num{6.69e-6}.
-We further emphasize that our \amr{}-criterion accurately tracks the position of the edges of cloud instead of only its position.
+We further emphasize that our \amr{}-criterion accurately tracks the position of the edges of the cloud instead of only its position.
 This is the main advantage of our gradient-based method in contrast to methods working directly with the value of the solution, as for example~\cite{muller2010adaptive}.
 Overall, our result for this benchmark shows an excellent agreement to the previous solutions of~\cite{muller2010adaptive}.
 
@@ -479,7 +479,7 @@ We use the constants
 \begin{equation}\label{eq:cosine-bubble}
   A = \SI{0.5}{\K} \quad a = \SI{250}{\m} \quad x_c = \SI{500}{\m} \quad z_c = \SI{350}{\m}.
 \end{equation}
-For the three-dimensional bubble, we set $y_c = x_c = \SI{500}{\m}$ and lower the bubble to $z_c = \SI{260}{\m}$.
+For the three-dimensional bubble, we set $y_c = x_c = \SI{500}{\m}$.
 This corresponds to the parameters used in~\cite{kelly2012continuous}\footnote{%
 We found that the parameters presented in the manuscript of~\cite{kelly2012continuous} only agree with the results, if we use the same parameters as for 2D simulations.}.
 For the 2D case, we use a constant viscosity of $\mu = 0.01$ and an \aderdg{}-method of order 5 with two levels of dynamic \amr{}, resulting again in cell sizes of roughly $\SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.34}{\m}$.
@@ -487,31 +487,32 @@ We use slightly different \amr{} parameters of $\Trefine = 1.5$ and $\Tdelete = 
 Note that, as seen in \cref{fig:cosine-2d}, our \amr{}-criterion tracks the wavefront of the cloud accurately.
 This result shows an excellent agreement to the ones achieved in~\cite{giraldo2008study,muller2010adaptive}.
 
-For the 3D case, we use an \aderdg{}-scheme of order 3 with a static mesh with cell sizes of \SI{40}{\m}. and a shorter simulation duration of \SI{400}{\s}.
-Due to the relatively coarse resolution and the hence increased aliasing errors, we need to increase the viscosity to $\mu = 0.02$.
+For the 3D case, we use an \aderdg{}-scheme of order 3 with a static mesh with cell sizes of \SI{40}{\m} and a shorter simulation duration of \SI{400}{\s}.
+Due to the relatively coarse resolution and the hence increased aliasing errors, we need to increase the viscosity to $\mu = 0.05$.
 This corresponds to a larger amount of smoothing.
-Our results (\cref{fig:cosine-3d}) capture the overall dynamics of the scenario well, similar to the reference solution of~\cite{kelly2012continuous}.
+Our results (\cref{fig:cosine-3d}) capture the dynamics of the scenario well and agree with the reference solution of~\cite{kelly2012continuous}.
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.90\textwidth]{paper_two_bubbles}
-  \caption{\label{fig:two-bubbles-ader}Colliding Bubbles \aderdg{}. Contour values for potential temperature perturbation are $-0.05, 0.05, 0.1, \ldots 0.45$.}
+  \caption{\label{fig:two-bubbles-ader}Colliding Bubbles with \aderdg{}. Contour values for potential temperature perturbation are $-0.05, 0.05, 0.1, \ldots 0.45$.}
 \end{figure}
 
 \begin{figure}[tb]
   \centering
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{paper_cosine_bubble}
+    \includegraphics[width=\textwidth, trim={0cm 0 23cm 0},clip]{paper_cosine_bubble_collage}
+    %\includegraphics[width=\textwidth]{paper_cosine_bubble}
     \caption{\label{fig:cosine-2d}2D Cosine Bubble.}%todo: Contour lines?
   \end{subfigure}~%
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{paper_cosine_bubble_3d}
-    \caption{3D Cosine Bubble}
+    \includegraphics[width=\textwidth, trim={23cm 0 0cm 0},clip]{paper_cosine_bubble_collage}
+    %\includegraphics[width=\textwidth]{paper_cosine_bubble_3d}
+    \caption{\label{fig:cosine-3d}3D Cosine Bubble}
   \end{subfigure}
-  \caption{\label{fig:cosine-3d}Cosine Bubble Scenarios}
-  \label{fig:cosine-bubbles-results}
+  \caption{\label{fig:cosine-bubbles-results}Cosine Bubble Scenario}
 \end{figure}
 
 
