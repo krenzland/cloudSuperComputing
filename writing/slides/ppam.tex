@@ -1,0 +1,368 @@
+% https://tex.stackexchange.com/questions/123106/detect-aspect-ratio-in-beamer?noredirect=1&lq=1
+\documentclass[aspectratio=169]{beamer}
+%\documentclass[]{beamer}
+%\usepackage{eulervm}
+%\usetheme{metropolis} % Use metropolis theme
+\usepackage[conference]{beamertheme_tumtalk} % headline and footline
+\usepackage{beamercolorscheme_tum} % colorscheme
+\usepackage{beamerfontthemestructurebold} % bold headings
+
+\usepackage{appendixnumberbeamer}
+\renewcommand\footnoterule{}
+
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[autostyle, english = british]{csquotes}
+\usepackage[british]{babel}
+\usepackage{todonotes}
+\usepackage[%
+  backend=biber,
+  doi=false,
+  url=false,
+  isbn=false,
+  eprint=false,
+  style=verbose,
+  citestyle=verbose,
+  hyperref=true,
+  maxnames=99,
+  minnames=1,
+  maxbibnames=99,
+  firstinits,
+  uniquename=init]{biblatex}
+%\DeclareFieldFormat[inproceedings, article]{pages}{}%
+%\DeclareFieldFormat[inproceedings]{organization}{}%
+  % ignore some field for citations
+\DeclareSourcemap{
+  \maps[datatype=bibtex, overwrite]{
+    \map{
+      \step[fieldset=edition, null]
+      \step[fieldset=publisher, null]
+      \step[fieldset=pages, null]
+      \step[fieldset=organization, null]
+    }
+  }
+}
+
+\addbibresource{../bibliography.bib}
+
+\let\oldfootnotesize\footnotesize
+\renewcommand*{\footnotesize}{\oldfootnotesize\fontsize{6}{6}}
+
+\usepackage{caption}
+\usepackage{xpatch}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{mathtools} % for \mathclap
+\usepackage{nicefrac}
+\usepackage{physics} % for derivatives
+\usepackage{varioref}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage[noabbrev]{cleveref}
+\newcommand{\creflastconjunction}{, and\nobreakspace} % use Oxford comma
+\usepackage{todonotes}
+\usepackage{multimedia}
+
+\graphicspath{{../figures/}}
+\let\boundary\undefined%
+
+\usepackage{bm}
+\input{../thesis/macros.tex}
+
+\input{ifaspectratio.tex}
+
+% \newcommand{\Qrho}{\ensuremath{\rho}}
+% \newcommand{\Qj}{\ensuremath{\rho \bm{v}}}
+% %\newcommand{\Qv}{\ensuremath{\Qrho^{-1} \Qj}}
+% \newcommand{\Qv}{\ensuremath{\bm{v}}}
+% \newcommand{\QE}{\ensuremath{\rho E}}
+% \newcommand{\stressT}{\ensuremath{\bm{\sigma}}}
+% \newcommand{\pressure}{\ensuremath{p}}
+% \newcommand{\maxConvEigen}{\ensuremath{\vert \lambda_c^{\text{max}} \vert}}
+% \newcommand{\maxViscEigen}{\ensuremath{\vert \lambda_v^{\text{max}} \vert}}
+
+\newcommand{\cn}{\footnote{\enquote{TODO: Citation.}, 2017, \textbf{Conference}, \textit{Author 1, Author 2, Author 3, Author 4} }}
+
+\title[High-Order DG with Dynamic AMR to Simulate Clouds]{A High-Order Discontinuous Galerkin Solver with Dynamic Adaptive Mesh Refinement to Simulate Cloud Formation Processes}
+\subtitle{PPAM 209}
+\author[L.\ Krenz, L.\ Rannabauer, M.\ Bader]{Lukas Krenz, Leonhard Rannabauer and Michael Bader}
+\date{\today} 
+\institute{Technical University of Munich}
+
+\begin{document}
+\maketitle
+\begin{frame}{The ExaHyPE-Engine\footfullcite{reinarz2019exahype}}
+  \begin{block}{Goals}
+   A PDE \enquote{engine} (\enquote{engine} as in \enquote{game engine}).
+
+   Provides numerics/mesh for user-defined applications.
+
+   Allow \textbf{smaller} teams to realize \textbf{large-scale} simulations of hyperbolic PDEs.
+  \end{block}
+  \begin{block}{Capabilities}
+    \begin{itemize}
+    \item Optimized kernels for ADER-DG and a Finite Volume Scheme
+    \item Dynamic Adaptive Mesh Refinement (AMR)
+    \item Hybrid MPI + Intel TBB Parallelism
+    \end{itemize}
+  \end{block}
+
+  Available (\textbf{open-source}) at \url{exahype.eu}
+\end{frame}
+
+\begin{frame}{Two Bubbles: Hydrostatic Equilibrium\footfullcite{robert1993bubble}}
+  \begin{columns}
+    \begin{column}[t]{0.5\textwidth}
+      \begin{itemize}
+      \item 
+  Air is in hydrostatic equilibrium:
+
+  Gravitational force and pressure-gradient force are \textbf{exactly balanced}.
+
+  \item Constant potential temperature (temperature normalized by pressure) with larger, warm bubble and small, cold bubble on top.
+      
+  \end{itemize}
+    \end{column}~%
+    \begin{column}[t]{0.5\textwidth}
+      \begin{figure}[h]
+        \ifratio{43}{
+          %\includegraphics{beamer_43_hydrostatic_equilibrium}
+        } {
+          %\includegraphics{beamer_169_hydrostatic_equilibrium}
+        }
+\caption{Background pressure in equilibrium}
+\end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Two Bubbles: Simulation}
+  %  \begin{figure}[h]
+  %   \centering
+  %   \ifratio{43}{
+  %   \movie[width=0.9\textwidth, height=0.6\textwidth, autostart,, loop, poster]{}{two_bubbles_cartesian.ogv}
+  % } {
+  %   \movie[width=0.7\textwidth, height=0.466666\textwidth, autostart,, loop, poster]{}{two_bubbles_cartesian.ogv}
+  % }
+  %   \caption{Two Bubbles scenario}
+  % \end{figure}
+  Here: AMR simulation of two bubbles scenario (video)
+\end{frame}
+
+\begin{frame}{The ADER-DG Approach\footfullcite{dumbser2008unified}}
+  Solve \textbf{hyperbolic conservation laws} of the form
+\begin{equation}
+  \label{eq:conservation-law}
+ \frac{\partial}{\partial_t}  \Q + \divergence{\flux(\Q)} = \source(\bm{x}, t, \Q)
+\end{equation}
+with $\Q$ vector of conserved variables, $\bm{x}$ position, $t$ time,  $\divergence{\flux(\Q)}$ divergence of flux and $\source(\bm{x}, t, \Q)$ source term.
+
+\textbf{Discontinuous Galerkin} (\textsc{DG}) divides domain into disjoint elements, approximates solutions by piecewise-polynomials.
+Elements are connected by solving the Riemann problem.
+
+
+Implemented in the \textsc{PDE}-Framework \textbf{ExaHyPE}.
+\end{frame}
+
+
+\begin{frame}{The Navier-Stokes Equations}
+  TODO PDE Conservative form(?)
+  Vector of conserved quantities:
+\begin{equation}
+  \label{eq:conserved-variables}
+ \Q = \left( \Qrho, \Qj, \QE \right) 
+\end{equation}
+With $\Qrho$ density of fluid, $\Qj$ velocity density and $\QE$ energy density
+
+Flux:
+\begin{equation}
+  F(\Q, \textcolor{orange}{\gradQ}) = 
+  \begin{pmatrix}
+    \Qj \\
+    \Qv  \otimes \Qj + \bm{I} \pressure + \textcolor{orange}{\stressT (\Q, \gradQ)}  \\
+    \Qv \cdot \left(\bm{I} \QE + \bm{I} \pressure + \textcolor{orange}{\stressT (\Q, \gradQ)} \right) -
+    \textcolor{orange}{\kappa \nabla T}
+  \end{pmatrix}
+\end{equation}
+
+Pressure with gravitational term $\pressure(\Q, z)$,
+stress tensor $\textcolor{orange}{\stressT}$, heat diffusion $\textcolor{orange}{\kappa \nabla T}$ with temperature $T$.
+\end{frame}
+
+\begin{frame}{Problem: Not hyperbolic}
+  ExahyPE (thus far) solves equations of the form (e.g.\ Euler):
+  TODO: Other terms in gray!
+  \begin{equation}
+  \label{eq:conservation-law}
+ \pdv{\Q}{t} + \divergence{\flux(\Q)} = \source(\bm{x}, t, \Q)
+\end{equation}
+
+We have:
+\begin{equation}
+  \label{eq:conservation-law-gradient}
+ \pdv{\Q}{t} + \divergence{\flux(\Q, \textcolor{orange}{\gradQ})} = \source(\bm{x}, t, \Q)
+\end{equation}
+
+\textbf{Solution}:
+Modify numerical flux (Riemann solver), time step size (\textsc{cfl}-Condition) and boundary conditions to \textbf{allow diffusive terms}\footfullcite{dumbser2010arbitrary,gassner2008discontinuous}.
+
+\textcolor{orange}{No explicit discretization} of gradient $\gradQ$.
+\end{frame}
+
+\begin{frame}{Adaptive Mesh Refinement: Indicator}
+  $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ maps solution to indicator variable.
+
+  In our case: potential temperature.
+
+  Total variation of $\bm{x}$ for a cell $\cell$:
+\begin{equation}
+  \label{eq:tv}
+  \tv \left[ f(\bm{x}) \right] =
+  \Vert
+\intdcell{ \vert \gradient{f \left( \bm{x} \right)} \vert }
+\Vert_1
+\end{equation}
+
+\begin{block}{Intuition}
+  \begin{itemize}
+\item \textbf{Large} total variation $\mapsto$ interesting
+\item \textbf{Small} total variation $\mapsto$ boring
+  \end{itemize}
+  \enquote{Edge detection} of numerical solution
+\end{block}
+
+\end{frame}  
+
+\begin{frame}{Adaptive Mesh Refinement: Outliers}
+  \begin{block}{Chebyshev's inequality}
+\begin{equation}
+  \label{eq:chebychev}
+  \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2}
+\end{equation}
+Intuition: Not all variables are outliers.
+Feature detection
+\end{block}
+\end{frame}
+  
+\begin{frame}{Adaptive Mesh Refinement: Global Criterion}
+\begin{block}{Criterion}
+  
+\begin{equation}
+  \label{eq:refinement-criterion}
+  \operatorname{evaluate-refinement}(\Q, \mu, \sigma) =
+  \begin{cases}
+    \text{refine} & \text{if } \tv(\Q) \geq \mu + T_\text{refine} \sigma \\
+    \text{delete} & \text{if } \tv(\Q) < \mu + T_\text{delete} \sigma \\
+    \text{keep} & \text{otherwise}
+    \end{cases}
+\end{equation}
+Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pairwise reduction\footfullcite{chan1982updating}.
+
+Global observables implemented in \exahype{} for \textbf{general} pairwise reductions.
+\end{block}
+\end{frame}  
+
+\begin{frame}
+  \frametitle{AMR vs.\ Fully Refined Grid: Settings \textit{\&} Time
+    To Solution}
+  \begin{block}{Settings}
+    \begin{description}
+    \item[AMR]
+      Mesh with sizes from $\SI{1000/81}{\m} = \SI{12.35}{\m}$ to $\SI{1000/3}{\m} = \SI{333.33}{\m}$.
+
+      Two levels of dynamic AMR.
+
+      $T_\text{refine} = 2.5$ and $T_\text{delete} = -0.5$.
+    \item[Reference] $81 \times 81 = 6561$ cells.
+    \end{description}
+  \end{block}
+  Both polynomial order 5. Viscosity $\mu = 0.01$. (?)
+
+  AMR grid: 1953 cells.
+
+  Relative $L_2$-error between AMR and fully refined: \num{6.69e-6}.
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{AMR vs.\ Fully Refined Grid: Grid}
+
+  Here: Video/Figure of AMR grid
+  %  \begin{figure}[h]
+  %   \centering
+  %   \ifratio{43}{
+  %   \movie[width=0.9\textwidth, height=0.6\textwidth, autostart,, loop, poster]{}{two_bubbles_legendre.ogv}
+  % }{
+  %   \movie[width=0.7\textwidth, height=0.46666\textwidth, autostart,, loop, poster]{}{two_bubbles_legendre.ogv}
+  % }
+  %   \caption{Two bubbles scenario, with \amr{}}
+  % \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{AMR vs.\ Fully Refined Grid: Error}
+
+  Here: Figure AMR error on grid
+%   \begin{figure}[H]
+%     \centering
+%     \ifratio{43}{
+% %\includegraphics[width=0.9\textwidth]{thesis_two_bubbles_amr_error}
+%   } {
+% %\includegraphics[width=0.6\textwidth]{thesis_two_bubbles_amr_error}
+%   }
+% \caption{Potential temperature of fully refined solution minus \amr{} solution.}
+%   \end{figure}
+\end{frame}
+
+\begin{frame}{3D Cosine Bubble}
+  TODO
+\end{frame}
+
+\begin{frame}{MUSCL-Hancock Scheme~\footfullcite{vanLeer1979towards}}
+  Finite Volume scheme: store only \textbf{cell averages}
+
+  \textbf{Reconstruction} of linear function
+
+  \textbf{Second order} in time and space
+
+  \textbf{Stabilized} with (minmod) slope limiter (TODO)
+\end{frame}
+
+\begin{frame}
+  \frametitle{Two Bubbles: Finite Volume}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Other results?}
+  \begin{itemize}
+  \item Taylor-Green?
+  \item ABC-Flow?
+  \item Cavity?
+  \item 2D Cosine bubble?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Summary}
+  \begin{block}{Results}
+  % \begin{itemize}
+  % \item \aderdg{} \textbf{converges} for Navier Stokes equations
+  % \item \aderdg{} shows \textbf{good results} for large set of scenarios (many not shown here!)
+  % \item \amr{}-criterion is \textbf{faster} and tracks cloud \textbf{correctly}.
+  % \item (Limited) \aderdg{} works for reactive Euler \textit{\&} Navier-Stokes
+  % \item All \textbf{extensions} to engine (diffusive fluxes, global observables) useful for \textbf{other users} of \exahype{}.
+  % \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Acknowledgements}
+This project has received funding from the European Union's Horizon 2020 research and
+innovation programme under grant agreement No 823844 (ChEESE) and 671698 (ExaHyPE).
+
+TODO: Grants correct?
+
+TODO: Logos
+\end{frame}
+\end{document}
