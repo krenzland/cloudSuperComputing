@@ -85,9 +85,10 @@
 \newcommand{\cn}{\footnote{\enquote{TODO: Citation.}, 2017, \textbf{Conference}, \textit{Author 1, Author 2, Author 3, Author 4} }}
 
 \title[High-Order DG with Dynamic AMR to Simulate Clouds]{A High-Order Discontinuous Galerkin Solver with Dynamic Adaptive Mesh Refinement to Simulate Cloud Formation Processes}
-\subtitle{PPAM 209}
-\author[L.\ Krenz, L.\ Rannabauer, M.\ Bader]{Lukas Krenz, Leonhard Rannabauer and Michael Bader}
-\date{\today} 
+\subtitle[PPAM]{PPAM 2019}
+%\author[L.\ Krenz, L.\ Rannabauer, M.\ Bader]{Lukas Krenz, Leonhard Rannabauer and Michael Bader}
+\author[Krenz, Rannabauer, Bader]{Lukas Krenz, Leonhard Rannabauer and Michael Bader}
+\date{10th September 2019} 
 \institute{Technical University of Munich}
 
 \begin{document}
@@ -102,9 +103,9 @@
   \end{block}
   \begin{block}{Capabilities}
     \begin{itemize}
-    \item Optimized kernels for ADER-DG and a Finite Volume Scheme
+    \item Numerics: ADER-DG (optimized) \textit{\&} Finite Volume
     \item Dynamic Adaptive Mesh Refinement (AMR)
-    \item Hybrid MPI + Intel TBB Parallelism
+    \item Hybrid MPI + Intel TBB Parallelization
     \end{itemize}
   \end{block}
 
@@ -168,41 +169,104 @@ Implemented in the \textsc{PDE}-Framework \textbf{ExaHyPE}.
 
 
 \begin{frame}{The Navier-Stokes Equations}
-  TODO PDE Conservative form(?)
-  Vector of conserved quantities:
-\begin{equation}
-  \label{eq:conserved-variables}
- \Q = \left( \Qrho, \Qj, \QE \right) 
-\end{equation}
-With $\Qrho$ density of fluid, $\Qj$ velocity density and $\QE$ energy density
+\newcommand{\diffCoeff}{\varepsilon}%
+\newcommand{\hyperFluxDef}{
+  \begin{pmatrix}
+    \Qj \\
+    \Qv  \otimes \Qj + \bm{I} \pressure  \\
+    \Qv \cdot (\bm{I} \QE + \bm{I} \pressure)
+  \end{pmatrix}
+}%
+\newcommand{\viscFluxDef}{
+  \begin{pmatrix}
+    0\\
+     \stressT (\Q, \gradQ)  \\
+     \Qv \cdot \stressT (\Q, \gradQ) - \kappa \gradient{T}
+   \end{pmatrix}
+}%
 
-Flux:
-\begin{equation}
-  F(\Q, \textcolor{orange}{\gradQ}) = 
+  \begin{equation}
+ \label{eq:equation-set} 
+%  \begin{array}{l}
+%  \text{mass cons.} \\
+%  \text{momentum cons.} \\
+%  \text{energy cons.} \\
+%  \text{cont.\ gas} 
+% \end{array}
+% :
+\quad
+  \pdv{}{t}
+  \underbrace{
+  \begin{pmatrix}
+    \Qrho\\
+    \Qj\\
+    \QE
+    \end{pmatrix}}_{\Q}
+  +
+  \divergence{\underbrace{
   \begin{pmatrix}
     \Qj \\
     \Qv  \otimes \Qj + \bm{I} \pressure + \textcolor{orange}{\stressT (\Q, \gradQ)}  \\
     \Qv \cdot \left(\bm{I} \QE + \bm{I} \pressure + \textcolor{orange}{\stressT (\Q, \gradQ)} \right) -
     \textcolor{orange}{\kappa \nabla T}
-  \end{pmatrix}
+  \end{pmatrix}}}_{\flux(\Q, \gradQ)}
+ =
+  \underbrace{
+  \begin{pmatrix}
+    \source[\Qrho\phantom{\Qrho}]\\
+    - \bm{k} \Qrho g\\
+    \source[\QE]
+    \end{pmatrix}}_{\source(\Q, \bm{x}, t)}
 \end{equation}
+
+With $\Qrho$ density of fluid, $\Qj$ velocity density and $\QE$ energy density, $\bm{k}$ unit vector in z-direction.
 
 Pressure with gravitational term $\pressure(\Q, z)$,
 stress tensor $\textcolor{orange}{\stressT}$, heat diffusion $\textcolor{orange}{\kappa \nabla T}$ with temperature $T$.
+
+\textbf{Trick}: cancel out constant background pressure in flux and source
+
 \end{frame}
+
+% \begin{frame}{The Navier-Stokes Equations}
+%   TODO PDE Conservative form(?)
+%   Vector of conserved quantities:
+% \begin{equation}
+%   \label{eq:conserved-variables}
+%  \Q = \left( \Qrho, \Qj, \QE \right) 
+% \end{equation}
+% With $\Qrho$ density of fluid, $\Qj$ velocity density and $\QE$ energy density
+
+% Flux:
+% \begin{equation}
+%   F(\Q, \textcolor{orange}{\gradQ}) = 
+%   \begin{pmatrix}
+%     \Qj \\
+%     \Qv  \otimes \Qj + \bm{I} \pressure + \textcolor{orange}{\stressT (\Q, \gradQ)}  \\
+%     \Qv \cdot \left(\bm{I} \QE + \bm{I} \pressure + \textcolor{orange}{\stressT (\Q, \gradQ)} \right) -
+%     \textcolor{orange}{\kappa \nabla T}
+%   \end{pmatrix}
+% \end{equation}
+
+% Pressure with gravitational term $\pressure(\Q, z)$,
+% stress tensor $\textcolor{orange}{\stressT}$, heat diffusion $\textcolor{orange}{\kappa \nabla T}$ with temperature $T$.
+% \end{frame}
 
 \begin{frame}{Problem: Not hyperbolic}
   ExahyPE (thus far) solves equations of the form (e.g.\ Euler):
-  TODO: Other terms in gray!
   \begin{equation}
   \label{eq:conservation-law}
- \pdv{\Q}{t} + \divergence{\flux(\Q)} = \source(\bm{x}, t, \Q)
+  \mathbf{\textcolor{gray}{P}}\pdv{\Q}{t} + \divergence{\flux(\Q)}
+ +  \textcolor{gray}{\sum_{i=1}^d \mathbf{B}_i (\mathbf{Q}) \pdv{\Q}{x_i}}
+  = \source(\bm{x}, t, \Q)
 \end{equation}
 
 We have:
 \begin{equation}
   \label{eq:conservation-law-gradient}
- \pdv{\Q}{t} + \divergence{\flux(\Q, \textcolor{orange}{\gradQ})} = \source(\bm{x}, t, \Q)
+  \mathbf{\textcolor{gray}{P}}\pdv{\Q}{t} + \divergence{\flux(\Q, \textcolor{orange}{\gradQ})}
+ +  \textcolor{gray}{\sum_{i=1}^d \mathbf{B}_i (\mathbf{Q}) \pdv{\Q}{x_i}}
+  = \source(\bm{x}, t, \Q)
 \end{equation}
 
 \textbf{Solution}:
@@ -212,11 +276,10 @@ Modify numerical flux (Riemann solver), time step size (\textsc{cfl}-Condition) 
 \end{frame}
 
 \begin{frame}{Adaptive Mesh Refinement: Indicator}
-  $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ maps solution to indicator variable.
+  \begin{block}{Total Variation}
+  $\bm{f}(\bm{x}): \mathbb{R}^{N_\text{vars}} \to \mathbb{R}$ maps solution to indicator variable (here: potential temperature).
 
-  In our case: potential temperature.
-
-  Total variation of $\bm{x}$ for a cell $\cell$:
+  Total variation of $\bm{f}$ for a cell $\cell$:
 \begin{equation}
   \label{eq:tv}
   \tv \left[ f(\bm{x}) \right] =
@@ -224,6 +287,8 @@ Modify numerical flux (Riemann solver), time step size (\textsc{cfl}-Condition) 
 \intdcell{ \vert \gradient{f \left( \bm{x} \right)} \vert }
 \Vert_1
 \end{equation}
+    
+  \end{block}
 
 \begin{block}{Intuition}
   \begin{itemize}
@@ -241,9 +306,17 @@ Modify numerical flux (Riemann solver), time step size (\textsc{cfl}-Condition) 
   \label{eq:chebychev}
   \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2}
 \end{equation}
-Intuition: Not all variables are outliers.
+Mean $\mu$, standard deviation $\sigma$, constant $c$
+
+Better bounds exist with further assumptions on distribution.
+\end{block}
+
+\begin{block}{Intuition}
+Not all variables are sufficiently special.
+
 Feature detection
 \end{block}
+
 \end{frame}
   
 \begin{frame}{Adaptive Mesh Refinement: Global Criterion}
@@ -259,8 +332,6 @@ Feature detection
     \end{cases}
 \end{equation}
 Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pairwise reduction\footfullcite{chan1982updating}.
-
-Global observables implemented in \exahype{} for \textbf{general} pairwise reductions.
 \end{block}
 \end{frame}  
 
@@ -332,21 +403,19 @@ Global observables implemented in \exahype{} for \textbf{general} pairwise reduc
 
 \begin{frame}
   \frametitle{Two Bubbles: Finite Volume}
-  
-\end{frame}
-
-\begin{frame}
-  \frametitle{Other results?}
-  \begin{itemize}
-  \item Taylor-Green?
-  \item ABC-Flow?
-  \item Cavity?
-  \item 2D Cosine bubble?
-  \end{itemize}
+ TODO  
 \end{frame}
 
 \begin{frame}{Summary}
   \begin{block}{Results}
+    \begin{itemize}
+    \item \textbf{ADER-DG} can be used to simulate Navier-Stokes equations.
+    \item Total variation \textbf{measures edges} of numerical solution.
+    \item Chebyshev's criterion finds \textbf{interesting cells}.
+    \item Combination of both \textbf{accurately tracks} cloud.
+    \item AMR solution is close to fully refined solution but \textbf{faster}.
+    \item \textbf{Artifical viscosity} of finite volume has a similar effect to \textbf{physical viscosity} of Navier-Stokes.  
+    \end{itemize}
   % \begin{itemize}
   % \item \aderdg{} \textbf{converges} for Navier Stokes equations
   % \item \aderdg{} shows \textbf{good results} for large set of scenarios (many not shown here!)
@@ -359,10 +428,12 @@ Global observables implemented in \exahype{} for \textbf{general} pairwise reduc
 
 \begin{frame}{Acknowledgements}
 This project has received funding from the European Union's Horizon 2020 research and
-innovation programme under grant agreement No 823844 (ChEESE) and 671698 (ExaHyPE).
+innovation programme under grant agreement No 823844 (\textbf{ChEESE}) and 671698 (\textbf{ExaHyPE}).
 
 TODO: Grants correct?
 
-TODO: Logos
+\begin{center}
+\includegraphics[width=0.7\textwidth]{logos}
+\end{center}
 \end{frame}
 \end{document}
