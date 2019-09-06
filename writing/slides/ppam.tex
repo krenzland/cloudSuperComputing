@@ -116,24 +116,22 @@
   \begin{columns}
     \begin{column}[t]{0.5\textwidth}
       \begin{itemize}
-      \item 
-  Air is in hydrostatic equilibrium:
+      \item Air is in hydrostatic equilibrium:
 
   Gravitational force and pressure-gradient force are \textbf{exactly balanced}.
 
   \item Constant potential temperature (temperature normalized by pressure) with larger, warm bubble and small, cold bubble on top.
-      
   \end{itemize}
     \end{column}~%
     \begin{column}[t]{0.5\textwidth}
-      \begin{figure}[h]
-        \ifratio{43}{
+      \begin{center}
+%        \ifratio{43}{
           %\includegraphics{beamer_43_hydrostatic_equilibrium}
-        } {
-          %\includegraphics{beamer_169_hydrostatic_equilibrium}
-        }
-\caption{Background pressure in equilibrium}
-\end{figure}
+%        } {
+          \includegraphics[trim={0 0 0 0.5cm}, clip]{ppam_hydrostatic}
+%        }
+Background pressure in equilibrium
+\end{center}
     \end{column}
   \end{columns}
 \end{frame}
@@ -206,7 +204,7 @@ Elements are connected by solving the Riemann problem.
     \Qv  \otimes \Qj + \bm{I} \pressure + \textcolor{orange}{\stressT (\Q, \gradQ)}  \\
     \Qv \cdot \left(\bm{I} \QE + \bm{I} \pressure + \textcolor{orange}{\stressT (\Q, \gradQ)} \right) -
     \textcolor{orange}{\kappa \nabla T}
-  \end{pmatrix}}}_{\flux(\Q, \gradQ)}
+  \end{pmatrix}}}_{\flux(\Q, \textcolor{orange}{\gradQ})}
  =
   \underbrace{
   \begin{pmatrix}
@@ -434,7 +432,6 @@ innovation programme under grant agreement No 823844 (\textbf{ChEESE}) and 67169
 
 \begin{frame}
   \frametitle{Shared-Memory Scaling (from\footfullcite{reinarz2019exahype})}
-
   \begin{center}
   \includegraphics[width=0.4\textwidth]{speedup_tbb}
   \end{center}
