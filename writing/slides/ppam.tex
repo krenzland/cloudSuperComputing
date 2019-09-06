@@ -394,9 +394,20 @@ Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pai
 
 \begin{frame}
   \frametitle{Two Bubbles: Finite Volume}
+  \begin{columns}
+    \begin{column}{0.6\textwidth}
   \begin{center}
-    \includegraphics[width=0.6\textwidth]{paper_two_bubbles_fv}
+    \includegraphics[width=1.0\textwidth]{paper_two_bubbles_fv}
   \end{center}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \begin{itemize}
+      \item $7^2$ patches with $90^2$ cells each
+      \item Euler equations ($\mu = 0$)
+      \item Numerical viscosity smooths solution
+      \end{itemize}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{Summary}
@@ -409,13 +420,6 @@ Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pai
     \item AMR solution is close to fully refined solution but needs \textbf{fewer} cells.
     \item \textbf{Artificial viscosity} of finite volume has a similar effect as \textbf{physical viscosity} of Navier-Stokes.  
     \end{itemize}
-  % \begin{itemize}
-  % \item \aderdg{} \textbf{converges} for Navier Stokes equations
-  % \item \aderdg{} shows \textbf{good results} for large set of scenarios (many not shown here!)
-  % \item \amr{}-criterion is \textbf{faster} and tracks cloud \textbf{correctly}.
-  % \item (Limited) \aderdg{} works for reactive Euler \textit{\&} Navier-Stokes
-  % \item All \textbf{extensions} to engine (diffusive fluxes, global observables) useful for \textbf{other users} of \exahype{}.
-  % \end{itemize}
   \end{block}
 \end{frame}
 
