@@ -140,16 +140,14 @@
 
 \begin{frame}
   \frametitle{Two Bubbles: Simulation}
-  %  \begin{figure}[h]
-  %   \centering
-  %   \ifratio{43}{
-  %   \movie[width=0.9\textwidth, height=0.6\textwidth, autostart,, loop, poster]{}{two_bubbles_cartesian.ogv}
-  % } {
-  %   \movie[width=0.7\textwidth, height=0.466666\textwidth, autostart,, loop, poster]{}{two_bubbles_cartesian.ogv}
-  % }
-  %   \caption{Two Bubbles scenario}
-  % \end{figure}
-  Here: AMR simulation of two bubbles scenario (video)
+  \begin{center}
+   \ifratio{43}{
+%   \movie[width=0.9\textwidth, height=0.466666\textwidth, autostart,, loop, poster]{}{ppam_two_bubbles_cart.ogv}
+ } {
+   % todo: compute aspect ratio
+   \movie[width=0.5\textwidth, height=0.31891168599\textwidth,autostart,, loop, poster]{}{ppam_two_bubbles_cart.ogv}
+ }
+  \end{center}
 \end{frame}
 
 \begin{frame}{The ADER-DG Approach\footfullcite{dumbser2008unified}}
@@ -160,11 +158,10 @@
 \end{equation}
 with $\Q$ vector of conserved variables, $\bm{x}$ position, $t$ time,  $\divergence{\flux(\Q)}$ divergence of flux and $\source(\bm{x}, t, \Q)$ source term.
 
-\textbf{Discontinuous Galerkin} (\textsc{DG}) divides domain into disjoint elements, approximates solutions by piecewise-polynomials.
+\textbf{Discontinuous Galerkin} (DG) divides domain into disjoint elements, approximates solutions by piecewise-polynomials.
 Elements are connected by solving the Riemann problem.
 
-
-Implemented in the \textsc{PDE}-Framework \textbf{ExaHyPE}.
+\textbf{ADER}-Approach uses space-time polynomials for time integration instead of Runge-Kutta procedures.
 \end{frame}
 
 
@@ -219,7 +216,7 @@ Implemented in the \textsc{PDE}-Framework \textbf{ExaHyPE}.
     \end{pmatrix}}_{\source(\Q, \bm{x}, t)}
 \end{equation}
 
-With $\Qrho$ density of fluid, $\Qj$ velocity density and $\QE$ energy density, $\bm{k}$ unit vector in z-direction.
+With $\Qrho$ density of fluid, $\Qj$ velocity density, $\QE$ energy density, and $\bm{k}$ unit vector in z-direction.
 
 Pressure with gravitational term $\pressure(\Q, z)$,
 stress tensor $\textcolor{orange}{\stressT}$, heat diffusion $\textcolor{orange}{\kappa \nabla T}$ with temperature $T$.
@@ -228,32 +225,8 @@ stress tensor $\textcolor{orange}{\stressT}$, heat diffusion $\textcolor{orange}
 
 \end{frame}
 
-% \begin{frame}{The Navier-Stokes Equations}
-%   TODO PDE Conservative form(?)
-%   Vector of conserved quantities:
-% \begin{equation}
-%   \label{eq:conserved-variables}
-%  \Q = \left( \Qrho, \Qj, \QE \right) 
-% \end{equation}
-% With $\Qrho$ density of fluid, $\Qj$ velocity density and $\QE$ energy density
-
-% Flux:
-% \begin{equation}
-%   F(\Q, \textcolor{orange}{\gradQ}) = 
-%   \begin{pmatrix}
-%     \Qj \\
-%     \Qv  \otimes \Qj + \bm{I} \pressure + \textcolor{orange}{\stressT (\Q, \gradQ)}  \\
-%     \Qv \cdot \left(\bm{I} \QE + \bm{I} \pressure + \textcolor{orange}{\stressT (\Q, \gradQ)} \right) -
-%     \textcolor{orange}{\kappa \nabla T}
-%   \end{pmatrix}
-% \end{equation}
-
-% Pressure with gravitational term $\pressure(\Q, z)$,
-% stress tensor $\textcolor{orange}{\stressT}$, heat diffusion $\textcolor{orange}{\kappa \nabla T}$ with temperature $T$.
-% \end{frame}
-
 \begin{frame}{Problem: Not hyperbolic}
-  ExahyPE (thus far) solves equations of the form (e.g.\ Euler):
+  ExaHyPE (thus far) solves equations of the form (e.g.\ Euler):
   \begin{equation}
   \label{eq:conservation-law}
   \mathbf{\textcolor{gray}{P}}\pdv{\Q}{t} + \divergence{\flux(\Q)}
@@ -270,7 +243,7 @@ We have:
 \end{equation}
 
 \textbf{Solution}:
-Modify numerical flux (Riemann solver), time step size (\textsc{cfl}-Condition) and boundary conditions to \textbf{allow diffusive terms}\footfullcite{dumbser2010arbitrary,gassner2008discontinuous}.
+Modify numerical flux (Riemann solver), time step size (cfl-Condition) and boundary conditions to \textbf{allow diffusive terms}\footfullcite{dumbser2010arbitrary,gassner2008discontinuous}.
 
 \textcolor{orange}{No explicit discretization} of gradient $\gradQ$.
 \end{frame}
@@ -300,11 +273,11 @@ Modify numerical flux (Riemann solver), time step size (\textsc{cfl}-Condition) 
 
 \end{frame}  
 
-\begin{frame}{Adaptive Mesh Refinement: Outliers}
+\begin{frame}{Adaptive Mesh Refinement: Feature Detection}
   \begin{block}{Chebyshev's inequality}
 \begin{equation}
   \label{eq:chebychev}
-  \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \frac{1}{c^2}
+  \mathbb{P}(\vert X - \mu \vert \geq c \sigma) \leq \nicefrac{1}{c^2}
 \end{equation}
 Mean $\mu$, standard deviation $\sigma$, constant $c$
 
@@ -326,11 +299,13 @@ Feature detection
   \label{eq:refinement-criterion}
   \operatorname{evaluate-refinement}(\Q, \mu, \sigma) =
   \begin{cases}
-    \text{refine} & \text{if } \tv(\Q) \geq \mu + T_\text{refine} \sigma \\
-    \text{delete} & \text{if } \tv(\Q) < \mu + T_\text{delete} \sigma \\
+    \text{refine} & \text{if } \tv\left(\bm{f}(\Q)\right) \geq \mu + T_\text{refine} \sigma \\
+    \text{delete} & \text{if } \tv\left(\bm{f}(\Q)\right) < \mu + T_\text{delete} \sigma \\
     \text{keep} & \text{otherwise}
     \end{cases}
 \end{equation}
+Choose $T_\text{refine}$ and $T_\text{delete}$ according to cost-quality trade-off.
+
 Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pairwise reduction\footfullcite{chan1982updating}.
 \end{block}
 \end{frame}  
@@ -349,24 +324,24 @@ Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pai
     \item[Reference] $81 \times 81 = 6561$ cells.
     \end{description}
   \end{block}
-  Both polynomial order 5. Viscosity $\mu = 0.01$. (?)
+  Both polynomial order 6. Viscosity $\mu = 0.01$.
 
-  AMR grid: 1953 cells.
+  AMR grid: 1953 cells. Less than \textbf{30\%} of full grid!
 
-  Relative $L_2$-error between AMR and fully refined: \num{6.69e-6}.
+  Relative $L_2$-error between AMR and fully refined: \num{2.6e-6}.
 \end{frame}
 
 
 \begin{frame}
   \frametitle{AMR vs.\ Fully Refined Grid: Grid}
-
-  Here: Video/Figure of AMR grid
   %  \begin{figure}[h]
   %   \centering
   %   \ifratio{43}{
   %   \movie[width=0.9\textwidth, height=0.6\textwidth, autostart,, loop, poster]{}{two_bubbles_legendre.ogv}
   % }{
-  %   \movie[width=0.7\textwidth, height=0.46666\textwidth, autostart,, loop, poster]{}{two_bubbles_legendre.ogv}
+  \begin{center}
+   \movie[width=0.5\textwidth, height=0.318911685990\textwidth, autostart,, loop, poster]{}{ppam_two_bubbles_leg.ogv}
+  \end{center}
   % }
   %   \caption{Two bubbles scenario, with \amr{}}
   % \end{figure}
@@ -374,36 +349,54 @@ Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pai
 
 \begin{frame}
   \frametitle{AMR vs.\ Fully Refined Grid: Error}
-
-  Here: Figure AMR error on grid
-%   \begin{figure}[H]
-%     \centering
+  \begin{figure}[H]
+     \centering
 %     \ifratio{43}{
 % %\includegraphics[width=0.9\textwidth]{thesis_two_bubbles_amr_error}
 %   } {
-% %\includegraphics[width=0.6\textwidth]{thesis_two_bubbles_amr_error}
+\includegraphics[width=0.55\textwidth]{ppam_two_bubbles_amr_error}
 %   }
-% \caption{Potential temperature of fully refined solution minus \amr{} solution.}
-%   \end{figure}
+ \caption*{Potential temperature of fully refined solution minus AMR solution.}
+   \end{figure}
 \end{frame}
 
-\begin{frame}{3D Cosine Bubble}
-  TODO
+\begin{frame}{3D Cosine Bubble\footfullcite{kelly2012continuous}}
+  \begin{columns}
+    \begin{column}{0.6\textwidth}
+  \begin{center}
+    \includegraphics[width=0.85\textwidth]{ppam_cosine_bubble_3d}
+  \end{center}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \begin{itemize}
+      \item Polynomial Order 3
+      \item $25^3$ cells
+      \item Time: \SI{400}{\s}
+      \item Viscosity: $\mu = 0.05$
+      \end{itemize}
+    \end{column}
+
+  \end{columns}
 \end{frame}
 
-\begin{frame}{MUSCL-Hancock Scheme~\footfullcite{vanLeer1979towards}}
+
+\begin{frame}{MUSCL-Hancock Scheme}
   Finite Volume scheme: store only \textbf{cell averages}
 
   \textbf{Reconstruction} of linear function
 
-  \textbf{Second order} in time and space
+  \textbf{Second order} in time and space\footfullcite{vanLeer1979towards}
 
-  \textbf{Stabilized} with (minmod) slope limiter (TODO)
+  \textbf{Stabilized} with (Van Albada~\footfullcite{van1997comparative}) slope limiter
+
+  Very stable, larger \textbf{numerical viscosity}
 \end{frame}
 
 \begin{frame}
   \frametitle{Two Bubbles: Finite Volume}
- TODO  
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{paper_two_bubbles_fv}
+  \end{center}
 \end{frame}
 
 \begin{frame}{Summary}
@@ -413,8 +406,8 @@ Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pai
     \item Total variation \textbf{measures edges} of numerical solution.
     \item Chebyshev's criterion finds \textbf{interesting cells}.
     \item Combination of both \textbf{accurately tracks} cloud.
-    \item AMR solution is close to fully refined solution but \textbf{faster}.
-    \item \textbf{Artifical viscosity} of finite volume has a similar effect to \textbf{physical viscosity} of Navier-Stokes.  
+    \item AMR solution is close to fully refined solution but needs \textbf{fewer} cells.
+    \item \textbf{Artificial viscosity} of finite volume has a similar effect as \textbf{physical viscosity} of Navier-Stokes.  
     \end{itemize}
   % \begin{itemize}
   % \item \aderdg{} \textbf{converges} for Navier Stokes equations
@@ -426,14 +419,21 @@ Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pai
   \end{block}
 \end{frame}
 
-\begin{frame}{Acknowledgements}
+\begin{frame}{Acknowledgments}
 This project has received funding from the European Union's Horizon 2020 research and
 innovation programme under grant agreement No 823844 (\textbf{ChEESE}) and 671698 (\textbf{ExaHyPE}).
-
-TODO: Grants correct?
 
 \begin{center}
 \includegraphics[width=0.7\textwidth]{logos}
 \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Shared-Memory Scaling (from\footfullcite{reinarz2019exahype})}
+
+  \begin{center}
+  \includegraphics[width=0.4\textwidth]{speedup_tbb}
+  \end{center}
+  
 \end{frame}
 \end{document}
