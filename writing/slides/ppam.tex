@@ -1,8 +1,6 @@
 % https://tex.stackexchange.com/questions/123106/detect-aspect-ratio-in-beamer?noredirect=1&lq=1
 \documentclass[aspectratio=169]{beamer}
-%\documentclass[]{beamer}
-%\usepackage{eulervm}
-%\usetheme{metropolis} % Use metropolis theme
+%\documentclass[aspectratio=43]{beamer}
 \usepackage[conference]{beamertheme_tumtalk} % headline and footline
 \usepackage{beamercolorscheme_tum} % colorscheme
 \usepackage{beamerfontthemestructurebold} % bold headings
@@ -72,19 +70,13 @@
 
 \input{ifaspectratio.tex}
 
-% \newcommand{\Qrho}{\ensuremath{\rho}}
-% \newcommand{\Qj}{\ensuremath{\rho \bm{v}}}
-% %\newcommand{\Qv}{\ensuremath{\Qrho^{-1} \Qj}}
-% \newcommand{\Qv}{\ensuremath{\bm{v}}}
-% \newcommand{\QE}{\ensuremath{\rho E}}
-% \newcommand{\stressT}{\ensuremath{\bm{\sigma}}}
-% \newcommand{\pressure}{\ensuremath{p}}
-% \newcommand{\maxConvEigen}{\ensuremath{\vert \lambda_c^{\text{max}} \vert}}
-% \newcommand{\maxViscEigen}{\ensuremath{\vert \lambda_v^{\text{max}} \vert}}
-
 \newcommand{\cn}{\footnote{\enquote{TODO: Citation.}, 2017, \textbf{Conference}, \textit{Author 1, Author 2, Author 3, Author 4} }}
 
+\ifratio{43} {
+\title[DG w/ AMR for Cloud Simulation]{A High-Order Discontinuous Galerkin Solver with Dynamic Adaptive Mesh Refinement to Simulate Cloud Formation Processes}
+} {
 \title[High-Order DG with Dynamic AMR to Simulate Clouds]{A High-Order Discontinuous Galerkin Solver with Dynamic Adaptive Mesh Refinement to Simulate Cloud Formation Processes}
+}
 \subtitle[PPAM]{PPAM 2019}
 %\author[L.\ Krenz, L.\ Rannabauer, M.\ Bader]{Lukas Krenz, Leonhard Rannabauer and Michael Bader}
 \author[Krenz, Rannabauer, Bader]{Lukas Krenz, Leonhard Rannabauer and Michael Bader}
@@ -125,11 +117,12 @@
     \end{column}~%
     \begin{column}[t]{0.5\textwidth}
       \begin{center}
-%        \ifratio{43}{
+        \ifratio{43}{
           %\includegraphics{beamer_43_hydrostatic_equilibrium}
-%        } {
+          \includegraphics[scale=0.8,trim={0 0 0 0.5cm}, clip]{ppam_hydrostatic}
+        } {
           \includegraphics[trim={0 0 0 0.5cm}, clip]{ppam_hydrostatic}
-%        }
+        }
 Background pressure in equilibrium
 \end{center}
     \end{column}
@@ -140,7 +133,7 @@ Background pressure in equilibrium
   \frametitle{Two Bubbles: Simulation}
   \begin{center}
    \ifratio{43}{
-%   \movie[width=0.9\textwidth, height=0.466666\textwidth, autostart,, loop, poster]{}{ppam_two_bubbles_cart.ogv}
+   \movie[width=0.8\textwidth, height=0.5009502090459902\textwidth,autostart,loop , poster]{}{ppam_two_bubbles_cart.ogv}
  } {
    % todo: compute aspect ratio
    %\movie[width=0.5\textwidth, height=0.31891168599\textwidth,autostart,, loop, poster]{}{ppam_two_bubbles_cart.ogv}
@@ -314,7 +307,7 @@ Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pai
   \begin{block}{Settings}
     \begin{description}
     \item[AMR]
-      Mesh with sizes from $\SI{1000/81}{\m} = \SI{12.35}{\m}$ to $\SI{1000/3}{\m} = \SI{333.33}{\m}$.
+      Mesh with sizes from $\SI{1000/81}{\m} \approx \SI{12.35}{\m}$ to $\SI{1000/3}{\m} \approx \SI{333.33}{\m}$.
 
       Two levels of dynamic AMR.
 
@@ -341,7 +334,12 @@ Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pai
   %   \movie[width=0.9\textwidth, height=0.6\textwidth, autostart,, loop, poster]{}{two_bubbles_legendre.ogv}
   % }{
   \begin{center}
+     \ifratio{43}{
+   \movie[width=0.8\textwidth, height=0.5102586975840001\textwidth, autostart,, loop, poster]{}{ppam_two_bubbles_leg.ogv}
+
+       } {
    \movie[width=0.6\textwidth, height=0.382694023188\textwidth, autostart,, loop, poster]{}{ppam_two_bubbles_leg.ogv}
+   }
   \end{center}
   % }
   %   \caption{Two bubbles scenario, with \amr{}}
@@ -352,11 +350,11 @@ Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pai
   \frametitle{AMR vs.\ Fully Refined Grid: Error}
   \begin{figure}[H]
      \centering
-%     \ifratio{43}{
-% %\includegraphics[width=0.9\textwidth]{thesis_two_bubbles_amr_error}
-%   } {
+     \ifratio{43}{
+\includegraphics[width=0.7\textwidth]{ppam_two_bubbles_amr_error}
+   } {
 \includegraphics[width=0.55\textwidth]{ppam_two_bubbles_amr_error}
-%   }
+   }
  \caption*{Potential temperature of fully refined solution minus AMR solution.}
    \end{figure}
 \end{frame}
@@ -365,7 +363,11 @@ Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pai
   \begin{columns}
     \begin{column}{0.6\textwidth}
   \begin{center}
+    \ifratio{43}{
+    \includegraphics[width=0.95\textwidth]{ppam_cosine_bubble_3d}
+    } {
     \includegraphics[width=0.85\textwidth]{ppam_cosine_bubble_3d}
+    }
   \end{center}
     \end{column}
     \begin{column}{0.4\textwidth}
@@ -434,7 +436,11 @@ innovation programme under grant agreement No 823844 (\textbf{ChEESE}) and 67169
 \begin{frame}
   \frametitle{Shared-Memory Scaling (from\footfullcite{reinarz2019exahype})}
   \begin{center}
+    \ifratio{43}{
+  \includegraphics[width=0.5\textwidth]{speedup_tbb}
+    } {
   \includegraphics[width=0.4\textwidth]{speedup_tbb}
+    }
   \end{center}
   
 \end{frame}
