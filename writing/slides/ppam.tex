@@ -25,7 +25,7 @@
   style=verbose,
   citestyle=verbose,
   hyperref=true,
-  maxnames=99,
+  maxnames=3,
   minnames=1,
   maxbibnames=99,
   firstinits,
@@ -143,7 +143,8 @@ Background pressure in equilibrium
 %   \movie[width=0.9\textwidth, height=0.466666\textwidth, autostart,, loop, poster]{}{ppam_two_bubbles_cart.ogv}
  } {
    % todo: compute aspect ratio
-   \movie[width=0.5\textwidth, height=0.31891168599\textwidth,autostart,, loop, poster]{}{ppam_two_bubbles_cart.ogv}
+   %\movie[width=0.5\textwidth, height=0.31891168599\textwidth,autostart,, loop, poster]{}{ppam_two_bubbles_cart.ogv}
+   \movie[width=0.6\textwidth, height=0.37571265678449256\textwidth,autostart,loop , poster]{}{ppam_two_bubbles_cart.ogv}
  }
   \end{center}
 \end{frame}
@@ -219,7 +220,7 @@ With $\Qrho$ density of fluid, $\Qj$ velocity density, $\QE$ energy density, and
 Pressure with gravitational term $\pressure(\Q, z)$,
 stress tensor $\textcolor{orange}{\stressT}$, heat diffusion $\textcolor{orange}{\kappa \nabla T}$ with temperature $T$.
 
-\textbf{Trick}: cancel out constant background pressure in flux and source
+\textbf{Trick}: cancel out constant background pressure in flux and source.
 
 \end{frame}
 
@@ -241,9 +242,9 @@ We have:
 \end{equation}
 
 \textbf{Solution}:
-Modify numerical flux (Riemann solver), time step size (cfl-Condition) and boundary conditions to \textbf{allow diffusive terms}\footfullcite{dumbser2010arbitrary,gassner2008discontinuous}.
+Modify numerical flux (Riemann solver), time step size (CFL-condition) and boundary conditions to \textbf{allow diffusive terms}\footfullcite{dumbser2010arbitrary,gassner2008discontinuous}.
 
-\textcolor{orange}{No explicit discretization} of gradient $\gradQ$.
+\textbf{No explicit discretization} of gradient \textcolor{orange}{$\gradQ$}.
 \end{frame}
 
 \begin{frame}{Adaptive Mesh Refinement: Indicator}
@@ -302,15 +303,14 @@ Feature detection
     \text{keep} & \text{otherwise}
     \end{cases}
 \end{equation}
-Choose $T_\text{refine}$ and $T_\text{delete}$ according to cost-quality trade-off.
+Choose $T_\text{refine}$ and $T_\text{delete}$ according to cost-accuracy trade-off.
 
 Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pairwise reduction\footfullcite{chan1982updating}.
 \end{block}
 \end{frame}  
 
 \begin{frame}
-  \frametitle{AMR vs.\ Fully Refined Grid: Settings \textit{\&} Time
-    To Solution}
+  \frametitle{AMR vs.\ Fully Refined Grid}
   \begin{block}{Settings}
     \begin{description}
     \item[AMR]
@@ -322,11 +322,14 @@ Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pai
     \item[Reference] $81 \times 81 = 6561$ cells.
     \end{description}
   \end{block}
-  Both polynomial order 6. Viscosity $\mu = 0.01$.
+  Both polynomial order 6. Viscosity $\mu = 0.01$. Simulate until $t_\text{end} = \SI{600}{\s}$.
 
+  \begin{block}{Results}
   AMR grid: 1953 cells. Less than \textbf{30\%} of full grid!
 
   Relative $L_2$-error between AMR and fully refined: \num{2.6e-6}.
+    
+  \end{block}
 \end{frame}
 
 
@@ -338,7 +341,7 @@ Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pai
   %   \movie[width=0.9\textwidth, height=0.6\textwidth, autostart,, loop, poster]{}{two_bubbles_legendre.ogv}
   % }{
   \begin{center}
-   \movie[width=0.5\textwidth, height=0.318911685990\textwidth, autostart,, loop, poster]{}{ppam_two_bubbles_leg.ogv}
+   \movie[width=0.6\textwidth, height=0.382694023188\textwidth, autostart,, loop, poster]{}{ppam_two_bubbles_leg.ogv}
   \end{center}
   % }
   %   \caption{Two bubbles scenario, with \amr{}}
@@ -409,16 +412,14 @@ Computation of mean $\mu$, standard deviation $\sigma$ with \textbf{stable}, pai
 \end{frame}
 
 \begin{frame}{Summary}
-  \begin{block}{Results}
     \begin{itemize}
     \item \textbf{ADER-DG} can be used to simulate Navier-Stokes equations.
     \item Total variation \textbf{measures edges} of numerical solution.
     \item Chebyshev's criterion finds \textbf{interesting cells}.
     \item Combination of both \textbf{accurately tracks} cloud.
     \item AMR solution is close to fully refined solution but needs \textbf{fewer} cells.
-    \item \textbf{Artificial viscosity} of finite volume has a similar effect as \textbf{physical viscosity} of Navier-Stokes.  
+    \item \textbf{Artificial viscosity} of Finite Volume has a similar effect as \textbf{physical viscosity} of Navier-Stokes.  
     \end{itemize}
-  \end{block}
 \end{frame}
 
 \begin{frame}{Acknowledgments}
