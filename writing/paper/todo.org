@@ -3,6 +3,8 @@
 - Settings supercomputers/parallel performance/etc. (Rev2/Rev3/Rev4)
 - Better settings (Rev2/Rev4)
 - Fewer exaggerations, especially ("All together, our method can be seen as a perfect candidate for large scale cloud simulation runs on current and future super computers").
+- Comparison of performance with [12] (A. Müller et al. “An adaptive discontinuous Galerkin method for modeling
+cumulus clouds.”).
 
 ** Rev1
 - For the third scenario, a comparison of the performance with [12] would
