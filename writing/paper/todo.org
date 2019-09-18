@@ -1,0 +1,44 @@
+* Content
+- Want numerical comparison to analytical solutions (Rev1/Rev4)  
+- Settings supercomputers/parallel performance/etc. (Rev2/Rev3/Rev4)
+- Better settings (Rev2/Rev4)
+- Fewer exaggerations, especially ("All together, our method can be seen as a perfect candidate for large scale cloud simulation runs on current and future super computers").
+
+** Rev1
+- For the third scenario, a comparison of the performance with [12] would
+be useful.
+- A discussion of related work is missing. (??)
+** Rev 2
+- Still there are no results of parallel experiments. 
+-  Also I strongly recommend to
+add results for some real application.
+** Rev 3
+- The weak part of the manuscript is lack of the information on computational performance of the algorithms. While the parallelization techniques and dynamic adaptive mesh refinement are available for simulations their implementations are left as a black box. The computational aspects (algorithms performance, parallel scalability or even the load balance strategies for the AMR) would be very interesting for all PPAM attenders.
+- "All together, our method can be seen as a perfect candidate for large scale cloud simulation runs on current and future super computers".
+Weakly supported! 
+"All scenarios were conducted in small scale, either CFD or the explicit could resolving scenarios."
+"There is no support in the current paper for a claim that the solver is efficient on any current supercomputers (either massively parallel or accelerator based systems), neither any analysis is performed for assessing code portability to future systems."
+** Rev 4
+- The authors have not presented any results of performance and scaling efficiency of the parallel code.
+- What are the parameters of the computational infrastructure (the number of cluster nodes, CPU cores, processes and threads used in the simulations)?
+- What is the typical computation time (computations, communications…)?   
+- How have the proposed modifications affected the computation time?
+- How well the code scales when increasing the number of cluster nodes?
+- The results of comparison with other methods are presented only as figures. I am sure that the obtained results are correct, but the authors might consider presenting the numerical results of the comparison, for example, by determining the deviation from a known analytical solution.
+
+    
+* Editorial
+** Rev 3
+- the enumeration for the figures should follow the order of scenarios presented in the main text of the chapter 4:
+
+Taylor-Green vortex. -> 1a (currently 1b)
+Arnold-Beltrami-Childress (ABC) -> 1b (currently 2)
+lid-driven cavity flow -> 1c or 2 (currently 1a)
+
+- figure 2 (ABC flow) should be presented along with other CFD scenarios, Current figure 3 fits better for a comparison with Figure 4 at sub-panels with the similar size.
+
+- figure 5: both 2D panels may be significantly larger, this may be achieved by moving colorbars from sides to the bottom.
+
+- two groups of scenarios should be split for the separate sub-chapters:
+4.1 Standard CFD scenarios
+4.2 Stratified flow scenarios 
