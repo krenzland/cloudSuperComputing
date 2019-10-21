@@ -11,24 +11,21 @@
 %\usepackage[T1]{fontenc}
 \usepackage[american]{babel}
 \usepackage[autostyle, english = american]{csquotes}
-\usepackage[%
-  backend=biber,
-  url=false,
-  doi=false,
-  % style=alphabetic,
-  % backref=true,
-  % hyperref=true,
-  maxnames=3,
-  % minnames=3,
-  % maxbibnames=99,
-  firstinits=true,
-  % uniquename=init
-  ]{biblatex}
-\DefineBibliographyStrings{english}{%
-  backrefpage = {see p.},
-  backrefpages = {see pp.}
-}
-\addbibresource{../bibliography.bib}
+% \usepackage[%
+%   backend=biber,
+%   url=false,
+%   doi=false,
+%   % style=alphabetic,
+%   % backref=true,
+%   % hyperref=true,
+%   maxnames=3,
+%   % minnames=3,
+%   % maxbibnames=99,
+%   firstinits=true,
+%   % uniquename=init
+%   ]{biblatex}
+% \addbibresource{../bibliography.bib}
+\newcommand{\citeauthor}{???}
 
 \usepackage{caption}
 \usepackage{subcaption}
@@ -106,7 +103,7 @@ Additionally, \aderdg{} is a communication avoiding scheme and reduces the overh
 We see our scheme in the regime of already established methods for cloud simulations, as seen for example in~\cite{giraldo2008study,muller2010adaptive,muller2018strong}.
 
 Due to the viscous components of the Navier-Stokes equations, it is not straightforward to apply the \aderdg{} formalism of~\cite{dumbser2008unified}, which addresses hyperbolic systems of partial differentials equations (\pde{}s) in first-order formulation.
-To include viscosity, we use the numerical flux for the compressible Navier-Stokes equations of \citeauthor{gassner2008discontinuous}~\cite{gassner2008discontinuous}.
+To include viscosity, we use the numerical flux for the compressible Navier-Stokes equations of Gassner et al.~\cite{gassner2008discontinuous}.
 This flux has already been applied to the \aderdg{} method in~\cite{dumbser2010arbitrary}.
 In contrast to this paper, we focus on the simulation of complex flows with a gravitational source term and a realistic background atmosphere.
 Additionally, we use adaptive mesh refinement (\textsc{amr}) to increase the spatial resolution in areas of interest.
@@ -439,6 +436,7 @@ where $s$ is the decay rate and $r$  is the radius to the center
 \end{equation}
 i.e., $r$ denotes the Euclidean distance between the spatial positions $\bm{x} = (x, z)$ and the center of a bubble $\bm{x_c} = (x_c, z_c)$ -- for three-dimensional scenarios $\bm{x}$ and $\bm{x_c}$ also contain a $y$ coordinate.
 
+\todo{Mention simulation order for two bubbles!}
 We have two bubbles, with constants
 \begin{equation}
   \label{eq:bubbles-values}
@@ -532,5 +530,8 @@ No~823844 (ChEESE centre of excellence, \url{www.cheese-coe.eu}).
 Computing resources were provided by the Leibniz Supercomputing Centre (project pr83no).
 Special thanks go to Dominic E.\ Charrier for his support with the implementation in the \exahypeengine{}.
 
-\printbibliography{}
+%\bibliographystyle{plain}
+\bibliographystyle{spmpsci}
+\bibliography{../bibliography}{}
+%\printbibliography{}
 \end{document}
