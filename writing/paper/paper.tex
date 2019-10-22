@@ -329,6 +329,7 @@ We simulate on the domain $[0,2\pi]^2$
 %% keine Meter-Angaben bei analytischen Testcases
 and impose the analytical solution at the boundary.
 A comparison at time $t = 10.0$ of the analytical solution for the pressure with our approximation (\cref{fig:taylor-green}) shows excellent agreement.
+Note that we only show a qualitative analysis because this is not an exact solution for our equation set.
 We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
 
 \begin{figure}[tb]
@@ -369,7 +370,7 @@ It is defined in the domain \( \left[ -\pi, \pi \right]^3 \) as
   + C.
   \end{split}
 \end{align}
-again under the assumption of incompressibility.
+again under the assumption of incompressibility, i.e.\ it is also not an exact solution of our \pde{}.
 The constant $C = \nicefrac{100}{\gamma}$ is chosen as before.
 We use a viscosity of $\mu = 0.01$ and analytical boundary conditions.
 Our results (\cref{fig:abc-flow}) show a good agreement between the analytical solution and our approximation with an \aderdg{}-scheme of order $3$ with a mesh consisting of $27^3$ cells at time $t = \SI{0.1}{\s}$.
