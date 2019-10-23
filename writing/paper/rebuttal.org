@@ -1,0 +1,14 @@
+TODO!
+We made the following changes:
+* Quality of numerical approximations
+Reviewers wished for a quantitative analysis of our simulations for Taylor-Green and ABC-Flow scenarios.
+We made clearer that this is not sensible for these scenarios, as they are not an exact solution for the compressible Navier-Stokes equations.
+To address the spirit of the comments, we've added a convergence test using a manufactured solution.
+
+* Performance
+Reviewers wished for a analysis of the (parallel) performance of our code.
+To keep the focus of our paper (application) we've added references to relevant papers that performed various performance studies for our code.
+Furthermore, we've added a small performance study for a uniform mesh with combined MPI+TBB performance.
+
+* Minor edits
+(Editorial, etc.)
