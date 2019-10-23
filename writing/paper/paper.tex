@@ -301,12 +301,48 @@ Note that subcells are coarsened only if all subcells belonging to the coarse ce
 In contrast to already published criteria which are either designed solely for the simulation of clouds~\cite{muller2010adaptive} or computationally expensive~\cite{fambri2017space}, our criterion works for arbitrary \pde{}s and yet, is easy to compute and intuitive.
 
 \section{Results}
+\todo{Introduction of chapter}
+\todo{Introduce need for MMS}
+Following~\cite{dumbser2010arbitrary}, we assume that
+\begin{align}\label{eq:manufactured-solution}
+\begin{split}
+  \pressure(\bm{x}, t) &= \pressure_0 \cos( \bm{k} \bm{x} - \omega t ) + \pressure_b, \\
+  \Qrho(\bm{x}, t) &= \Qrho_0 \sin (\bm{k} \bm{x} - \omega t) + \Qrho_b, \\
+  \Qv(\bm{x}, t) &= \bm{v_0} \sin(\bm{k} \bm{x} - \omega t),
+\end{split}
+\end{align}
+is our analytical solution.
+We use the constants
+\begin{equation}
+\begin{alignedat}{6}
+  & \pressure_u &&= \nicefrac{1}{10}, \qquad& \pressure_b &= \nicefrac{1}{\gamma}, \\
+  & \Qrho_0 &&= \nicefrac{1}{2}, \qquad& \Qrho_b &= 1, \\
+  & \bm{v_0} &&= \nicefrac{1}{4},
+  \begin{pmatrix}
+    1 \\
+    1
+  \end{pmatrix},
+  \qquad& \bm{k} &= \nicefrac{\pi}{5}
+  \begin{pmatrix}
+    1\\
+    1
+  \end{pmatrix},\\
+  & \omega &&= 2 \pi.
+  \end{alignedat}
+\end{equation}
+\Cref{eq:manufactured-solution} does not solver the compressible Navier-Stokes equations \cref{eq:equation-set} directly but rather our equation set with ann added source term.
+We derive this source term symbolically with a computer algebra system.
+
 We use a mix of various benchmarking scenarios that consist of standard \textsc{cfd} scenarios and atmospheric flows.
-%
+
 For the standard \textsc{cfd} testing scenarios, we use the following constants of fluids:
 \begin{equation}
   \gamma = 1.4, \quad \Pr = 0.7, \quad c_v = 1.0.
 \end{equation}
+
+
+
+
 A simple scenario is the Taylor-Green vortex.
 It has an analytical solution in the incompressible limit which is given by
 \begin{align}
