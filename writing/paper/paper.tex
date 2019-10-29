@@ -87,7 +87,7 @@
   We improve our method by a \pde{}-independent general refinement criterion, based on the local total variation of the numerical solution.
   Our generic scheme shows competitive results for both classical \textsc{cfd} and stratified scenarios.
   While established methods use numerics tailored towards the specific simulation, our scheme works scenario independent.
-  All together, our method can be seen as a perfect candidate for large scale cloud simulation runs on current and future super computers.
+  All together, our method can be seen as a perfect candidate for large scale cloud simulation runs on current and future super computers.\todo{Less bragging!}
 
 \keywords{\aderdg{}  \and Navier-Stokes \and Adaptive Mesh Refinement}
 \end{abstract}
@@ -301,50 +301,67 @@ Note that subcells are coarsened only if all subcells belonging to the coarse ce
 In contrast to already published criteria which are either designed solely for the simulation of clouds~\cite{muller2010adaptive} or computationally expensive~\cite{fambri2017space}, our criterion works for arbitrary \pde{}s and yet, is easy to compute and intuitive.
 
 \section{Results}
-\todo{Introduction of chapter}
+In this section, we evaluate the quality of the results of our numerical methods and the scalability of our implementation.
+We use a mix of various benchmarking scenarios.
+After investigating the numerical convergence rate, we look at three standard \textsc{cfd} scenarios: the Taylor-Green vortex, the three-dimensional Arnold-Beltrami-Childress scenario and a lid-driven cavity flow.
+Finally, we evaluate the performance for stratified flow scenarios both in two and three dimensions.
+
+\subsection{CDF Testing Scenarios}
+We begin with a manuactured solution scenario which we can use for a convergence test.
 \todo{Introduce need for MMS}
-Following~\cite{dumbser2010arbitrary}, we assume that
-\begin{align}\label{eq:manufactured-solution}
-\begin{split}
-  \pressure(\bm{x}, t) &= \pressure_0 \cos( \bm{k} \bm{x} - \omega t ) + \pressure_b, \\
-  \Qrho(\bm{x}, t) &= \Qrho_0 \sin (\bm{k} \bm{x} - \omega t) + \Qrho_b, \\
-  \Qv(\bm{x}, t) &= \bm{v_0} \sin(\bm{k} \bm{x} - \omega t),
-\end{split}
-\end{align}
-is our analytical solution.
-We use the constants
-\begin{equation}
-\begin{alignedat}{6}
-  & \pressure_u &&= \nicefrac{1}{10}, \qquad& \pressure_b &= \nicefrac{1}{\gamma}, \\
-  & \Qrho_0 &&= \nicefrac{1}{2}, \qquad& \Qrho_b &= 1, \\
-  & \bm{v_0} &&= \nicefrac{1}{4},
-  \begin{pmatrix}
-    1 \\
-    1
-  \end{pmatrix},
-  \qquad& \bm{k} &= \nicefrac{\pi}{5}
-  \begin{pmatrix}
-    1\\
-    1
-  \end{pmatrix},\\
-  & \omega &&= 2 \pi.
-  \end{alignedat}
-\end{equation}
-\Cref{eq:manufactured-solution} does not solver the compressible Navier-Stokes equations \cref{eq:equation-set} directly but rather our equation set with ann added source term.
-We derive this source term symbolically with a computer algebra system.
-
-We use a mix of various benchmarking scenarios that consist of standard \textsc{cfd} scenarios and atmospheric flows.
-
-For the standard \textsc{cfd} testing scenarios, we use the following constants of fluids:
+Unless mentioned otherwise, we use the following constants of fluids:
 \begin{equation}
   \gamma = 1.4, \quad \Pr = 0.7, \quad c_v = 1.0.
 \end{equation}
+Our description of the manufactured solution follows~\cite{dumbser2010arbitrary}.
+To construct this solution, we assume that
+% \begin{align}\label{eq:manufactured-solution}
+% \begin{split}
+%   \pressure(\bm{x}, t) &= \pressure_0 \cos( \bm{k} \bm{x} - \omega t ) + \pressure_b, \\
+%   \Qrho(\bm{x}, t) &= \Qrho_0 \sin (\bm{k} \bm{x} - \omega t) + \Qrho_b, \\
+%   \Qv(\bm{x}, t) &= \bm{v_0} \sin(\bm{k} \bm{x} - \omega t),
+% \end{split}
+% \end{align}
+\begin{align}\label{eq:manufactured-solution}
+  \begin{split}
+    \pressure(\bm{x}, t) &= 0.1 \cos( \bm{k} \bm{x} - 2 \pi t ) + \gamma^{-1}, \\
+    \Qrho(\bm{x}, t) &= 0.5 \sin (\bm{k} \bm{x} - 2 \pi t) + 1, \\
+    \Qv(\bm{x}, t) &= \bm{v_0} \sin(\bm{k} \bm{x} - 2 \pi t),
+  \end{split}
+  \end{align}
+solves our \pde{}.
+We use the constants $\bm{v_0} = \nicefrac{1}{4} \left( 1, 1 \right)^\intercal$ and $\bm{k} = \nicefrac{\pi}{5} \left( 1, 1 \right)^\intercal$ 
+% \begin{equation}
+% \begin{alignedat}{6}
+%   & \pressure_u &&= \nicefrac{1}{10}, \qquad& \pressure_b &= \nicefrac{1}{\gamma}, \\
+%   & \Qrho_0 &&= \nicefrac{1}{2}, \qquad& \Qrho_b &= 1, \\
+%   & \bm{v_0} &&= \nicefrac{1}{4},
+%   \begin{pmatrix}
+%     1 \\
+%     1
+%   \end{pmatrix},
+%   \qquad& \bm{k} &= \nicefrac{\pi}{5}
+%   \begin{pmatrix}
+%     1\\
+%     1
+%   \end{pmatrix},\\
+%   & \omega &&= 2 \pi.
+%   \end{alignedat}
+% \end{equation}
+Note that \Cref{eq:manufactured-solution} does not solve the compressible Navier-Stokes equations \cref{eq:equation-set} directly.
+It rather solves our equation set with an added source term which can be derived with a computer algebra system.
+We ran this scenario for a grid of combinations of order $1, \ldots 6$ and mesh sizes of $??? $.
+For this scenario, we achieve high-order convergence (\ref{fig:convergence-test}) but notice some diminishing returns for very large orders.
+\begin{figure}[htb]
+  \centering
+  ??? 
+  \caption{\label{fig:convergence-test}Mesh size vs.\ error for various orders.
+  Dashed lines show the theoretical order of convergence.}
+\end{figure}
 
-
-
-
+After we have established that the implementation of our numerical method converges, we are going to investigate three established testing scenarios from the field of computational fluid mechanics.
 A simple scenario is the Taylor-Green vortex.
-It has an analytical solution in the incompressible limit which is given by
+Assuming an incompressible fluid, it can written as
 \begin{align}
   \label{eq:taylor-green}
   \begin{split}
@@ -359,13 +376,10 @@ It has an analytical solution in the incompressible limit which is given by
 \end{align}
 The constant $C = \nicefrac{100}{\gamma}$ governs the speed of sound and thus the Mach number $\text{Ma} = 0.1$~\cite{dumbser2016high}. The viscosity is set to $\mu = 0.1$. 
 
-We simulate on the domain $[0,2\pi]^2$ 
-%We use a domain of size 
-%$(\SI{2 \pi}{\m} \times \SI{2 \pi}{\m})$ 
-%% keine Meter-Angaben bei analytischen Testcases
-and impose the analytical solution at the boundary.
+We simulate on the domain $[0,2\pi]^2$ and impose the analytical solution at the boundary.
 A comparison at time $t = 10.0$ of the analytical solution for the pressure with our approximation (\cref{fig:taylor-green}) shows excellent agreement.
-Note that we only show a qualitative analysis because this is not an exact solution for our equation set.
+Note that we only show a qualitative analysis because this is not an exact solution for our equation set as we do assume compressibility of the fluid.
+This is nevertheless a valid comparison because for very low Mach numbers, both incompressible and compressible equations behave in a very similar manner.
 We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
 
 \begin{figure}[tb]
@@ -390,7 +404,7 @@ We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
   \label{fig:cdf-results}
 \end{figure}
 
-The Arnold-Beltrami-Childress (\textsc{abc}) flow is similar to the Taylor-Green vortex but possesses an analytical solution for three-dimensions as well~\cite{tavelli2016staggered}.
+The Arnold-Beltrami-Childress (\textsc{abc}) flow is similar to the Taylor-Green vortex but is an analytical solution for the three-dimensions incompressible Navier-Stokes equations~\cite{tavelli2016staggered}.
 It is defined in the domain \( \left[ -\pi, \pi \right]^3 \) as
 \begin{align}
   \label{eq:abc-flow}
@@ -406,10 +420,10 @@ It is defined in the domain \( \left[ -\pi, \pi \right]^3 \) as
   + C.
   \end{split}
 \end{align}
-again under the assumption of incompressibility, i.e.\ it is also not an exact solution of our \pde{}.
 The constant $C = \nicefrac{100}{\gamma}$ is chosen as before.
 We use a viscosity of $\mu = 0.01$ and analytical boundary conditions.
 Our results (\cref{fig:abc-flow}) show a good agreement between the analytical solution and our approximation with an \aderdg{}-scheme of order $3$ with a mesh consisting of $27^3$ cells at time $t = \SI{0.1}{\s}$.
+Again, we do not perform a quantative analysis as the \textsc{abc}-flow only solves our equation set approximately.
 
 \begin{figure}[tb]
 \centering
@@ -435,7 +449,8 @@ The simulation runs for $\SI{10}{\s}$.
 Again, our results (\cref{fig:cavity-flow}) have an excellent agreement with the reference solution of~\cite{ghia1982high}.
 We used an \aderdg{}-method of order $3$ with a mesh of size $27^2$.
 
-With  the constants
+\subsection{Stratified Flow Scenarios}
+With the constants
 \begin{equation}\label{eq:atmosphere-constants}
     \gamma = 1.4 ,\quad \Pr =  0.71 ,\quad R = 287.058 ,\quad p_0 = \SI{10e5}{\Pa}, \quad g = \SI{9.8}{m/s^2},
 \end{equation}
@@ -473,7 +488,6 @@ where $s$ is the decay rate and $r$  is the radius to the center
 \end{equation}
 i.e., $r$ denotes the Euclidean distance between the spatial positions $\bm{x} = (x, z)$ and the center of a bubble $\bm{x_c} = (x_c, z_c)$ -- for three-dimensional scenarios $\bm{x}$ and $\bm{x_c}$ also contain a $y$ coordinate.
 
-\todo{Mention simulation order for two bubbles!}
 We have two bubbles, with constants
 \begin{equation}
   \label{eq:bubbles-values}
@@ -485,13 +499,14 @@ We have two bubbles, with constants
 Similar to~\cite{muller2010adaptive}, we use a constant viscosity of $\mu = 0.01$ to regularize the solution.
 Note that we use a different implementation of viscosity than~\cite{muller2010adaptive}.
 Hence, it is difficult to compare the parametrization directly.
-We ran this scenario twice: once without \amr{} and a mesh of size $\SI{1000/81}{\m} = \SI{12.35}{\m}$ and 
-once with \amr{} with two adaptive refinement levels and parameters $\Trefine = 2.5$ and $\Tdelete = -0.5$.
+We ran this scenario twice:
+once without \amr{} and a mesh of size $\SI{1000/81}{\m} = \SI{12.35}{\m}$ and once with \amr{} with two adaptive refinement levels and parameters $\Trefine = 2.5$ and $\Tdelete = -0.5$.
+For both settings we used polynomials of order 6.
 We specialize the \amr{}-criterion~\pcref{eq:refinement-criterion} to our stratified flows by using the potential temperature.
 This resulted in a mesh with cell-size lengths of approx.\ \SI{111.1}{\m}, \SI{37.04}{\m}, and \SI{12.34}{\m}.
 The resulting mesh can be seen in \cref{fig:two-bubbles-ader}.
 We observe that the $L_2$ difference between the potential temperature of the \amr{} run, which uses 1953 cells, and the one of the fully refined run with 6561 cells, is only $1.87$.
-The relative error is \num{6.69e-6}.
+The relative error is \num{6.69e-6}\todo{Update these numbers}.
 We further emphasize that our \amr{}-criterion accurately tracks the position of the edges of the cloud instead of only its position.
 This is the main advantage of our gradient-based method in contrast to methods working directly with the value of the solution, as for example~\cite{muller2010adaptive}.
 Overall, our result for this benchmark shows an excellent agreement to the previous solutions of~\cite{muller2010adaptive}.
@@ -517,7 +532,7 @@ We use the constants
 For the three-dimensional bubble, we set $y_c = x_c = \SI{500}{\m}$.
 This corresponds to the parameters used in~\cite{kelly2012continuous}\footnote{%
 We found that the parameters presented in the manuscript of~\cite{kelly2012continuous} only agree with the results, if we use the same parameters as for 2D simulations.}.
-For the 2D case, we use a constant viscosity of $\mu = 0.01$ and an \aderdg{}-method of order 5 with two levels of dynamic \amr{}, resulting again in cell sizes of roughly $\SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.34}{\m}$.
+For the 2D case, we use a constant viscosity of $\mu = 0.01$ and an \aderdg{}-method of order 6 with two levels of dynamic \amr{}, resulting again in cell sizes of roughly $\SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.34}{\m}$.
 We use slightly different \amr{} parameters of $\Trefine = 1.5$ and $\Tdelete = -0.5$ and let the simulation run for \SI{600}{\s}.
 Note that, as seen in \cref{fig:cosine-2d}, our \amr{}-criterion tracks the wavefront of the cloud accurately.
 This result shows an excellent agreement to the ones achieved in~\cite{giraldo2008study,muller2010adaptive}.
@@ -551,6 +566,24 @@ Our results (\cref{fig:cosine-3d}) capture the dynamics of the scenario well and
 \end{figure}
 
 
+\subsection{Performance Results}
+\todo{1--2 days on workstation}
+\todo{tbb scalability in MDOF/s}
+\todo{Resolution low enough: weak scaling would be more interesting}
+All two-dimensional scenarios presented in this paper can be run on a single workstation in less than two days.
+Parallel scalability was thus not the primary goal of this paper.
+Nevertheless, our implementation allows us to scale to small to medium scale setups using a combined MPI/TBB parallelization strategy.
+
+\newcommand{\mdofs}{M\text{DOF}/s}%
+We typically first choose a number of MPI ranks that ensure an equal load balancing.
+For two-dimensional simulations this happens for $1, 10, 83, \ldots$ ranks, as our underlying framework uses a three-way splitting per dimension and an additional communication rank per level.
+Then, we choose the number of nodes that we want to use and divide the cores into shared-memory sections.
+These are then distributed among TBB ranks.
+We ran the two bubble scenario for a uniform grid for 30 timesteps and for multiple combinations of MPI ranks and TBB threads.
+This simulation was performed on the SuperMUC-NG system using computational kernels that are optimized for its Skylake architecture\todo{Cite opt. kernels?}.
+Using a single MPI rank, we have xxx x $10^x$ degrees of freedom updates ($\mdofs$) using two TBB threads and xxx $10^x \mdofs$ using xxx threads.
+When using 5 nodes, we achieve $x \mdofs$ for two threads and $x \mdofs$ for xxx threads, when using two ranks per node.
+
 \section{Conclusion}
 We presented an implementation of an \aderdg{}-method and a \muscl{}-scheme with \amr{} for the Navier-Stokes equations, based on the \exahypeengine.
 Our implementation is capable of simulating different scenarios:
@@ -559,6 +592,10 @@ This is true for both two-dimensional scenarios (Taylor-Green vortex and lid-dri
 
 Furthermore, our method allows us to simulate flows in hydrostatic equilibrium correctly, as our results for the cosine and colliding bubble scenarios showed.
 We showed that our \amr{}-criterion is able to vastly reduce the number of grid cells while preserving the quality of the results.
+
+Future work should be directed towards improving the scalability.
+As mentioned in the results section, the resolution is sufficient for most numerical weather prediction purposed.
+With an improved \amr{} scaling and some fine tuning of the parallelization strategy, the numerical method presented here might be a good candidate for the small-scale simulation of clouds.
 
 \subsection*{Acknowledgments}
 This work was funded by the European Union’s Horizon 2020 Research and Innovation Programme under grant agreements 
