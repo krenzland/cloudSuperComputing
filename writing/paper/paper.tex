@@ -4,7 +4,7 @@
 \author{Lukas Krenz \and Leonhard Rannabauer \and Michael Bader}
 \authorrunning{L.\ Krenz, L.\ Rannabauer, M.\ Bader}
 \institute{Department of Informatics, Technical University of Munich\\
-  \email{lukas.krenz@in.tum.de}, \email{rannabauer@in.tum.de}, \email{bader@in.tum.de}
+  \email{lukas.krenz@in.tum.de}, \email{rannabau@in.tum.de}, \email{bader@in.tum.de}
 \vspace*{-0.2cm}
 } % todo emails and stuff
 \usepackage[utf8]{inputenc}
@@ -82,6 +82,7 @@
 \begin{document}
 \maketitle 
 \begin{abstract}
+  \todo{Mention corresponding author}
   We present a high-order discontinuous Galerkin (\dg{}) solver of the compressible Navier-Stokes equations for cloud formation processes.
   The scheme exploits an underlying parallelized implementation of the \aderdg{} method with dynamic adaptive mesh refinement. 
   We improve our method by a \pde{}-independent general refinement criterion, based on the local total variation of the numerical solution.
@@ -300,7 +301,7 @@ This inequality holds for arbitrary distributions under the weak assumption that
 Note that subcells are coarsened only if all subcells belonging to the coarse cell are marked for coarsening.
 In contrast to already published criteria which are either designed solely for the simulation of clouds~\cite{muller2010adaptive} or computationally expensive~\cite{fambri2017space}, our criterion works for arbitrary \pde{}s and yet, is easy to compute and intuitive.
 
-\section{Results}
+\section{Results}\label{sec:results}
 In this section, we evaluate the quality of the results of our numerical methods and the scalability of our implementation.
 We use a mix of various benchmarking scenarios.
 After investigating the numerical convergence rate, we look at three standard \textsc{cfd} scenarios: the Taylor-Green vortex, the three-dimensional Arnold-Beltrami-Childress scenario and a lid-driven cavity flow.
@@ -330,7 +331,8 @@ To construct this solution, we assume that
   \end{split}
   \end{align}
 solves our \pde{}.
-We use the constants $\bm{v_0} = \nicefrac{1}{4} \left( 1, 1 \right)^\intercal$ and $\bm{k} = \nicefrac{\pi}{5} \left( 1, 1 \right)^\intercal$ 
+We use the constants $\bm{v_0} = \nicefrac{1}{4} \left( 1, 1 \right)^\intercal$, $\bm{k} = \nicefrac{\pi}{5} \left( 1, 1 \right)^\intercal$ and simulate a domain of size $\left[ 10 \times 10 \right]$ for $\SI{0.5}{\s}$.
+The viscosity is set to $\mu = 0.1$.
 % \begin{equation}
 % \begin{alignedat}{6}
 %   & \pressure_u &&= \nicefrac{1}{10}, \qquad& \pressure_b &= \nicefrac{1}{\gamma}, \\
@@ -350,18 +352,19 @@ We use the constants $\bm{v_0} = \nicefrac{1}{4} \left( 1, 1 \right)^\intercal$ 
 % \end{equation}
 Note that \Cref{eq:manufactured-solution} does not solve the compressible Navier-Stokes equations \cref{eq:equation-set} directly.
 It rather solves our equation set with an added source term which can be derived with a computer algebra system.
-We ran this scenario for a grid of combinations of order $1, \ldots 6$ and mesh sizes of $??? $.
-For this scenario, we achieve high-order convergence (\ref{fig:convergence-test}) but notice some diminishing returns for very large orders.
-\begin{figure}[htb]
+We ran this for a a combination of orders $1, \ldots 6$ and multiple grid sizes.
+Note that by order we mean the polynomial order throughout the entire paper and not the theoretical convergence order.
+For this scenario, we achieve high-order convergence (\ref{fig:convergence-test}) but notice some diminishing returns for large orders\todo{Maybe note that Dumbser doesnt get perfect convergence either.}.
+\begin{figure}[tb]
   \centering
-  ??? 
-  \caption{\label{fig:convergence-test}Mesh size vs.\ error for various orders.
-  Dashed lines show the theoretical order of convergence.}
+  \includegraphics{paper_convergence}
+  \caption{\label{fig:convergence-test}Mesh size vs.\ error for various polynomial orders $P$.
+    Dashed lines show the theoretical convergence order of $P+1$.}
 \end{figure}
 
 After we have established that the implementation of our numerical method converges, we are going to investigate three established testing scenarios from the field of computational fluid mechanics.
 A simple scenario is the Taylor-Green vortex.
-Assuming an incompressible fluid, it can written as
+Assuming an incompressible fluid, it can be written as
 \begin{align}
   \label{eq:taylor-green}
   \begin{split}
@@ -374,7 +377,8 @@ Assuming an incompressible fluid, it can written as
   \pressure(\bm{x}, t) &= \exp(-4 \mu t) \, \nicefrac{1}{4} \left( \cos(2x) + \cos(2y) \right) + C.
   \end{split}
 \end{align}
-The constant $C = \nicefrac{100}{\gamma}$ governs the speed of sound and thus the Mach number $\text{Ma} = 0.1$~\cite{dumbser2016high}. The viscosity is set to $\mu = 0.1$. 
+The constant $C = \nicefrac{100}{\gamma}$ governs the speed of sound and thus the Mach number $\text{Ma} = 0.1$~\cite{dumbser2016high}.
+The viscosity is set to $\mu = 0.1$. 
 
 We simulate on the domain $[0,2\pi]^2$ and impose the analytical solution at the boundary.
 A comparison at time $t = 10.0$ of the analytical solution for the pressure with our approximation (\cref{fig:taylor-green}) shows excellent agreement.
@@ -384,22 +388,21 @@ We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
 
 \begin{figure}[tb]
   \centering
-  \begin{subfigure}[t]{.473\textwidth}
-    \centering
-    \includegraphics{paper_lid_driven_cavity}
-    \caption{\label{fig:cavity-flow}Our approximation (solid lines) of the lid-driven cavity flow vs.\ reference solution (crosses) of~\cite{ghia1982high}.
-    The respective other coordinate is held constant at a value of 0.}
-  \end{subfigure}\quad%
   \begin{subfigure}[t]{0.473\textwidth}
     \centering
     \includegraphics{paper_taylor_green_vel}
     \caption{\label{fig:taylor-green}Our result (markers) of the Taylor-Green vortex vs.\ the analytical solution (lines) \cref{eq:taylor-green}.
     The plot shows two velocity slices, the respective other coordinate is held constant at a value of $\pi$.}
-
+  \end{subfigure}\qquad%
+\begin{subfigure}[t]{.473\textwidth}
+  \centering
+    \includegraphics{paper_abc_flow_velocity}
+    \captionof{figure}{\label{fig:abc-flow}Our approximation (markers) of the \textsc{abc}-flow vs.\ analytical solution (lines, \cref{eq:abc-flow}).
+    All other axes are held constant at a value of 0. We show every 6th value.}
+\end{subfigure}
     %\includegraphics{paper_abc_flow_velocity}
     %\caption{\label{fig:abc-flow}\textsc{abc}-flow. We show the velocity in $x$-direction for slices through the domain, where all but the mentioned coordinates are held constant at a value of zero.
     %The analytical solution is represented by lines, the numerical results by markers.}
-  \end{subfigure}
   \caption{Two dimensional \textsc{cfd} scenarios}
   \label{fig:cdf-results}
 \end{figure}
@@ -428,17 +431,17 @@ Again, we do not perform a quantative analysis as the \textsc{abc}-flow only sol
 \begin{figure}[tb]
 \centering
 % or .473 size each, and \\quad inbetween
-\begin{minipage}[t]{.473\textwidth}
-  \centering
-    \includegraphics{paper_abc_flow_velocity}
-    \captionof{figure}{\label{fig:abc-flow}Our approximation (markers) of the \textsc{abc}-flow vs.\ analytical solution (lines, \cref{eq:abc-flow}).
-    All other axes are held constant at a value of 0. We show every 6th value.}
-\end{minipage}\qquad%
+  \begin{minipage}[t]{.473\textwidth}
+    \centering
+    \includegraphics{paper_lid_driven_cavity}
+    \caption{\label{fig:cavity-flow}Our approximation (solid lines) of the lid-driven cavity flow vs.\ reference solution (crosses) of~\cite{ghia1982high}.
+    The respective other coordinate is held constant at a value of 0.}
+  \end{minipage}\quad%
 \begin{minipage}[t]{.473\textwidth}
   \centering
     \includegraphics[width=\textwidth]{paper_two_bubbles_fv}
     \captionof{figure}{\label{fig:two-bubbles-fv}%
-    Colliding bubbles with \muscl{}. Contour values for potential temperature perturbation are $-0.05, 0.05, 0.1, \ldots 0.45$.}
+    Colliding bubbles with \muscl{}. Contour values for potential temperature perturbation are $-0.05, 0.05, 0.1, \ldots 0.45$. TODO UPDATE!}
 \end{minipage}
 \end{figure}
 
@@ -452,7 +455,7 @@ We used an \aderdg{}-method of order $3$ with a mesh of size $27^2$.
 \subsection{Stratified Flow Scenarios}
 With the constants
 \begin{equation}\label{eq:atmosphere-constants}
-    \gamma = 1.4 ,\quad \Pr =  0.71 ,\quad R = 287.058 ,\quad p_0 = \SI{10e5}{\Pa}, \quad g = \SI{9.8}{m/s^2},
+    \gamma = 1.4 ,\quad \Pr =  0.71 ,\quad R = 287.058 ,\quad p_0 = 10^5 \SI{}{\Pa}, \quad g = \SI{9.8}{m/s^2},
 \end{equation}
 all following stratified flow scenarios are described in terms of the potential temperature
 \begin{equation}
@@ -496,7 +499,7 @@ We have two bubbles, with constants
   & \text{cold:} \qquad && A = \SI{-0.15}{\K}, \quad&& a = \SI{0}{\m}, \quad&& s = \SI{50}{\m}, \quad&& x_c = \SI{560}{\m}, \quad&& z_c = \SI{640}{\m}.
   \end{alignedat}
 \end{equation}
-Similar to~\cite{muller2010adaptive}, we use a constant viscosity of $\mu = 0.01$ to regularize the solution.
+Similar to~\cite{muller2010adaptive}, we use a constant viscosity of $\mu = 0.001$ to regularize the solution.
 Note that we use a different implementation of viscosity than~\cite{muller2010adaptive}.
 Hence, it is difficult to compare the parametrization directly.
 We ran this scenario twice:
@@ -505,8 +508,11 @@ For both settings we used polynomials of order 6.
 We specialize the \amr{}-criterion~\pcref{eq:refinement-criterion} to our stratified flows by using the potential temperature.
 This resulted in a mesh with cell-size lengths of approx.\ \SI{111.1}{\m}, \SI{37.04}{\m}, and \SI{12.34}{\m}.
 The resulting mesh can be seen in \cref{fig:two-bubbles-ader}.
+In addition, we ran a simulation with the same settings for a polynomial order of 3.
+We can see~\pcref{fig:two-bubbles-ader} that the lower resolution leads to spurious wave and does not capure the behavior of the cloud.
+
 We observe that the $L_2$ difference between the potential temperature of the \amr{} run, which uses 1953 cells, and the one of the fully refined run with 6561 cells, is only $1.87$.
-The relative error is \num{6.69e-6}\todo{Update these numbers}.
+The relative error is \num{2.56e-6}.
 We further emphasize that our \amr{}-criterion accurately tracks the position of the edges of the cloud instead of only its position.
 This is the main advantage of our gradient-based method in contrast to methods working directly with the value of the solution, as for example~\cite{muller2010adaptive}.
 Overall, our result for this benchmark shows an excellent agreement to the previous solutions of~\cite{muller2010adaptive}.
@@ -532,60 +538,58 @@ We use the constants
 For the three-dimensional bubble, we set $y_c = x_c = \SI{500}{\m}$.
 This corresponds to the parameters used in~\cite{kelly2012continuous}\footnote{%
 We found that the parameters presented in the manuscript of~\cite{kelly2012continuous} only agree with the results, if we use the same parameters as for 2D simulations.}.
-For the 2D case, we use a constant viscosity of $\mu = 0.01$ and an \aderdg{}-method of order 6 with two levels of dynamic \amr{}, resulting again in cell sizes of roughly $\SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.34}{\m}$.
-We use slightly different \amr{} parameters of $\Trefine = 1.5$ and $\Tdelete = -0.5$ and let the simulation run for \SI{600}{\s}.
+For the 2D case, we use a constant viscosity of $\mu = 0.001$ and an \aderdg{}-method of order 6 with two levels of dynamic \amr{}, resulting again in cell sizes of roughly $\SI{111.1}{\m}, \SI{37.04}{\m}, \SI{12.34}{\m}$.
+We use slightly different \amr{} parameters of $\Trefine = 1.5$ and $\Tdelete = -0.5$ and let the simulation run for \SI{700}{\s}.
 Note that, as seen in \cref{fig:cosine-2d}, our \amr{}-criterion tracks the wavefront of the cloud accurately.
 This result shows an excellent agreement to the ones achieved in~\cite{giraldo2008study,muller2010adaptive}.
 
 For the 3D case, we use an \aderdg{}-scheme of order 3 with a static mesh with cell sizes of \SI{40}{\m} and a shorter simulation duration of \SI{400}{\s}.
-Due to the relatively coarse resolution and the hence increased aliasing errors, we need to increase the viscosity to $\mu = 0.05$.
+Due to the relatively coarse resolution and the hence increased aliasing errors, we need to increase the viscosity to $\mu = 0.005$.
 This corresponds to a larger amount of smoothing.
 Our results (\cref{fig:cosine-3d}) capture the dynamics of the scenario well and agree with the reference solution of~\cite{kelly2012continuous}.
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=0.90\textwidth]{paper_two_bubbles}
-  \caption{\label{fig:two-bubbles-ader}Colliding Bubbles with \aderdg{}. Contour values for potential temperature perturbation are $-0.05, 0.05, 0.1, \ldots 0.45$.}
+  \includegraphics[width=1.0\textwidth]{paper_two_bubbles}
+  \caption{\label{fig:two-bubbles-ader}Colliding Bubbles with \aderdg{}. Contour values for potential temperature perturbation are $-0.05, 0.05, 0.1, \ldots 0.45$.
+  Right: Comparison of small scale structure between order 3 (top) and order 6 (bottom).}
 \end{figure}
 
 \begin{figure}[tb]
   \centering
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics[width=\textwidth, trim={0cm 0 23cm 0},clip]{paper_cosine_bubble_collage}
+    \includegraphics[scale=0.16, trim={0cm 0 32cm 0},clip]{paper_cosine_bubble_collage}
     %\includegraphics[width=\textwidth]{paper_cosine_bubble}
     \caption{\label{fig:cosine-2d}2D Cosine Bubble.}%todo: Contour lines?
   \end{subfigure}~%
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics[width=\textwidth, trim={23cm 0 0cm 0},clip]{paper_cosine_bubble_collage}
-    %\includegraphics[width=\textwidth]{paper_cosine_bubble_3d}
+    \includegraphics[scale=0.16, trim={42cm 0 0cm 0},clip]{paper_cosine_bubble_collage}
     \caption{\label{fig:cosine-3d}3D Cosine Bubble}
   \end{subfigure}
-  \caption{\label{fig:cosine-bubbles-results}Cosine Bubble Scenario}
+  \caption{\label{fig:cosine-bubbles-results}Cosine Bubble Scenario.}
 \end{figure}
 
 
-\subsection{Performance Results}
-\todo{1--2 days on workstation}
-\todo{tbb scalability in MDOF/s}
-\todo{Resolution low enough: weak scaling would be more interesting}
+\subsection{Scalability}%
+\newcommand{\mdofs}{M\text{DOF}/s}%
 All two-dimensional scenarios presented in this paper can be run on a single workstation in less than two days.
 Parallel scalability was thus not the primary goal of this paper.
-Nevertheless, our implementation allows us to scale to small to medium scale setups using a combined MPI/TBB parallelization strategy.
-
-\newcommand{\mdofs}{M\text{DOF}/s}%
+Nevertheless, our implementation allows us to scale to small to medium scale setups using a combined \mpi{}~+~\tbb{} parallelization strategy, which works a follows:
 We typically first choose a number of MPI ranks that ensure an equal load balancing.
 For two-dimensional simulations this happens for $1, 10, 83, \ldots$ ranks, as our underlying framework uses a three-way splitting per dimension and an additional communication rank per level.
 Then, we choose the number of nodes that we want to use and divide the cores into shared-memory sections.
 These are then distributed among TBB ranks.
-We ran the two bubble scenario for a uniform grid for 30 timesteps and for multiple combinations of MPI ranks and TBB threads.
+We ran the two bubble scenario for a uniform grid with a mesh size of $729 \times 729$ for 20 timesteps and for multiple combinations of \mpi{} ranks and \tbb{} threads.
 This simulation was performed on the SuperMUC-NG system using computational kernels that are optimized for its Skylake architecture\todo{Cite opt. kernels?}.
-Using a single MPI rank, we have xxx x $10^x$ degrees of freedom updates ($\mdofs$) using two TBB threads and xxx $10^x \mdofs$ using xxx threads.
-When using 5 nodes, we achieve $x \mdofs$ for two threads and $x \mdofs$ for xxx threads, when using two ranks per node.
+Using a single MPI rank, we have roughly $4.9$ millions degrees of freedom updates ($\mdofs$) using two TBB threads and $20.15 \mdofs$ using 24 threads (i.e.\ a half node).
+For a full node with 48 threads, we get a performance of $12 \mdofs$.
+When using 5 nodes with 10 \mpi{} ranks, we achieve $29.3 \mdofs$ for two threads and $137.3 \mdofs$ for 24 threads.
 
+We further note that for our scenarios weak scaling is more important than strong scaling, as we currently cover only a small area containing a single cloud, where in practical applications one would like to smilate more complex scenarios.
 \section{Conclusion}
-We presented an implementation of an \aderdg{}-method and a \muscl{}-scheme with \amr{} for the Navier-Stokes equations, based on the \exahypeengine.
+We presented an implementation of a \muscl{}-scheme and an \aderdg{}-method with \amr{} for the Navier-Stokes equations, based on the \exahypeengine.
 Our implementation is capable of simulating different scenarios:
 We evaluated our method for standard \textsc{cfd} scenarios and achieved competitive results for all used scenarios.
 This is true for both two-dimensional scenarios (Taylor-Green vortex and lid-driven cavity) and for the three-dimensional \textsc{abc}-flow.
@@ -594,8 +598,8 @@ Furthermore, our method allows us to simulate flows in hydrostatic equilibrium c
 We showed that our \amr{}-criterion is able to vastly reduce the number of grid cells while preserving the quality of the results.
 
 Future work should be directed towards improving the scalability.
-As mentioned in the results section, the resolution is sufficient for most numerical weather prediction purposed.
-With an improved \amr{} scaling and some fine tuning of the parallelization strategy, the numerical method presented here might be a good candidate for the small-scale simulation of clouds.
+As mentioned in \cref{sec:results}, the resolution is sufficient for most numerical weather prediction purposes\todo{Actually mention this}.
+With an improved \amr{} scaling and some fine tuning of the parallelization strategy, the numerical method presented here might be a good candidate for the simulation of small scale convection processes that lead to cloud formation processes.
 
 \subsection*{Acknowledgments}
 This work was funded by the European Union’s Horizon 2020 Research and Innovation Programme under grant agreements 

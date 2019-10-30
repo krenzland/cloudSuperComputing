@@ -13,7 +13,7 @@ from matplotlib import ticker
 def plot_convergence(fig_path, solution_path, target):
     df = pd.read_csv(solution_path)
     orders = np.unique(df['order'])
-    fig, ax = plt.subplots(figsize=figsize(1.0, target=target))
+    fig, ax = plt.subplots(figsize=figsize(0.9, target=target))
     colors = sns.color_palette("Paired")
 
     for i, order in enumerate(orders):
@@ -36,13 +36,14 @@ def plot_convergence(fig_path, solution_path, target):
     ax.set_xticks(np.unique(df['hmin']))
     ax.set_xticklabels(["$10/3^{}$".format(i+1) for i in range(1,5)][::-1])
     fig.gca().invert_xaxis()
-    fig.legend(loc='lower left', bbox_to_anchor=(0.095,0.16))
+    fig.legend(loc='lower left', bbox_to_anchor=(0.15,0.16),
+               handlelength=0.7, ncol=2)
     ax.set_xlabel('Grid spacing')
     ax.set_ylabel('$L_2$ error')
     sns.despine(fig, ax)
 
     #fig.subplots_adjust(left=0.2, bottom=0.31, top=0.95, right=0.95)
-    fig.subplots_adjust(left=0.1, bottom=0.175, right=0.98, top=0.97)
+    fig.subplots_adjust(left=0.15, bottom=0.175, right=0.98, top=0.97)
     fig.savefig(fig_path + '{target}_convergence.pdf'.format(target=target),
                 transparent=True)
     

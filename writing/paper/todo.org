@@ -37,9 +37,11 @@ Taylor-Green vortex. -> 1a (currently 1b)
 Arnold-Beltrami-Childress (ABC) -> 1b (currently 2)
 lid-driven cavity flow -> 1c or 2 (currently 1a)
 
-- figure 2 (ABC flow) should be presented along with other CFD scenarios, Current figure 3 fits better for a comparison with Figure 4 at sub-panels with the similar size.
+- figure 2 (ABC flow) should be presented along with other CFD scenarios,
+ Current figure 3 fits better for a comparison with Figure 4 at sub-panels with the similar size.
 
-- figure 5: both 2D panels may be significantly larger, this may be achieved by moving colorbars from sides to the bottom.
+- figure 5: both 2D panels may be significantly larger,
+ this may be achieved by moving colorbars from sides to the bottom.
 
 - two groups of scenarios should be split for the separate sub-chapters:
 4.1 Standard CFD scenarios

@@ -93,9 +93,10 @@ def plot_abc(fig_path, solution_path, target, order=2):
 
 def main():
     set_plot_defaults()
-    fig_path='output/'
+    fig_path='output_cpc/'
     plot_abc(fig_path=fig_path,
-                      solution_path='/work_fast/krenz/abc_flow/solution_cartesian-0.vtu',
+		      solution_path='/work/krenz/cpc_paper/output/sol_cart-0-rank-0.vtu',
+                      #solution_path='/work_fast/krenz/abc_flow/solution_cartesian-0.vtu',
                       target='paper')
         
 if __name__ == '__main__':
