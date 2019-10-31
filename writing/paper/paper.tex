@@ -1,7 +1,7 @@
 \documentclass[runningheads]{llncs}
 \title{A High-Order Discontinuous Galerkin Solver with Dynamic Adaptive Mesh Refinement to Simulate Cloud Formation Processes }
 \titlerunning{A High-Order DG Solver to Simulate Cloud Formation Processes}
-\author{Lukas Krenz \and Leonhard Rannabauer \and Michael Bader}
+\author{Lukas Krenz\orcidID{0000-0001-6378-0778} \and Leonhard Rannabauer \and Michael Bader}
 \authorrunning{L.\ Krenz, L.\ Rannabauer, M.\ Bader}
 \institute{Department of Informatics, Technical University of Munich\\
   \email{lukas.krenz@in.tum.de}, \email{rannabau@in.tum.de}, \email{bader@in.tum.de}
@@ -25,6 +25,7 @@
 %   % uniquename=init
 %   ]{biblatex}
 % \addbibresource{../bibliography.bib}
+\usepackage{cite}
 \newcommand{\citeauthor}{???}
 
 \usepackage{caption}
@@ -45,13 +46,13 @@
 \usepackage{physics} % for derivatives
 \usepackage[separate-uncertainty]{siunitx}
 \usepackage{hyperref}
-\usepackage[]{cleveref}
+\usepackage[capitalise]{cleveref}
 \newcommand{\creflastconjunction}{, and\nobreakspace} % use Oxford comma
 \usepackage{todonotes}
 \usepackage{multimedia}
 \graphicspath{{../figures/}}
 \let\boundary\undefined%
-\crefformat{equation}{\eqA{}eq.~\eqB #2#1#3)}
+\crefformat{equation}{\eqA{}Eq.~\eqB #2#1#3)}
 % TODO: Fix for more than two equations!
 \crefmultiformat{equation}{Eqs.~\eqMultiA#2#1#3\eqMultiB}%
 { and \eqMultiA#2#1#3\eqMultiB}{, \eqMultiA#2#1#3\eqMultiB}{ and~\eqMultiA#2#1#3\eqMultiB}
@@ -82,14 +83,21 @@
 \begin{document}
 \maketitle 
 \begin{abstract}
-  \todo{Corresp.\ author, ORCID next to authors}
-  We present a high-order discontinuous Galerkin (\dg{}) solver of the compressible Navier-Stokes equations for cloud formation processes.
+  % We present a high-order discontinuous Galerkin (\dg{}) solver of the compressible Navier-Stokes equations for cloud formation processes.
+  % The scheme exploits an underlying parallelized implementation of the \aderdg{} method with dynamic adaptive mesh refinement. 
+  % We improve our method by a \pde{}-independent general refinement criterion, based on the local total variation of the numerical solution.
+  % Our generic scheme shows competitive results for both classical \textsc{cfd} and stratified scenarios.
+  % While established methods use numerics tailored towards the specific simulation, our scheme works scenario independent.
+  % All together, our method can be seen as a perfect candidate for large scale cloud simulation runs on current and future super computers.\todo{Less bragging!}
+   We present a high-order discontinuous Galerkin (\dg{}) solver of the compressible Navier-Stokes equations for cloud formation processes.
   The scheme exploits an underlying parallelized implementation of the \aderdg{} method with dynamic adaptive mesh refinement. 
   We improve our method by a \pde{}-independent general refinement criterion, based on the local total variation of the numerical solution.
-  Our generic scheme shows competitive results for both classical \textsc{cfd} and stratified scenarios.
   While established methods use numerics tailored towards the specific simulation, our scheme works scenario independent.
-  All together, our method can be seen as a perfect candidate for large scale cloud simulation runs on current and future super computers.\todo{Less bragging!}
-
+  Our generic scheme shows competitive results for both classical \textsc{cfd} and stratified scenarios.
+  We focus on two dimensional simulations of two bubble convection scenarios over a background atmosphere.
+  The largest simulation here uses order 6 and 6561 cells which were reduced to 1953 cells by the refinement criterion.
+ \todo{Abstract---ideas for last two sentences. Note that adding one sentence leads to more pages.}
+% 
 \keywords{\aderdg{}  \and Navier-Stokes \and Adaptive Mesh Refinement}
 \end{abstract}
 \section{Introduction}
@@ -353,7 +361,7 @@ Note that \Cref{eq:manufactured-solution} does not solve the compressible Navier
 It rather solves our equation set with an added source term which can be derived with a computer algebra system.
 We ran this for a a combination of orders $1, \ldots 6$ and multiple grid sizes.
 Note that by order we mean the polynomial order throughout the entire paper and not the theoretical convergence order.
-For this scenario, we achieve high-order convergence (\cref{fig:convergence-test}) but notice some diminishing returns for large orders\todo{Maybe note that Dumbser doesnt get perfect convergence either.}.
+For this scenario, we achieve high-order convergence (\cref{fig:convergence-test}) but notice some diminishing returns for large orders\todo{Here a sentence regarding convergence would be nice---Dumbser got better results}.
 \begin{figure}[tb]
   \centering
   \includegraphics{paper_convergence}
@@ -363,7 +371,7 @@ For this scenario, we achieve high-order convergence (\cref{fig:convergence-test
 
 After we have established that the implementation of our numerical method converges, we are going to investigate three established testing scenarios from the field of computational fluid mechanics.
 A simple scenario is the Taylor-Green vortex.
-Assuming an incompressible fluid, it can be written as
+Assuming an \textit{incompressible} fluid, it can be written as
 \begin{align}
   \label{eq:taylor-green}
   \begin{split}
@@ -402,10 +410,10 @@ We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
     %\includegraphics{paper_abc_flow_velocity}
     %\caption{\label{fig:abc-flow}\textsc{abc}-flow. We show the velocity in $x$-direction for slices through the domain, where all but the mentioned coordinates are held constant at a value of zero.
     %The analytical solution is represented by lines, the numerical results by markers.}
-  \caption{\label{fig:cdf-results}Two dimensional \textsc{cfd} scenarios}
+  \caption{\label{fig:cdf-results}Two-dimensional \textsc{cfd} scenarios}
 \end{figure}
 
-The Arnold-Beltrami-Childress (\textsc{abc}) flow is similar to the Taylor-Green vortex but is an analytical solution for the three-dimensional incompressible Navier-Stokes equations~\cite{tavelli2016staggered}.
+The Arnold-Beltrami-Childress (\textsc{abc}) flow is similar to the Taylor-Green vortex but is an analytical solution for the three-dimensional \textit{incompressible} Navier-Stokes equations~\cite{tavelli2016staggered}.
 It is defined in the domain \( \left[ -\pi, \pi \right]^3 \) as
 \begin{align}
   \label{eq:abc-flow}
@@ -514,16 +522,16 @@ For both settings we used polynomials of order 6.
 We specialize the \amr{}-criterion~\pcref{eq:refinement-criterion} to our stratified flows by using the potential temperature.
 This resulted in a mesh with cell-size lengths of approx.\ \SI{111.1}{\m}, \SI{37.04}{\m}, and \SI{12.34}{\m}.
 The resulting mesh can be seen in \cref{fig:two-bubbles-ader}.
-In addition, we ran a simulation with the same settings for a polynomial order of 3.
-We can see~\pcref{fig:two-bubbles-ader} that the lower resolution leads to spurious wave and does not capture the behavior of the cloud.
 
 We observe that the $L_2$ difference between the potential temperature of the \amr{} run, which uses 1953 cells, and the one of the fully refined run with 6561 cells, is only $1.87$.
-The relative error is \num{2.56e-6}.
+The relative error is \num{2.6e-6}.
 We further emphasize that our \amr{}-criterion accurately tracks the position of the edges of the cloud instead of only its position.
 This is the main advantage of our gradient-based method in contrast to methods working directly with the value of the solution, as for example~\cite{muller2010adaptive}.
 Overall, our result for this benchmark shows an excellent agreement to the previous solutions of~\cite{muller2010adaptive}.
+In addition, we ran a simulation with the same settings for a polynomial order of 3.
+The lower resolution leads to spurious waves~(\cref{fig:two-bubbles-ader}) and does not capture the behavior of the cloud.
 
-In addition, we simulated the same scenario with our \muscl{} method, using $7^2$ patches with $90^2$ finite volume cells each.
+Furthermore, we simulated the same scenario with our \muscl{} method, using $7^2$ patches with $90^2$ finite volume cells each.
 As we use limiting, we do not need any viscosity.
 The results of this method (\cref{fig:two-bubbles-fv}) also agree with the reference but contain fewer details.
 Note that the numerical dissipativity of the finite volume scheme has a smoothing effect that is similar to the smoothing caused by viscosity.
@@ -572,18 +580,17 @@ Our results (\cref{fig:cosine-3d}) capture the dynamics of the scenario well and
 
 
 \subsection{Scalability}%
-\newcommand{\mdofs}{M\text{DOF}/s}%
+\newcommand{\mdofs}{\text{MDOF/s}}%
 All two-dimensional scenarios presented in this paper can be run on a single workstation in less than two days.
 Parallel scalability was thus not the primary goal of this paper.
-Nevertheless, our implementation allows us to scale to small to medium scale setups using a combined \mpi{}~+~\tbb{} parallelization strategy, which works a follows:
+Nevertheless, our implementation allows us to scale to small to medium scale setups using a combined \mpi{}~+~Thread building blocks(\tbb{}) parallelization strategy, which works a follows:
 We typically first choose a number of \mpi{} ranks that ensure an equal load balancing.
-For two-dimensional simulations this happens for $1, 10, 83, \ldots$ ranks, as our underlying framework uses three-way splittings for each level and per dimension and an additional communication rank per level.
-Then, we choose the number of nodes that we want to use and divide the cores into shared-memory sections.
-These are then distributed among \tbb{} ranks.
+\exahype{} achieves best scalability for $1, 10, 83, \ldots$ ranks, as our underlying framework uses three-way splittings for each level and per dimension and an additional communication rank per level.
+For the desired number of compute nodes, we then determine the number of \tbb{} threads per rank to match the number of total available cores.
 
-We ran the two bubble scenario for a uniform grid with a mesh size of $729 \times 729$ for 20 timesteps and for multiple combinations of \mpi{} ranks and \tbb{} threads.
-This simulation was performed on the SuperMUC-NG system using computational kernels that are optimized for its Skylake architecture\todo{Cite opt. kernels?}.
-Using a single \mpi{} rank, we get roughly $4.9$ millions degrees of freedom updates ($\mdofs$) using two \tbb{} threads and $20.15 \mdofs$ using 24 threads (i.e.\ a half node).
+We ran the two bubble scenario for a uniform grid with a mesh size of $729 \times 729$ with order 6, resulting in roughly 104 million degrees of freedom (\textsc{dof}), for 20 timesteps and for multiple combinations of \mpi{} ranks and \tbb{} threads\todo{Check number of dofs? Should be $(6+1)^2 * 729^2$, right?}.
+This simulation was performed on the SuperMUC-NG system using computational kernels that are optimized for its Skylake architecture.
+Using a single \mpi{} rank, we get roughly $4.9$ millions \textsc{dof} updates ($\mdofs$) using two \tbb{} threads and $20.15 \mdofs$ using 24 threads (i.e.\ a half node).
 For a full node with 48 threads, we get a performance of $12 \mdofs$.
 When using 5 nodes with 10 \mpi{} ranks, we achieve $29.3 \mdofs$ for two threads and $137.3 \mdofs$ for 24 threads.
 
@@ -604,11 +611,9 @@ With an improved \amr{} scaling and some fine tuning of the parallelization stra
 This work was funded by the European Union’s Horizon 2020 Research and Innovation Programme under grant agreements 
 No~671698 (project ExaHyPE, \url{www.exahype.eu}) and 
 No~823844 (ChEESE centre of excellence, \url{www.cheese-coe.eu}).
-Computing resources were provided by the Leibniz Supercomputing Centre (project pr83no\todo{Mention other project?}).
+Computing resources were provided by the Leibniz Supercomputing Centre (project pr83no).
 Special thanks go to Dominic E.\ Charrier for his support with the implementation in the \exahypeengine{}.
 
-%\bibliographystyle{plain}
 \bibliographystyle{spmpsci}
 \bibliography{../bibliography}{}
-%\printbibliography{}
 \end{document}
