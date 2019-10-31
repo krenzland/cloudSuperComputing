@@ -136,7 +136,7 @@ We improve our method by a \pde{}-independent general refinement criterion, base
 While established methods use numerics tailored towards the specific simulation, our scheme works scenario independent.
 Our generic scheme shows competitive results for both classical \textsc{cfd} and stratified scenarios.
 We focus on two dimensional simulations of two bubble convection scenarios over a background atmosphere.
-The largest simulation here uses order 6 and 6561 cells which were reduced to 1953 cells by the refinement criterion.
+The largest simulation here uses order 6 and 6561 cells which were reduced to 1953 cells by our refinement criterion.
 %
 \keywords{\aderdg{}  \and Navier-Stokes \and Adaptive Mesh Refinement}
 \end{abstract}
@@ -355,7 +355,7 @@ We use a mix of various benchmarking scenarios.
 After investigating the numerical convergence rate, we look at three standard \textsc{cfd} scenarios: the Taylor-Green vortex, the three-dimensional Arnold-Beltrami-Childress flow and a lid-driven cavity flow.
 Finally, we evaluate the performance for stratified flow scenarios in both two and three dimensions.
 
-\subsection{CDF Testing Scenarios}
+\subsection{CFD Testing Scenarios}
 We begin with a manufactured solution scenario which we can use for a convergence test.
 We use the following constants of fluids for all scenarios in this section:
 \begin{equation}
@@ -399,7 +399,7 @@ The viscosity is set to $\mu = 0.1$.
 % \end{equation}
 Note that \Cref{eq:manufactured-solution} does not solve the compressible Navier-Stokes equations \cref{eq:equation-set} directly.
 It rather solves our equation set with an added source term which can be derived with a computer algebra system.
-We ran this for a a combination of orders $1, \ldots 6$ and multiple grid sizes.
+We ran this for a a combination of orders $1, \ldots, 6$ and multiple grid sizes.
 Note that by order we mean the polynomial order throughout the entire paper and not the theoretical convergence order.
 For this scenario, we achieve high-order convergence (\cref{fig:convergence-test}) but notice some diminishing returns for large orders.
 \begin{figure}[tb]
@@ -623,14 +623,14 @@ Our results (\cref{fig:cosine-3d}) capture the dynamics of the scenario well and
 \newcommand{\mdofs}{\text{MDOF/s}}%
 All two-dimensional scenarios presented in this paper can be run on a single workstation in less than two days.
 Parallel scalability was thus not the primary goal of this paper.
-Nevertheless, our implementation allows us to scale to small to medium scale setups using a combined \mpi{}~+~Thread building blocks(\tbb{}) parallelization strategy, which works a follows:
+Nevertheless, our implementation allows us to scale to small to medium scale setups using a combined \mpi{}~+~Thread building blocks~(\tbb{}) parallelization strategy, which works as follows:
 We typically first choose a number of \mpi{} ranks that ensure an equal load balancing.
 \exahype{} achieves best scalability for $1, 10, 83, \ldots$ ranks, as our underlying framework uses three-way splittings for each level and per dimension and an additional communication rank per level.
 For the desired number of compute nodes, we then determine the number of \tbb{} threads per rank to match the number of total available cores.
 
 We ran the two bubble scenario for a uniform grid with a mesh size of $729 \times 729$ with order 6, resulting in roughly 104 million degrees of freedom (\textsc{dof}), for 20 timesteps and for multiple combinations of \mpi{} ranks and \tbb{} threads.
 This simulation was performed on the SuperMUC-NG system using computational kernels that are optimized for its Skylake architecture.
-Using a single \mpi{} rank, we get roughly $4.9$ millions \textsc{dof} updates ($\mdofs$) using two \tbb{} threads and $20.15 \mdofs$ using 24 threads (i.e.\ a half node).
+Using a single \mpi{} rank, we get roughly $4.9$ millions \textsc{dof} updates ($\mdofs$) using two \tbb{} threads and $20.2 \mdofs$ using 24 threads (i.e.\ a half node).
 For a full node with 48 threads, we get a performance of $12 \mdofs$.
 When using 5 nodes with 10 \mpi{} ranks, we achieve $29.3 \mdofs$ for two threads and $137.3 \mdofs$ for 24 threads.
 
