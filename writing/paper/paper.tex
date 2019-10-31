@@ -6,7 +6,7 @@
 \institute{Department of Informatics, Technical University of Munich\\
   \email{lukas.krenz@in.tum.de}, \email{rannabau@in.tum.de}, \email{bader@in.tum.de}
 \vspace*{-0.2cm}
-} % todo emails and stuff
+} 
 \usepackage[utf8]{inputenc}
 %\usepackage[T1]{fontenc}
 \usepackage[american]{babel}
@@ -48,12 +48,12 @@
 \usepackage{hyperref}
 \usepackage[capitalise]{cleveref}
 \newcommand{\creflastconjunction}{, and\nobreakspace} % use Oxford comma
-\usepackage{todonotes}
+\usepackage{graphicx}
 \usepackage{multimedia}
-\graphicspath{{../figures/}}
+%\graphicspath{{../figures/}}
+\graphicspath{{.}}
 \let\boundary\undefined%
 \crefformat{equation}{\eqA{}Eq.~\eqB #2#1#3)}
-% TODO: Fix for more than two equations!
 \crefmultiformat{equation}{Eqs.~\eqMultiA#2#1#3\eqMultiB}%
 { and \eqMultiA#2#1#3\eqMultiB}{, \eqMultiA#2#1#3\eqMultiB}{ and~\eqMultiA#2#1#3\eqMultiB}
 \newcommand{\eqA}{}
@@ -77,27 +77,67 @@
 }
 
 \usepackage{bm}
-\input{../thesis/macros.tex}
+% Commands/Macros
+\newcommand{\muscl}{\textsc{muscl}-Hancock}
+\newcommand{\dg}{\textsc{dg}}
+\newcommand{\ader}{\textsc{ader}}
+\newcommand{\aderdg}{\textsc{ader-dg}}
+\newcommand{\amr}{\textsc{amr}}
+\newcommand{\pde}{\textsc{pde}}
+\newcommand{\tbb}{\textsc{tbb}}
+\newcommand{\mpi}{\textsc{mpi}}
 
+\newcommand{\softwareName}[1]{#1}
+\newcommand{\exahype}{\softwareName{ExaHyPE}}
+\newcommand{\exahypeengine}{\softwareName{ExaHyPE Engine}}
+
+% Variables and other equation stuff
+\newcommand{\Q}{\bm{Q}}
+\newcommand{\gradQ}{\gradient{\Q}}
+\newcommand{\Qrho}{\rho}
+\newcommand{\Qj}{\rho \bm{v}}
+\newcommand{\Qv}{\bm{v}}
+\newcommand{\QE}{\rho E}
+\newcommand{\potT}{\theta}
+\newcommand{\backgroundPotT}{\overline{\theta}}
+\newcommand{\pertubationPotT}{\theta'}
+\newcommand{\stressT}{\bm{\sigma}}
+\newcommand{\pressure}{p}
+
+% Cells
+\newcommand{\cell}[1][]{C_{#1}}
+
+% Bold if no index is supplied.
+\newcommand{\bmempty}[2]{
+\notblank{#2}{#1}{\bm{#1}}
+}
+
+% Equation parts
+\newcommand{\flux}{\bm{F}}
+\newcommand{\viscFlux}{\flux^{v}}
+\newcommand{\hyperFlux}{\flux^{h}}
+%\newcommand{\source}{\bm{S}}
+\newcommand{\source}[1][]{
+  \notblank{#1}{
+S_{#1}
+}{
+\bm{S}
+}
+}
+\newcommand{\intdcell}[1]{\int_{\cell} #1 \dd{\bm{x}}}
+\newcommand{\tv}{\operatorname{TV}}
 
 \begin{document}
 \maketitle 
 \begin{abstract}
-  % We present a high-order discontinuous Galerkin (\dg{}) solver of the compressible Navier-Stokes equations for cloud formation processes.
-  % The scheme exploits an underlying parallelized implementation of the \aderdg{} method with dynamic adaptive mesh refinement. 
-  % We improve our method by a \pde{}-independent general refinement criterion, based on the local total variation of the numerical solution.
-  % Our generic scheme shows competitive results for both classical \textsc{cfd} and stratified scenarios.
-  % While established methods use numerics tailored towards the specific simulation, our scheme works scenario independent.
-  % All together, our method can be seen as a perfect candidate for large scale cloud simulation runs on current and future super computers.\todo{Less bragging!}
-   We present a high-order discontinuous Galerkin (\dg{}) solver of the compressible Navier-Stokes equations for cloud formation processes.
-  The scheme exploits an underlying parallelized implementation of the \aderdg{} method with dynamic adaptive mesh refinement. 
-  We improve our method by a \pde{}-independent general refinement criterion, based on the local total variation of the numerical solution.
-  While established methods use numerics tailored towards the specific simulation, our scheme works scenario independent.
-  Our generic scheme shows competitive results for both classical \textsc{cfd} and stratified scenarios.
-  We focus on two dimensional simulations of two bubble convection scenarios over a background atmosphere.
-  The largest simulation here uses order 6 and 6561 cells which were reduced to 1953 cells by the refinement criterion.
- \todo{Abstract---ideas for last two sentences. Note that adding one sentence leads to more pages.}
-% 
+We present a high-order discontinuous Galerkin (\dg{}) solver of the compressible Navier-Stokes equations for cloud formation processes.
+The scheme exploits an underlying parallelized implementation of the \aderdg{} method with dynamic adaptive mesh refinement. 
+We improve our method by a \pde{}-independent general refinement criterion, based on the local total variation of the numerical solution.
+While established methods use numerics tailored towards the specific simulation, our scheme works scenario independent.
+Our generic scheme shows competitive results for both classical \textsc{cfd} and stratified scenarios.
+We focus on two dimensional simulations of two bubble convection scenarios over a background atmosphere.
+The largest simulation here uses order 6 and 6561 cells which were reduced to 1953 cells by the refinement criterion.
+%
 \keywords{\aderdg{}  \and Navier-Stokes \and Adaptive Mesh Refinement}
 \end{abstract}
 \section{Introduction}
@@ -361,10 +401,10 @@ Note that \Cref{eq:manufactured-solution} does not solve the compressible Navier
 It rather solves our equation set with an added source term which can be derived with a computer algebra system.
 We ran this for a a combination of orders $1, \ldots 6$ and multiple grid sizes.
 Note that by order we mean the polynomial order throughout the entire paper and not the theoretical convergence order.
-For this scenario, we achieve high-order convergence (\cref{fig:convergence-test}) but notice some diminishing returns for large orders\todo{Here a sentence regarding convergence would be nice---Dumbser got better results}.
+For this scenario, we achieve high-order convergence (\cref{fig:convergence-test}) but notice some diminishing returns for large orders.
 \begin{figure}[tb]
   \centering
-  \includegraphics{paper_convergence}
+  \includegraphics{CP032_convergence}
   \caption{\label{fig:convergence-test}Mesh size vs.\ error for various polynomial orders $P$.
     Dashed lines show the theoretical convergence order of $P+1$.}
 \end{figure}
@@ -397,13 +437,13 @@ We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
   \centering
   \begin{subfigure}[t]{0.473\textwidth}
     \centering
-    \includegraphics{paper_taylor_green_vel}
+    \includegraphics{CP032_taylor_green_vel}
     \caption{\label{fig:taylor-green}Our result (markers) of the Taylor-Green vortex vs.\ the analytical solution (lines) \cref{eq:taylor-green}.
     The plot shows two velocity slices, the respective other coordinate is held constant at a value of $\pi$.}
   \end{subfigure}\qquad%
 \begin{subfigure}[t]{.473\textwidth}
   \centering
-    \includegraphics{paper_abc_flow_velocity}
+    \includegraphics{CP032_abc_flow_velocity}
     \captionof{figure}{\label{fig:abc-flow}Our approximation (markers) of the \textsc{abc}-flow vs.\ analytical solution (lines, \cref{eq:abc-flow}).
     All other axes are held constant at a value of 0. We show every 6th value.}
 \end{subfigure}
@@ -439,13 +479,13 @@ Again, we do not perform a quantitative analysis as the \textsc{abc}-flow only s
 % or .473 size each, and \\quad inbetween
   \begin{minipage}[t]{.473\textwidth}
     \centering
-    \includegraphics{paper_lid_driven_cavity}
+    \includegraphics{CP032_lid_driven_cavity}
     \caption{\label{fig:cavity-flow}Our approximation (solid lines) of the lid-driven cavity flow vs.\ reference solution (crosses) of~\cite{ghia1982high}.
     The respective other coordinate is held constant at a value of 0.}
   \end{minipage}\quad%
 \begin{minipage}[t]{.473\textwidth}
   \centering
-    \includegraphics[width=\textwidth]{paper_two_bubbles_fv}
+    \includegraphics[width=\textwidth]{CP032_two_bubbles_fv}
     \captionof{figure}{\label{fig:two-bubbles-fv}%
     Colliding bubbles with \muscl{}. Contour values for potential temperature perturbation are $-0.05, 0.05, 0.1, \ldots 0.45$.}
 \end{minipage}
@@ -501,7 +541,7 @@ i.e., $r$ denotes the Euclidean distance between the spatial positions $\bm{x} =
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=1.0\textwidth]{paper_two_bubbles}
+  \includegraphics[width=1.0\textwidth]{CP032_two_bubbles}
   \caption{\label{fig:two-bubbles-ader}Left: Colliding Bubbles with \aderdg{}. Contour values for potential temperature perturbation are $-0.05, 0.05, 0.1, \ldots 0.45$.\\
   Right: Comparison of small scale structure between order 3 (top) and order 6 (bottom).}
 \end{figure}
@@ -566,13 +606,13 @@ Our results (\cref{fig:cosine-3d}) capture the dynamics of the scenario well and
   \centering
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics[scale=0.16, trim={0cm 0 32cm 0},clip]{paper_cosine_bubble_collage}
+    \includegraphics[scale=0.16, trim={0cm 0 32cm 0},clip]{CP032_cosine_bubble_collage}
     %\includegraphics[width=\textwidth]{paper_cosine_bubble}
-    \caption{\label{fig:cosine-2d}2D Cosine Bubble.}%todo: Contour lines?
+    \caption{\label{fig:cosine-2d}2D Cosine Bubble.}%
   \end{subfigure}~%
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics[scale=0.16, trim={42cm 0 0cm 0},clip]{paper_cosine_bubble_collage}
+    \includegraphics[scale=0.16, trim={42cm 0 0cm 0},clip]{CP032_cosine_bubble_collage}
     \caption{\label{fig:cosine-3d}3D Cosine Bubble}
   \end{subfigure}
   \caption{\label{fig:cosine-bubbles-results}Cosine Bubble Scenario.}
@@ -588,7 +628,7 @@ We typically first choose a number of \mpi{} ranks that ensure an equal load bal
 \exahype{} achieves best scalability for $1, 10, 83, \ldots$ ranks, as our underlying framework uses three-way splittings for each level and per dimension and an additional communication rank per level.
 For the desired number of compute nodes, we then determine the number of \tbb{} threads per rank to match the number of total available cores.
 
-We ran the two bubble scenario for a uniform grid with a mesh size of $729 \times 729$ with order 6, resulting in roughly 104 million degrees of freedom (\textsc{dof}), for 20 timesteps and for multiple combinations of \mpi{} ranks and \tbb{} threads\todo{Check number of dofs? Should be $(6+1)^2 * 729^2$, right?}.
+We ran the two bubble scenario for a uniform grid with a mesh size of $729 \times 729$ with order 6, resulting in roughly 104 million degrees of freedom (\textsc{dof}), for 20 timesteps and for multiple combinations of \mpi{} ranks and \tbb{} threads.
 This simulation was performed on the SuperMUC-NG system using computational kernels that are optimized for its Skylake architecture.
 Using a single \mpi{} rank, we get roughly $4.9$ millions \textsc{dof} updates ($\mdofs$) using two \tbb{} threads and $20.15 \mdofs$ using 24 threads (i.e.\ a half node).
 For a full node with 48 threads, we get a performance of $12 \mdofs$.
