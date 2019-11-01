@@ -403,7 +403,7 @@ Note that by order we mean the polynomial order throughout the entire paper and 
 For this scenario, we achieve high-order convergence (\cref{fig:convergence-test}) but notice some diminishing returns for large orders.
 \begin{figure}[tb]
   \centering
-  \includegraphics{CP032_convergence}
+  \includegraphics{CP032_fig1}
   \caption{\label{fig:convergence-test}Mesh size vs.\ error for various polynomial orders $P$.
     Dashed lines show the theoretical convergence order of $P+1$.}
 \end{figure}
@@ -436,13 +436,15 @@ We used an \aderdg{}-scheme of order $5$ with a grid of $25^2$ cells.
   \centering
   \begin{subfigure}[t]{0.473\textwidth}
     \centering
-    \includegraphics{CP032_taylor_green_vel}
+    %\includegraphics{CP032_taylor_green_vel}
+    \includegraphics{CP032_fig2}
     \caption{\label{fig:taylor-green}Our result (markers) of the Taylor-Green vortex vs.\ the analytical solution (lines) \cref{eq:taylor-green}.
     The plot shows two velocity slices, the respective other coordinate is held constant at a value of $\pi$.}
   \end{subfigure}\qquad%
 \begin{subfigure}[t]{.473\textwidth}
   \centering
-    \includegraphics{CP032_abc_flow_velocity}
+    %\includegraphics{CP032_abc_flow_velocity}
+    \includegraphics{CP032_fig3}
     \captionof{figure}{\label{fig:abc-flow}Our approximation (markers) of the \textsc{abc}-flow vs.\ analytical solution (lines, \cref{eq:abc-flow}).
     All other axes are held constant at a value of 0. We show every 6th value.}
 \end{subfigure}
@@ -478,13 +480,15 @@ Again, we do not perform a quantitative analysis as the \textsc{abc}-flow only s
 % or .473 size each, and \\quad inbetween
   \begin{minipage}[t]{.473\textwidth}
     \centering
-    \includegraphics{CP032_lid_driven_cavity}
+    \includegraphics{CP032_fig4}
+    %\includegraphics{CP032_lid_driven_cavity}
     \caption{\label{fig:cavity-flow}Our approximation (solid lines) of the lid-driven cavity flow vs.\ reference solution (crosses) of~\cite{ghia1982high}.
     The respective other coordinate is held constant at a value of 0.}
   \end{minipage}\quad%
 \begin{minipage}[t]{.473\textwidth}
   \centering
-    \includegraphics[width=\textwidth]{CP032_two_bubbles_fv}
+    \includegraphics[width=\textwidth]{CP032_fig5}
+    %\includegraphics[width=\textwidth]{CP032_two_bubbles_fv}
     \captionof{figure}{\label{fig:two-bubbles-fv}%
     Colliding bubbles with \muscl{}. Contour values for potential temperature perturbation are $-0.05, 0.05, 0.1, \ldots 0.45$.}
 \end{minipage}
@@ -540,7 +544,8 @@ i.e., $r$ denotes the Euclidean distance between the spatial positions $\bm{x} =
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=1.0\textwidth]{CP032_two_bubbles}
+  \includegraphics[width=1.0\textwidth]{CP032_fig6}
+  %\includegraphics[width=1.0\textwidth]{CP032_two_bubbles}
   \caption{\label{fig:two-bubbles-ader}Left: Colliding Bubbles with \aderdg{}. Contour values for potential temperature perturbation are $-0.05, 0.05, 0.1, \ldots 0.45$.\\
   Right: Comparison of small scale structure between order 3 (top) and order 6 (bottom).}
 \end{figure}
@@ -605,13 +610,12 @@ Our results (\cref{fig:cosine-3d}) capture the dynamics of the scenario well and
   \centering
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics[scale=0.16, trim={0cm 0 32cm 0},clip]{CP032_cosine_bubble_collage}
-    %\includegraphics[width=\textwidth]{paper_cosine_bubble}
+    \includegraphics[scale=0.16, trim={0cm 0 32cm 0},clip]{CP032_fig7}
     \caption{\label{fig:cosine-2d}2D Cosine Bubble.}%
   \end{subfigure}~%
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics[scale=0.16, trim={42cm 0 0cm 0},clip]{CP032_cosine_bubble_collage}
+    \includegraphics[scale=0.16, trim={42cm 0 0cm 0},clip]{CP032_fig7}
     \caption{\label{fig:cosine-3d}3D Cosine Bubble}
   \end{subfigure}
   \caption{\label{fig:cosine-bubbles-results}Cosine Bubble Scenario.}
