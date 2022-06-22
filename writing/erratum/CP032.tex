@@ -140,7 +140,9 @@ As the former may result in different physical results, we here evaluated the si
 In our paper, while viscosity follows the Navier-Stokes equations, we use it additionally to stabilize the simulation.
 Neither classical CFD scenarios (Taylor-Green, Lid-driven cavity, 3D scenario) nor the convergence test are affected by this.
 We recomputed the key results with correct background pressure.
+All 2D scenarios were ran with a viscosity of $\mu=0.1$, the 3D scenario required a viscosity of $\mu=0.4$.
 
+% Settings: visc 0.1, refine: 1.5, coarse: -0.5
 The first scenario is the cosine bubble scenario with and without adaptive mesh refinement (AMR).
 We ran it as described in the paper but with the correct background pressure and a viscosity of $\mu = \ldots$. 
 %TODO Refinement settings.
@@ -149,13 +151,14 @@ Both show an excellent agreement with the original results.
 The AMR simulation shows slight differences in the refinement; however, the refinement has the same quality as the original one.
 
 The second scenario is the colliding bubble scenario.
-We ran this with the Finite Volume method using a viscosity of $\mu=0$.
+We ran this with the Finite Volume method using a viscosity of $\mu=0.1$.
 The results (Figure xxx) agree with the original results.
+% Settings: visc: 0.1, refine: 1.5, coarse: -0.5
 We also ran this with the ADER-DG method, with and without AMR (Figure XXX).
 Similarly to the cosine bubble, the results show an excellent agreement with the original results (with some small differences in the refinement).
 
 The third scenario is the three-dimensional cosine bubble.
-We ran this with a viscosity of $\mu = \ldots$.
+We ran this with a viscosity of $\mu = 0.4$.
 The results (Figure XXX) agree with our original simulations.
 
 To summarize, we reran the affected simulations with the correct background pressure.
