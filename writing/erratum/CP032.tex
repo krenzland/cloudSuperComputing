@@ -138,15 +138,15 @@ S_{#1}
 \paragraph{Background}
 This is an erratum for~\cite{krenz2019high}.
 When trying to reproduce our results, we noticed that we erroneously computed the cloud scenarios (in section 4.2) with different parameters as stated in the papers.
-These scenarios simulate perturbations over a background field which is in hydrostatic equilibrium.
-We used an incorrect background pressure of \SI{10 000}{\pascal} instead of \SI{100 000 }{\pascal} to compute the background fields.
+These scenarios simulate perturbations over a background state that is in hydrostatic equilibrium.
+We used an incorrect background pressure of \SI{10000}{\pascal} instead of \SI{100000 }{\pascal} to compute the background states.
 In our paper, we use the viscosity given by the Navier-Stokes equations to stabilize our simulations.
-We stated a viscosity that is too small to ensure stable simulations.
+We stated a viscosity that is too small to ensure stable simulations with the higher background pressure.
 Thus, we recomputed the key cloud scenarios with correct background pressure and modified viscosity.
 All other simulation parameters are as described in~\cite{krenz2019high}.
 Neither classical CFD scenarios (Taylor-Green, Lid-driven cavity, ABC-Vortex) nor the convergence test are affected.
 
-\begin{figure}[tb]
+\begin{figure}[htb]
   \begin{subfigure}[t]{0.45\columnwidth}
   \includegraphics[width=\textwidth]{screenshots/cosine_bubble_2d_dg.png}
   \caption{\label{fig:cosine-bubble-2d-dg-amr}%
@@ -160,42 +160,42 @@ Neither classical CFD scenarios (Taylor-Green, Lid-driven cavity, ABC-Vortex) no
   3D Cosine bubble without AMR, computed by the ADER-DG method.}
   \end{subfigure}
 \caption{
-  Results for the cosine bubble scenario.
-  This figure corresponds to figure 6 of the original paper.
+  Recomputed and corrected scenario to replace Figure 6 of~\cite{krenz2019high}.
 }
 \end{figure}
 % Settings: visc 0.1, refine: 1.5, coarse: -0.5
-\paragraph{Cosine Bubble}
+\paragraph{Cosine Bubble (Sec. 4.2, Fig.~4 and~5 of~\cite{krenz2019high})}
 We ran the cosine bubble scenario with and without adaptive mesh refinement (AMR) using the correct background pressure and a viscosity of $\mu=0.1$. 
-The new result (\cref{fig:cosine-bubble-2d-dg-amr}) shows an excellent agreement with the original results.
-The adapted mesh of the new results is slightly different; however, the refinement has the same quality as the original one.
+The new result (\cref{fig:cosine-bubble-2d-dg-amr}) shows a very close agreement with the original results.
+The adapted mesh of the new results is slightly different.
+However, the mesh refinements for the two scenarios are of the same quality
 Similar to the original results, the results obtained with a statically refined mesh are visually indistinguishable from the AMR results.
 We also simulated a three-dimensional cosine bubble.
 The results (\cref{fig:cosine-bubble-3d-dg-noamr}), computed with the correct background pressure and a viscosity of $\mu=0.4$, are similar to our original results.
 
-\begin{figure}[tb] 
+\begin{figure}[htb] 
   \centering 
     \begin{minipage}[t]{.473\textwidth} 
     \centering
   \includegraphics[width=1\textwidth]{screenshots/two_bubbles_fv.png}
   \captionof{figure}{\label{fig:two-bubbles-2d-fv-noamr}%
-  This corresponds to figure 4 in the original paper.
+  Recomputed and corrected scenario to replace Figure 4 in~\cite{krenz2019high}.
   2D colliding bubbles scenario, without AMR, computed with finite volume method.}
     \end{minipage}\quad% 
   \begin{minipage}[t]{.473\textwidth}
       \centering 
   \includegraphics[width=\textwidth]{screenshots/two_bubbles_dg.png}
   \captionof{figure}{\label{fig:two-bubbles-2d-dg-amr}%
-  This corresponds to figure 5 in the original paper.
+  Recomputed and corrected scenario to replace Figure 5 in~\cite{krenz2019high}.
   2D colliding bubble with AMR, computed by ADER-DG method.
   Contours are at $-0.05, 0.05, \ldots 0.45$.
   }
   \end{minipage}
   \end{figure}
 
-\paragraph{Colliding Bubble}
+\paragraph{Colliding Bubble (Sec.~4.2. and Fig.~6 of\cite{krenz2019high})}
 We ran the colliding bubble scenario with the ADER-DG method and a viscosity of $\mu=0.1$.
-Similarly to the cosine bubble, the results with AMR (\cref{fig:two-bubbles-2d-dg-amr}) show an excellent agreement with the original results, with some small differences in the refinement.
+Similarly to the cosine bubble, the results with AMR (\cref{fig:two-bubbles-2d-dg-amr}) show a very close agreement with the original results, with some small differences in the refinement.
 The simulation with AMR also agrees with our results.
 Additionally, we simulated this scenario with the Finite Volume method and a viscosity of $\mu=0$.
 The results (\cref{fig:two-bubbles-2d-fv-noamr}) agree with the original results.
