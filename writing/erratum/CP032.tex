@@ -3,7 +3,7 @@
 \titlerunning{A High-Order DG Solver to Simulate Cloud Formation Processes}
 \author{Lukas Krenz\orcidID{0000-0001-6378-0778} \and Leonhard Rannabauer \and Michael Bader}
 \authorrunning{L.\ Krenz, L.\ Rannabauer, M.\ Bader}
-\institute{Department of Informatics, Technical University of Munich\\
+\institute{TUM School of Computation, Information and Technology, Technical University of Munich\\
   \email{lukas.krenz@in.tum.de}, \email{rannabau@in.tum.de}, \email{bader@in.tum.de}
 } 
 \usepackage[utf8]{inputenc}
@@ -167,8 +167,7 @@ Neither classical CFD scenarios (Taylor-Green, Lid-driven cavity, ABC-Vortex) no
 \paragraph{Cosine Bubble (Sec. 4.2, Fig.~4 and~5 of~\cite{krenz2019high})}
 We ran the cosine bubble scenario with and without adaptive mesh refinement (AMR) using the correct background pressure and a viscosity of $\mu=0.1$. 
 The new result (\cref{fig:cosine-bubble-2d-dg-amr}) shows a very close agreement with the original results.
-The adapted mesh of the new results is slightly different.
-However, the mesh refinements for the two scenarios are of the same quality
+The mesh refinements for the two scenarios are not identical but of the same quality
 Similar to the original results, the results obtained with a statically refined mesh are visually indistinguishable from the AMR results.
 We also simulated a three-dimensional cosine bubble.
 The results (\cref{fig:cosine-bubble-3d-dg-noamr}), computed with the correct background pressure and a viscosity of $\mu=0.4$, are similar to our original results.
@@ -179,16 +178,17 @@ The results (\cref{fig:cosine-bubble-3d-dg-noamr}), computed with the correct ba
     \centering
   \includegraphics[width=1\textwidth]{screenshots/two_bubbles_fv.png}
   \captionof{figure}{\label{fig:two-bubbles-2d-fv-noamr}%
-  Recomputed and corrected scenario to replace Figure 4 in~\cite{krenz2019high}.
-  2D colliding bubbles scenario, without AMR, computed with finite volume method.}
+  2D colliding bubbles scenario, without AMR, computed with Finite Volume method.
+  Recomputed and corrected scenario to replace Figure 4 in~\cite{krenz2019high}.%
+  }
     \end{minipage}\quad% 
   \begin{minipage}[t]{.473\textwidth}
       \centering 
   \includegraphics[width=\textwidth]{screenshots/two_bubbles_dg.png}
   \captionof{figure}{\label{fig:two-bubbles-2d-dg-amr}%
-  Recomputed and corrected scenario to replace Figure 5 in~\cite{krenz2019high}.
   2D colliding bubble with AMR, computed by ADER-DG method.
   Contours are at $-0.05, 0.05, \ldots 0.45$.
+  Recomputed and corrected scenario to replace Figure 5 in~\cite{krenz2019high}.%
   }
   \end{minipage}
   \end{figure}
@@ -200,11 +200,11 @@ The simulation with AMR also agrees with our results.
 Additionally, we simulated this scenario with the Finite Volume method and a viscosity of $\mu=0$.
 The results (\cref{fig:two-bubbles-2d-fv-noamr}) agree with the original results.
 
-\subsection*{Acknowledgments}
-This work was funded by the European Union’s Horizon 2020 Research and Innovation Programme under grant agreements 
-No~671698 (project ExaHyPE, \url{www.exahype.eu}) and 
-No~823844 (ChEESE centre of excellence, \url{www.cheese-coe.eu}).
-Computing resources were provided by the Leibniz Supercomputing Centre (project pr83no).
+%\subsection*{Acknowledgments}
+%This work was funded by the European Union’s Horizon 2020 Research and Innovation Programme under grant agreements 
+%No~671698 (project ExaHyPE, \url{www.exahype.eu}) and 
+%No~823844 (ChEESE centre of excellence, \url{www.cheese-coe.eu}).
+%Computing resources were provided by the Leibniz Supercomputing Centre (project pr83no).
 
 \bibliographystyle{CP032_spmpsci}
 \bibliography{CP032_bibliography}{}
